@@ -1,0 +1,707 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription — ASC Muay Thaï Bessancourt</title>
+  <meta name="description" content="Inscrivez-vous à l'ASC Muay Thaï de Bessancourt (95). Cotisations à partir de 250€, Pass'Sport accepté. Enfants, ados et adultes."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.asc-muaythai.fr/inscription"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://www.asc-muaythai.fr/inscription"/>
+  <meta property="og:title" content="Inscription — ASC Muay Thaï Bessancourt"/>
+  <meta property="og:description" content="Inscrivez-vous à l'ASC Muay Thaï de Bessancourt (95). Cotisations à partir de 250€, Pass'Sport accepté."/>
+  <meta property="og:image" content="https://www.asc-muaythai.fr/logo.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="ASC Muay Thaï Bessancourt"/>
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+  <link rel="apple-touch-icon" href="/favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --red: #ee0000;
+      --red-dark: #cc0000;
+      --dark: #111;
+      --darker: #0a0a0a;
+      --offwhite: #f5f5f5;
+      --border-dark: rgba(255,255,255,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      background: rgba(0,0,0,0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 48px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; letter-spacing: 3px; text-decoration: none; }
+    .nav-logo span { color: var(--red); }
+    .nav-back { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; }
+    .nav-back:hover { color: var(--red); }
+
+    /* HERO */
+    .page-hero {
+      background: var(--dark);
+      border-bottom: 3px solid var(--red);
+      padding: 56px 48px 40px;
+      text-align: center;
+    }
+    .page-tag { font-size: 11px; letter-spacing: 4px; color: var(--red); text-transform: uppercase; margin-bottom: 12px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 64px); color: #fff; letter-spacing: 3px; line-height: 1; margin-bottom: 12px; }
+    .page-sub { color: #888; font-size: 15px; letter-spacing: 1px; }
+
+    /* LAYOUT */
+    .inscription-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+
+    /* SIDEBAR INFO */
+    .sidebar { position: sticky; top: 88px; }
+    .sidebar-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: #fff; margin-bottom: 20px; }
+    .citem { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-dark); }
+    .citem:last-of-type { border: none; }
+    .citem-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
+    .citem-l { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 3px; }
+    .citem-v { font-size: 13px; color: #fff; line-height: 1.5; }
+    .citem-v a { color: var(--red); text-decoration: none; }
+    .tarif-box { margin-top: 24px; padding: 16px; background: rgba(238,0,0,0.08); border: 1px solid rgba(238,0,0,0.3); border-radius: 4px; }
+    .tarif-box p { font-size: 13px; color: #ccc; margin-bottom: 8px; }
+    .tarif-box .tarif-line { display: flex; justify-content: space-between; font-size: 14px; color: #fff; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .tarif-box .tarif-line:last-child { border: none; }
+    .tarif-box .tarif-line span { color: var(--red); font-weight: bold; }
+
+    /* FORM */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15);
+      color: #fff; padding: 10px 14px; font-family: inherit; font-size: 14px; border-radius: 3px;
+      transition: border-color .2s; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--red); }
+    .form-group select option { background: var(--dark); color: #ddd; }
+    .form-group textarea { min-height: 88px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-section-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--red);
+      border-bottom: 1px solid rgba(238,0,0,0.4); padding-bottom: 6px; margin: 28px 0 16px;
+    }
+    .check-group { display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.02); padding: 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; }
+    .check-label { display: flex; align-items: center; gap: 10px; color: #ccc; font-size: 13px; cursor: pointer; }
+    .check-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--red); flex-shrink: 0; }
+    .btn-submit {
+      width: 100%; background: var(--red); color: #fff; border: none; padding: 16px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; cursor: pointer;
+      border-radius: 3px; margin-top: 8px; transition: background .2s;
+    }
+    .btn-submit:hover { background: var(--red-dark); }
+    .btn-submit:disabled { background: #555; cursor: not-allowed; }
+    .form-error { display: none; color: var(--red); font-size: 13px; margin-bottom: 12px; padding: 10px; background: rgba(238,0,0,0.1); border-left: 3px solid var(--red); }
+
+    /* SUCCESS STATES */
+    .success-box {
+      display: none; text-align: center; padding: 40px 28px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;
+    }
+    .success-box .success-icon { font-size: 56px; margin-bottom: 16px; }
+    .success-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #fff; letter-spacing: 2px; margin-bottom: 12px; }
+    .success-box p { color: #aaa; line-height: 1.7; margin-bottom: 20px; font-size: 15px; }
+    .instr-box { text-align: left; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 16px; margin-bottom: 20px; font-size: 14px; color: #ccc; line-height: 1.7; }
+    .btn-helloasso { display: inline-block; background: var(--red); color: #fff; padding: 16px 32px; text-decoration: none; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; border-radius: 3px; margin-bottom: 8px; }
+    .btn-pdf { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 24px; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; border-radius: 3px; cursor: pointer; text-decoration: none; transition: background .2s; margin-top: 12px; }
+    .btn-pdf:hover { background: rgba(255,255,255,0.12); }
+    .iban { font-family: monospace; background: rgba(255,255,255,0.06); padding: 8px 12px; display: block; margin: 8px 0; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; word-break: break-all; font-size: 13px; }
+
+    /* FOOTER */
+    footer { background: var(--dark); border-top: 1px solid rgba(255,255,255,0.06); padding: 24px 48px; text-align: center; color: #ccc; font-size: 12px; letter-spacing: 1px; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .page-hero { padding: 40px 20px 28px; }
+      .inscription-layout { grid-template-columns: 1fr; gap: 32px; padding: 32px 16px 60px; }
+      .sidebar { position: static; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="/site-content.js"></script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">ASC <span>Muay Thaï</span></a>
+  <a href="/" class="nav-back">← Retour au site</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-tag">Saison 2026/2027</div>
+  <h1 class="page-title">Formulaire d'inscription</h1>
+  <p class="page-sub">Remplis le formulaire ci-dessous — tu recevras un email de confirmation et pourras télécharger ta fiche PDF</p>
+</div>
+
+<div class="inscription-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Infos pratiques</div>
+    <div class="citem">
+      <div class="citem-icon">📍</div>
+      <div><div class="citem-l">Adresse</div><div class="citem-v" id="contact-adresse-detail">21 Chemin de l'Isle<br>95550 Bessancourt</div></div>
+    </div>
+    <div class="citem">
+      <div class="citem-icon">✉️</div>
+      <div><div class="citem-l">Email</div><div class="citem-v"><a class="js-email-link" href="mailto:ascmuaythai95@gmail.com">ascmuaythai95@gmail.com</a></div></div>
+    </div>
+    <div class="citem">
+      <div class="citem-icon">📞</div>
+      <div><div class="citem-l">Téléphone</div><div class="citem-v"><a id="contact-telephone" href="tel:+33775707713">+33 7 75 70 77 13</a></div></div>
+    </div>
+    <div class="citem">
+      <div class="citem-icon">🎟️</div>
+      <div><div class="citem-l">Pass'Sport</div><div class="citem-v">Accepté — 70€ de réduction<br><span style="font-size:11px;color:#aaa">Ados 14 ans et + uniquement</span></div></div>
+    </div>
+    <div class="tarif-box">
+      <p>Cotisations saison 2026/2027</p>
+      <div class="tarif-line">Enfants (6–12 ans) <span>250€</span></div>
+      <div class="tarif-line">Ados (13–17 ans) <span>290€</span></div>
+      <div class="tarif-line">Adultes (18+) <span>290€</span></div>
+    </div>
+  </aside>
+
+  <!-- FORM -->
+  <div>
+    <div id="form-step">
+
+      <div class="form-section-title">1. Profil adhérent</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nouveau(elle) adhérent(e) *</label>
+          <select id="f-nouveau"><option>Oui</option><option>Non</option></select>
+        </div>
+        <div class="form-group">
+          <label>Déjà pratiqué la boxe ? *</label>
+          <select id="f-deja-pratique"><option>Non</option><option>Oui</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Prénom *</label><input id="f-prenom" type="text" placeholder="Ton prénom" oninput="updateVirementLibelle()" /></div>
+        <div class="form-group"><label>Nom *</label><input id="f-nom" type="text" placeholder="Ton nom" oninput="updateVirementLibelle()" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sexe *</label>
+          <select id="f-sexe"><option value="M">Masculin (M)</option><option value="F">Féminin (F)</option></select>
+        </div>
+        <div class="form-group"><label>Date de naissance *</label><input id="f-naissance-date" type="date" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Lieu de naissance *</label><input id="f-naissance-lieu" type="text" placeholder="Ville de naissance" /></div>
+        <div class="form-group"><label>Profession (si mineur : celle des parents)</label><input id="f-profession" type="text" placeholder="Ta profession" /></div>
+      </div>
+
+      <div class="form-section-title">2. Coordonnées</div>
+      <div class="form-group"><label>Adresse postale *</label><input id="f-adresse" type="text" placeholder="Ex : 12 Rue de la Paix" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ville & Code Postal *</label><input id="f-ville" type="text" placeholder="Ex : 95550 Bessancourt" /></div>
+        <div class="form-group">
+          <label>Groupe WhatsApp ?</label>
+          <select id="f-whatsapp"><option>Oui — Je souhaite être ajouté</option><option>Non</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email *</label><input id="f-email" type="email" placeholder="ton@email.fr" /></div>
+        <div class="form-group"><label>Téléphone *</label><input id="f-tel" type="tel" placeholder="06 XX XX XX XX" /></div>
+      </div>
+
+      <div class="form-section-title">3. Section & Règlement</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Section souhaitée *</label>
+          <select id="f-section">
+            <option>Enfants (6–12 ans) — 250€</option>
+            <option>Ados (13–17 ans) — 290€</option>
+            <option>Adultes (18+) — 290€</option>
+                      </select>
+        </div>
+        <div class="form-group">
+          <label>Mode de règlement *</label>
+          <select id="f-reglement" onchange="updateReglementInfo()">
+            <option value="HelloAsso">Paiement en ligne (HelloAsso)</option>
+            <option value="Virement">Virement bancaire</option>
+            <option value="Cheque">Chèque bancaire (3x possible)</option>
+            <option value="Especes">Espèces</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Info virement (affiché dynamiquement) -->
+      <div id="virement-info" style="display:none;margin-top:4px;padding:14px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:4px;font-size:13px;line-height:1.9;letter-spacing:.5px">
+        <strong style="color:#ddd">💳 Coordonnées bancaires :</strong><br>
+        IBAN : <span class="iban">FR76 1027 8063 4700 0232 4440 117</span>
+        Libellé obligatoire : <strong id="virement-libelle" style="color:var(--red)">Cotisation Prénom Nom</strong>
+      </div>
+
+      <!-- Pass'Sport checkbox -->
+      <div class="form-group" style="margin-top:16px">
+        <div class="check-group">
+          <label class="check-label">
+            <input id="f-passsport" type="checkbox" onchange="updatePassSportNote()" />
+            <span>J'ai un <strong>Pass'Sport</strong> <span style="color:#888;font-size:12px">(réduction de 70€ — Ados 14 ans et + uniquement)</span></span>
+          </label>
+        </div>
+        <div id="passsport-note" style="display:none;margin-top:8px;padding:10px 14px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:12px;color:#ccc;line-height:1.6">
+          🎟️ Réduction de 70€ appliquée sur ta cotisation. Apporte ton coupon Pass'Sport lors de ta première séance.
+        </div>
+      </div>
+
+      <div class="form-section-title">4. Documents & Engagements</div>
+      <div class="form-group">
+        <label style="margin-bottom:8px">Documents à apporter lors de ta première séance</label>
+        <div style="background:rgba(255,255,255,0.02);padding:12px 16px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px">📄 Certificat médical de non contre-indication à la pratique sportive</div>
+          <div style="display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px">🪪 Photo d'identité</div>
+          <div style="display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px">🪪 Copie de la pièce d'identité</div>
+          <div style="display:flex;align-items:center;gap:10px;color:#888;font-size:13px;font-style:italic">👨‍👧 Autorisation parentale (si mineur)</div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:18px">
+        <div class="check-group">
+          <label class="check-label">
+            <input id="f-accept-reglement" type="checkbox" />
+            <span>J'ai pris connaissance du <a href="/reglement-interieur.pdf" target="_blank" style="color:var(--red);text-decoration:underline">règlement intérieur</a> du club et m'engage à le respecter *</span>
+          </label>
+          <label class="check-label">
+            <input id="f-accept-droit-image" type="checkbox" />
+            <span>J'accepte l'autorisation du droit à l'image (photos et vidéos) *</span>
+          </label>
+        </div>
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);margin-top:8px;line-height:1.6">
+          Les informations recueillies dans ce formulaire sont utilisées par l'ASC Muay Thaï pour traiter votre dossier d'inscription, émettre votre fiche d'adhérent et assurer le suivi de votre cotisation. Pour en savoir plus sur l'utilisation de vos données et vos droits, consultez notre <a href="/confidentialite" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
+        </p>
+      </div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label>Message (optionnel)</label>
+        <textarea id="f-message" placeholder="Questions, informations complémentaires..."></textarea>
+      </div>
+
+      <div id="form-error" class="form-error"></div>
+      <button class="btn-submit" id="btn-submit" onclick="submitInscription()">Envoyer mon inscription</button>
+
+    </div>
+
+    <!-- SUCCESS : HelloAsso -->
+    <div id="step-helloasso" class="success-box">
+      <div class="success-icon">✅</div>
+      <h3 id="ha-name"></h3>
+      <p>Ta demande a été enregistrée ! Un email de confirmation t'a été envoyé.<br>Finalise ton inscription en réglant ta cotisation ci-dessous.</p>
+      <a id="ha-link" href="https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai" target="_blank" class="btn-helloasso">
+        Régler ma cotisation → <span id="ha-montant"></span>€
+      </a>
+      <div id="ha-passsport-note" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:13px;color:#ccc;line-height:1.6">
+        🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> lors de ta première séance pour bénéficier de la réduction de 70€.
+      </div>
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(238,0,0,0.08);border-left:3px solid var(--red);border-radius:3px;font-size:13px;color:#ccc;line-height:1.8">
+        🖨️ <strong>Important :</strong> Télécharge et <strong>imprime ta fiche d'inscription</strong>, signe-la, et apporte-la avec l'ensemble de tes justificatifs lors de ta première séance.
+      </div>
+      <button class="btn-pdf" onclick="downloadPDF()" style="margin-top:16px">📄 Télécharger ma fiche PDF</button>
+    </div>
+
+    <!-- SUCCESS : Autres modes -->
+    <div id="step-autres" class="success-box">
+      <div class="success-icon">📋</div>
+      <h3 id="sa-name"></h3>
+      <p>Ta demande d'inscription a bien été enregistrée ! Un email de confirmation t'a été envoyé.</p>
+      <div class="instr-box" id="sa-instructions"></div>
+      <div id="sa-passsport-note" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:13px;color:#ccc;line-height:1.6">
+        🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> lors de ta première séance pour bénéficier de la réduction de 70€.
+      </div>
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(238,0,0,0.08);border-left:3px solid var(--red);border-radius:3px;font-size:13px;color:#ccc;line-height:1.8">
+        🖨️ <strong>Important :</strong> Télécharge et <strong>imprime ta fiche d'inscription</strong>, signe-la, et apporte-la avec l'ensemble de tes justificatifs lors de ta première séance.
+      </div>
+      <button class="btn-pdf" onclick="downloadPDF()" style="margin-top:16px">📄 Télécharger ma fiche PDF</button>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  ASC Muay Thaï · <span id="footer-adresse">Complexe Marboulus, 21 Chemin de l'Isle, 95550 Bessancourt</span> · Saison <span id="footer-saison"></span> · <a href="/confidentialite" style="color:inherit;text-decoration:underline">Mentions légales & confidentialité</a><br>
+  <span style="font-size:10px;opacity:.7">Siège social : 175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles — SIRET : 991 686 460 00015</span>
+</footer>
+
+<script>
+const HELLOASSO_URL = "https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai";
+
+// Saison automatique : nouvelle saison à partir du 15 juin
+const _now = new Date();
+const _newSeason = _now.getMonth() >= 5;
+const _debut = _newSeason ? _now.getFullYear() : _now.getFullYear() - 1;
+const SAISON = `${_debut}/${_debut + 1}`;
+document.querySelector('.page-tag').textContent = `Saison ${SAISON}`;
+document.querySelector('.tarif-box p').textContent = `Cotisations saison ${SAISON}`;
+document.getElementById('footer-saison').textContent = SAISON;
+
+// Coordonnées éditables depuis /admin (avec valeurs par défaut en attendant le chargement)
+let SITE_CONTACT = window.SITE_CONTENT_DEFAULTS.contact;
+window.loadSiteContent().then((content) => {
+  SITE_CONTACT = content.contact;
+  const [titre, ...reste] = SITE_CONTACT.adresseEntrainement.split(',').map((s) => s.trim());
+
+  document.getElementById('contact-adresse-detail').innerHTML = reste.join('<br>');
+  document.getElementById('footer-adresse').textContent = SITE_CONTACT.adresseEntrainement;
+
+  document.querySelectorAll('.js-email-link').forEach((el) => {
+    el.href = `mailto:${SITE_CONTACT.email}`;
+    el.textContent = SITE_CONTACT.email;
+  });
+
+  const tel = document.getElementById('contact-telephone');
+  tel.href = `tel:${SITE_CONTACT.telephone.replace(/\s+/g, '')}`;
+  tel.textContent = SITE_CONTACT.telephone;
+});
+
+let lastSubmission = null;
+
+function updateReglementInfo() {
+  const reglement = document.getElementById("f-reglement").value;
+  const virementDiv = document.getElementById("virement-info");
+  virementDiv.style.display = reglement === "Virement" ? "block" : "none";
+  if (reglement === "Virement") updateVirementLibelle();
+}
+
+function updateVirementLibelle() {
+  const prenom = document.getElementById("f-prenom").value.trim();
+  const nom = document.getElementById("f-nom").value.trim();
+  const libelle = document.getElementById("virement-libelle");
+  libelle.textContent = (prenom || nom)
+    ? `Cotisation ${prenom} ${nom}`.trim()
+    : "Cotisation Prénom Nom";
+}
+
+function updatePassSportNote() {
+  const checked = document.getElementById("f-passsport").checked;
+  const section = document.getElementById("f-section").value;
+  const note = document.getElementById("passsport-note");
+  if (checked && !section.includes("Ados")) {
+    document.getElementById("f-passsport").checked = false;
+    alert("⚠️ Le Pass'Sport s'applique uniquement à la section Ados (à partir de 14 ans).");
+    note.style.display = "none";
+  } else {
+    note.style.display = checked ? "block" : "none";
+  }
+}
+
+async function submitInscription() {
+  const nouveau        = document.getElementById("f-nouveau").value;
+  const dejaPratique   = document.getElementById("f-deja-pratique").value;
+  const prenom         = document.getElementById("f-prenom").value.trim();
+  const nom            = document.getElementById("f-nom").value.trim();
+  const sexe           = document.getElementById("f-sexe").value;
+  const naissanceDate  = document.getElementById("f-naissance-date").value;
+  const naissanceLieu  = document.getElementById("f-naissance-lieu").value.trim();
+  const profession     = document.getElementById("f-profession").value.trim();
+  const adresse        = document.getElementById("f-adresse").value.trim();
+  const ville          = document.getElementById("f-ville").value.trim();
+  const whatsapp       = document.getElementById("f-whatsapp").value;
+  const email          = document.getElementById("f-email").value.trim();
+  const telephone      = document.getElementById("f-tel").value.trim();
+  const section        = document.getElementById("f-section").value;
+  const reglement      = document.getElementById("f-reglement").value;
+  const hasPassSport   = document.getElementById("f-passsport").checked;
+  const message        = document.getElementById("f-message").value.trim();
+  const acceptReglement  = document.getElementById("f-accept-reglement").checked;
+  const acceptDroitImage = document.getElementById("f-accept-droit-image").checked;
+
+  const errDiv = document.getElementById("form-error");
+  const btn    = document.getElementById("btn-submit");
+
+  if (!prenom || !nom || !email || !telephone || !naissanceDate || !naissanceLieu || !adresse || !ville) {
+    return showError(errDiv, "⚠️ Veuillez remplir tous les champs obligatoires (*).");
+  }
+  if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+    return showError(errDiv, "⚠️ Adresse email invalide.");
+  }
+  if (!acceptReglement) {
+    return showError(errDiv, "⚠️ Vous devez accepter le règlement intérieur.");
+  }
+  if (!acceptDroitImage) {
+    return showError(errDiv, "⚠️ Vous devez vous prononcer sur le droit à l'image.");
+  }
+
+  errDiv.style.display = "none";
+  btn.textContent = "Envoi en cours...";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch("/api/inscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
+        profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message,
+        acceptReglement, acceptDroitImage
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur serveur");
+
+    // Sauvegarder pour le PDF client
+    lastSubmission = { nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message, acceptDroitImage, montant: data.montant };
+
+    document.getElementById("form-step").style.display = "none";
+
+    // Auto-télécharge le PDF après que la page de succès soit affichée
+    setTimeout(() => downloadPDF(), 1000);
+
+    if (reglement === "HelloAsso") {
+      document.getElementById("ha-name").textContent = `Merci ${prenom} !`;
+      document.getElementById("ha-montant").textContent = data.montant;
+      document.getElementById("ha-passsport-note").style.display = hasPassSport ? "block" : "none";
+      document.getElementById("step-helloasso").style.display = "block";
+    } else {
+      document.getElementById("sa-name").textContent = `Merci ${prenom} !`;
+      const passSportWarning = hasPassSport
+        ? `<br><div style="margin-top:10px;padding:10px 12px;background:rgba(255,193,7,0.12);border-left:3px solid #ffc107;border-radius:3px;font-size:12px;line-height:1.6;color:#ccc">⚠️ <strong>Attention Pass'Sport :</strong> La réduction de 70€ est soumise à validation de ton coupon par le club. Si le coupon n'est pas accepté, un complément de <strong>70€</strong> te sera demandé.</div>`
+        : "";
+      const reglementInstructions = {
+        "Virement": `<strong>💳 Virement bancaire :</strong><br>Montant : <strong style="color:#ee0000">${data.montant}€</strong><br><span class="iban">FR76 1027 8063 4700 0232 4440 117</span>Libellé obligatoire : <strong>Cotisation ${prenom} ${nom}</strong>${passSportWarning}`,
+        "Cheque": `<strong>📝 Chèque :</strong><br>Montant total : <strong style="color:#ee0000">${data.montant}€</strong> — jusqu'à 3 chèques acceptés.<br>Ordre : <strong>ASC MUAY THAI</strong>. À remettre lors de ta première séance.${passSportWarning}`,
+        "Especes": `<strong>💵 Espèces :</strong><br>Apporte <strong style="color:#ee0000">${data.montant}€</strong> exacts lors de ta première séance.${passSportWarning}`
+      };
+      document.getElementById("sa-instructions").innerHTML = reglementInstructions[reglement] || "";
+      document.getElementById("sa-passsport-note").style.display = hasPassSport ? "block" : "none";
+      document.getElementById("step-autres").style.display = "block";
+    }
+
+  } catch (err) {
+    errDiv.textContent = "❌ Une erreur s'est produite. Réessaie ou contacte le club directement.";
+    errDiv.style.display = "block";
+    btn.textContent = "Envoyer mon inscription";
+    btn.disabled = false;
+  }
+}
+
+function showError(div, msg) {
+  div.textContent = msg;
+  div.style.display = "block";
+  div.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ─── PDF CLIENT (jsPDF) ───────────────────────────────────────────────────────
+async function downloadPDF() {
+  if (!lastSubmission) return;
+  const d = lastSubmission;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  const RED   = [238, 0, 0];
+  const DARK  = [22, 22, 22];
+  const GRAY  = [110, 110, 110];
+  const WHITE = [255, 255, 255];
+  const LGRAY = [245, 245, 245];
+  const W = 210;
+  const M = 14;
+  const C2 = 85;
+
+  // Chargement du logo
+  let logoDataUrl = null;
+  try {
+    const resp = await fetch('/logo.png');
+    const blob = await resp.blob();
+    logoDataUrl = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch(e) {}
+
+  // ── EN-TÊTE ─────────────────────────────────────────────────────
+  doc.setFillColor(...DARK);
+  doc.rect(0, 0, W, 44, "F");
+  doc.setFillColor(...RED);
+  doc.rect(0, 44, W, 2, "F");
+
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", 10, 6, 32, 32);
+  }
+
+  const TX = (48 + W) / 2;
+  doc.setTextColor(...RED);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("ASC MUAY THAÏ", TX, 14, { align: "center" });
+
+  doc.setTextColor(220, 220, 220);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(`FICHE D'INSCRIPTION — SAISON ${SAISON}`, TX, 22, { align: "center" });
+
+  doc.setTextColor(140, 140, 140);
+  doc.setFontSize(7.5);
+  doc.text(SITE_CONTACT.adresseEntrainement.split(',').map((s) => s.trim()).join(' · '), TX, 30, { align: "center" });
+  doc.text(`${SITE_CONTACT.telephone}  ·  ${SITE_CONTACT.email}  ·  Fédération FFKMDA`, TX, 36.5, { align: "center" });
+
+  let y = 48;
+
+  const drawFooter = () => {
+    doc.setFillColor(...DARK);
+    doc.rect(0, 282, W, 15, "F");
+    doc.setFillColor(...RED);
+    doc.rect(0, 282, W, 1.2, "F");
+    doc.setTextColor(130, 130, 130);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.5);
+    doc.text(
+      `Document généré le ${new Date().toLocaleDateString("fr-FR")} · ASC Muay Thaï Bessancourt · SIRET : 991 686 460 00015 · Fédération FFKMDA`,
+      W / 2, 290, { align: "center" }
+    );
+  };
+
+  // ── TITRE DE SECTION ────────────────────────────────────────────
+  const sectionTitle = (title) => {
+    doc.setFillColor(...RED);
+    doc.rect(M, y, W - M * 2, 8, "F");
+    doc.setTextColor(...WHITE);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text(title.toUpperCase(), M + 4, y + 5.5);
+    y += 11;
+  };
+
+  // ── LIGNE DE DONNÉES ────────────────────────────────────────────
+  const row = (label, value) => {
+    doc.setTextColor(...GRAY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.text(label, M + 2, y);
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.text(String(value || "—"), C2, y);
+    doc.setDrawColor(220, 220, 220);
+    doc.line(M, y + 2.5, W - M, y + 2.5);
+    y += 6;
+  };
+
+  const reglementLabels = {
+    "HelloAsso": "Paiement en ligne (HelloAsso)",
+    "Virement":  "Virement bancaire",
+    "Cheque":    "Chèque (3x possible)",
+    "Especes":   "Espèces"
+  };
+
+  // ── 1. PROFIL ───────────────────────────────────────────────────
+  sectionTitle("1. Profil adhérent");
+  row("Nouveau membre", d.nouveau);
+  row("Déjà pratiqué la boxe", d.dejaPratique);
+  row("Nom complet", `${d.nom.toUpperCase()} ${d.prenom}`);
+  row("Sexe", d.sexe === "F" ? "Féminin" : "Masculin");
+  row("Date et lieu de naissance", `Le ${d.naissanceDate} à ${d.naissanceLieu}`);
+  row("Profession", d.profession || "Non renseignée");
+
+  // ── 2. COORDONNÉES ──────────────────────────────────────────────
+  sectionTitle("2. Coordonnées");
+  row("Adresse", d.adresse);
+  row("Ville & Code Postal", d.ville);
+  row("Téléphone", d.telephone);
+  row("Email", d.email);
+  row("Groupe WhatsApp", d.whatsapp);
+
+  // ── 3. DOCUMENTS ────────────────────────────────────────────────
+  sectionTitle("3. Documents à apporter (première séance)");
+  row("Certificat médical",     "À apporter");
+  row("Photo d'identité",       "À apporter");
+  row("Pièce d'identité",       "À apporter");
+  row("Autorisation parentale", "À apporter si mineur");
+  row("Règlement intérieur",    "Lu et approuvé ✓");
+  row("Droit à l'image",        d.acceptDroitImage ? "Accepté ✓" : "Refusé");
+
+  // ── 4. COTISATION ───────────────────────────────────────────────
+  sectionTitle("4. Section & Cotisation");
+  row("Section demandée",  d.section);
+  row("Mode de règlement", reglementLabels[d.reglement] || d.reglement);
+  row("Pass'Sport",        d.hasPassSport ? "Oui — réduction 70€" : "Non");
+
+  // Montant mis en valeur
+  y += 2;
+  doc.setFillColor(255, 245, 245);
+  doc.rect(M, y - 2, W - M * 2, 13, "F");
+  doc.setDrawColor(...RED);
+  doc.rect(M, y - 2, W - M * 2, 13, "D");
+  doc.setTextColor(...GRAY);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text("MONTANT TOTAL DÛ", M + 4, y + 4);
+  doc.setTextColor(...RED);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(`${d.montant} €`, C2, y + 7);
+  y += 19;
+
+  if (d.message) {
+    sectionTitle("Informations complémentaires");
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    const lines = doc.splitTextToSize(d.message, W - M * 2 - 4);
+    doc.text(lines, M + 2, y);
+    y += lines.length * 5.5 + 4;
+  }
+
+  // ── SIGNATURES — saut de page si nécessaire ──────────────────────
+  const SIG_H = 28;
+  const SIG_NEEDED = 44;
+  if (y + SIG_NEEDED > 275) {
+    drawFooter();
+    doc.addPage();
+    y = 20;
+  } else {
+    y += 6;
+  }
+
+  doc.setTextColor(...DARK);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.text("SIGNATURES", M, y);
+  y += 5;
+
+  const sigW = (W - M * 2 - 8) / 2;
+
+  doc.setFillColor(...LGRAY);
+  doc.setDrawColor(180, 180, 180);
+  doc.rect(M, y, sigW, SIG_H, "FD");
+  doc.setTextColor(...GRAY);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.text("Signature de l'adhérent", M + 2, y + 5);
+  doc.text("(précédée de « Lu et approuvé »)", M + 2, y + 9);
+
+  const sig2X = M + sigW + 8;
+  doc.setFillColor(...LGRAY);
+  doc.rect(sig2X, y, sigW, SIG_H, "FD");
+  doc.text("Cachet et signature du club", sig2X + 2, y + 5);
+  doc.text("Date :  _____ / _____ / ________", sig2X + 2, y + 9);
+
+  drawFooter();
+  doc.save(`inscription-${d.prenom}-${d.nom}-ASC-MuayThai.pdf`);
+}
+</script>
+
+</body>
+</html>

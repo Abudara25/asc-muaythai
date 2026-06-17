@@ -1,0 +1,18 @@
+{
+  "rewrites": [
+    { "source": "/inscription", "destination": "/inscription.html" },
+    { "source": "/cours-particulier", "destination": "/cours-particulier.html" },
+    { "source": "/confidentialite", "destination": "/confidentialite.html" },
+    { "source": "/admin", "destination": "/admin.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

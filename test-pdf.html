@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Aperçu PDF — ASC Muay Thaï</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; gap: 16px; }
+    button { background: #ee0000; color: #fff; border: none; padding: 16px 40px; font-size: 18px; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #cc0000; }
+    p { color: #aaa; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h2 style="color:#ee0000">Test PDF — ASC Muay Thaï</h2>
+  <button onclick="genererPDF()">📄 Générer le PDF exemple</button>
+  <p>Données fictives · Logo chargé depuis asc-muaythai.fr</p>
+<script>
+const SAMPLE = {
+  nouveau: "Oui",
+  dejaPratique: "Non",
+  prenom: "Karim",
+  nom: "Benzara",
+  sexe: "M",
+  naissanceDate: "12/03/1995",
+  naissanceLieu: "Cergy (95)",
+  profession: "Développeur",
+  adresse: "14 rue des Lilas",
+  ville: "95550 Bessancourt",
+  telephone: "06 12 34 56 78",
+  email: "karim.benzara@email.fr",
+  whatsapp: "Oui",
+  section: "Adultes — Muay Thaï",
+  reglement: "HelloAsso",
+  hasPassSport: false,
+  message: "Disponible le mardi et le jeudi soir. Très motivé !",
+  acceptDroitImage: true,
+  montant: 290
+};
+
+async function genererPDF() {
+  const d = SAMPLE;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  const RED   = [238, 0, 0];
+  const DARK  = [22, 22, 22];
+  const GRAY  = [110, 110, 110];
+  const WHITE = [255, 255, 255];
+  const LGRAY = [245, 245, 245];
+  const W = 210;
+  const M = 14;
+  const C2 = 85;
+
+  // Chargement du logo
+  let logoDataUrl = null;
+  try {
+    const resp = await fetch('https://www.asc-muaythai.fr/logo.png');
+    const blob = await resp.blob();
+    logoDataUrl = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch(e) { console.warn("Logo non chargé", e); }
+
+  // ── EN-TÊTE ─────────────────────────────────────────────────────
+  doc.setFillColor(...DARK);
+  doc.rect(0, 0, W, 44, "F");
+  doc.setFillColor(...RED);
+  doc.rect(0, 44, W, 2, "F");
+
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", 10, 6, 32, 32);
+  }
+
+  const TX = (48 + W) / 2;
+  doc.setTextColor(...RED);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("ASC MUAY THAÏ", TX, 14, { align: "center" });
+
+  doc.setTextColor(220, 220, 220);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("FICHE D'INSCRIPTION — SAISON 2026/2027", TX, 22, { align: "center" });
+
+  doc.setTextColor(140, 140, 140);
+  doc.setFontSize(7.5);
+  doc.text("Complexe Marboulus · 21 Chemin de l'Isle · 95550 Bessancourt", TX, 30, { align: "center" });
+  doc.text("+33 7 75 70 77 13  ·  ascmuaythai95@gmail.com  ·  Fédération FFKMDA", TX, 36.5, { align: "center" });
+
+  let y = 48;
+
+  const drawFooter = () => {
+    doc.setFillColor(...DARK);
+    doc.rect(0, 282, W, 15, "F");
+    doc.setFillColor(...RED);
+    doc.rect(0, 282, W, 1.2, "F");
+    doc.setTextColor(130, 130, 130);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.5);
+    doc.text(
+      `Document généré le ${new Date().toLocaleDateString("fr-FR")} · ASC Muay Thaï Bessancourt · SIRET : 991 686 460 00015 · Fédération FFKMDA`,
+      W / 2, 290, { align: "center" }
+    );
+  };
+
+  const sectionTitle = (title) => {
+    doc.setFillColor(...RED);
+    doc.rect(M, y, W - M * 2, 8, "F");
+    doc.setTextColor(...WHITE);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text(title.toUpperCase(), M + 4, y + 5.5);
+    y += 11;
+  };
+
+  const row = (label, value) => {
+    doc.setTextColor(...GRAY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.text(label, M + 2, y);
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.text(String(value || "—"), C2, y);
+    doc.setDrawColor(220, 220, 220);
+    doc.line(M, y + 2.5, W - M, y + 2.5);
+    y += 6;
+  };
+
+  const reglementLabels = {
+    "HelloAsso": "Paiement en ligne (HelloAsso)",
+    "Virement":  "Virement bancaire",
+    "Cheque":    "Chèque (3x possible)",
+    "Especes":   "Espèces"
+  };
+
+  sectionTitle("1. Profil adhérent");
+  row("Nouveau membre", d.nouveau);
+  row("Déjà pratiqué la boxe", d.dejaPratique);
+  row("Nom complet", `${d.nom.toUpperCase()} ${d.prenom}`);
+  row("Sexe", d.sexe === "F" ? "Féminin" : "Masculin");
+  row("Date et lieu de naissance", `Le ${d.naissanceDate} à ${d.naissanceLieu}`);
+  row("Profession", d.profession || "Non renseignée");
+
+  sectionTitle("2. Coordonnées");
+  row("Adresse", d.adresse);
+  row("Ville & Code Postal", d.ville);
+  row("Téléphone", d.telephone);
+  row("Email", d.email);
+  row("Groupe WhatsApp", d.whatsapp);
+
+  sectionTitle("3. Documents à apporter (première séance)");
+  row("Certificat médical",     "À apporter");
+  row("Photo d'identité",       "À apporter");
+  row("Pièce d'identité",       "À apporter");
+  row("Autorisation parentale", "À apporter si mineur");
+  row("Règlement intérieur",    "Lu et approuvé ✓");
+  row("Droit à l'image",        d.acceptDroitImage ? "Accepté ✓" : "Refusé");
+
+  sectionTitle("4. Section & Cotisation");
+  row("Section demandée",  d.section);
+  row("Mode de règlement", reglementLabels[d.reglement] || d.reglement);
+  row("Pass'Sport",        d.hasPassSport ? "Oui — réduction 70€" : "Non");
+
+  y += 2;
+  doc.setFillColor(255, 245, 245);
+  doc.rect(M, y - 2, W - M * 2, 13, "F");
+  doc.setDrawColor(...RED);
+  doc.rect(M, y - 2, W - M * 2, 13, "D");
+  doc.setTextColor(...GRAY);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text("MONTANT TOTAL DÛ", M + 4, y + 4);
+  doc.setTextColor(...RED);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(`${d.montant} €`, C2, y + 7);
+  y += 19;
+
+  if (d.message) {
+    sectionTitle("Informations complémentaires");
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    const lines = doc.splitTextToSize(d.message, W - M * 2 - 4);
+    doc.text(lines, M + 2, y);
+    y += lines.length * 5.5 + 4;
+  }
+
+  // Signatures — saut de page si nécessaire
+  const SIG_H = 28;
+  if (y + 44 > 275) {
+    drawFooter();
+    doc.addPage();
+    y = 20;
+  } else {
+    y += 6;
+  }
+
+  doc.setTextColor(...DARK);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.text("SIGNATURES", M, y);
+  y += 5;
+
+  const sigW = (W - M * 2 - 8) / 2;
+
+  doc.setFillColor(...LGRAY);
+  doc.setDrawColor(180, 180, 180);
+  doc.rect(M, y, sigW, SIG_H, "FD");
+  doc.setTextColor(...GRAY);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.text("Signature de l'adhérent", M + 2, y + 5);
+  doc.text("(précédée de « Lu et approuvé »)", M + 2, y + 9);
+
+  const sig2X = M + sigW + 8;
+  doc.setFillColor(...LGRAY);
+  doc.rect(sig2X, y, sigW, SIG_H, "FD");
+  doc.text("Cachet et signature du club", sig2X + 2, y + 5);
+  doc.text("Date :  _____ / _____ / ________", sig2X + 2, y + 9);
+
+  drawFooter();
+  doc.save("exemple-inscription-ASC-MuayThai.pdf");
+}
+</script>
+</body>
+</html>

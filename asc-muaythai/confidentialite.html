@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentions légales & Politique de confidentialité — ASC Muay Thaï Bessancourt</title>
+  <meta name="description" content="Mentions légales et politique de confidentialité du site asc-muaythai.fr : données personnelles collectées, finalités, durées de conservation et droits RGPD." />
+  <meta name="robots" content="noindex, follow"/>
+  <link rel="canonical" href="https://www.asc-muaythai.fr/confidentialite"/>
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+  <link rel="apple-touch-icon" href="/favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #ee0000;
+      --red-dark: #cc0000;
+      --dark: #111;
+      --darker: #0a0a0a;
+      --border-dark: rgba(255,255,255,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ccc; min-height: 100vh; line-height: 1.7; }
+
+    nav {
+      background: rgba(0,0,0,0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 48px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; letter-spacing: 3px; text-decoration: none; }
+    .nav-logo span { color: var(--red); }
+    .nav-back { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; }
+    .nav-back:hover { color: var(--red); }
+
+    .page-hero {
+      background: var(--dark);
+      border-bottom: 3px solid var(--red);
+      padding: 56px 48px 40px;
+      text-align: center;
+    }
+    .page-tag { font-size: 11px; letter-spacing: 4px; color: var(--red); text-transform: uppercase; margin-bottom: 12px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 5.5vw, 56px); color: #fff; letter-spacing: 3px; line-height: 1.1; margin-bottom: 12px; }
+    .page-sub { color: #888; font-size: 15px; letter-spacing: .5px; max-width: 640px; margin: 0 auto; }
+
+    .legal-layout {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .legal-toc { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 4px; }
+    .legal-toc a {
+      color: #999; text-decoration: none; font-size: 13px; letter-spacing: .5px;
+      padding: 8px 12px; border-left: 2px solid transparent; transition: all .15s;
+    }
+    .legal-toc a:hover { color: #fff; border-left-color: var(--red); background: rgba(255,255,255,.03); }
+
+    .legal-content section { margin-bottom: 44px; scroll-margin-top: 88px; }
+    .legal-content h2 {
+      font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: #fff;
+      border-bottom: 1px solid rgba(238,0,0,0.4); padding-bottom: 8px; margin-bottom: 16px;
+    }
+    .legal-content h3 { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1px; color: var(--red); margin: 20px 0 8px; }
+    .legal-content p { margin-bottom: 12px; font-size: 15px; color: #ccc; }
+    .legal-content ul { margin: 0 0 12px 20px; }
+    .legal-content li { font-size: 15px; color: #ccc; margin-bottom: 6px; }
+    .legal-content a { color: var(--red); text-decoration: underline; }
+    .legal-content strong { color: #fff; }
+    .legal-updated { font-size: 12px; color: #777; letter-spacing: .5px; margin-bottom: 32px; }
+
+    table.legal-table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 14px; }
+    table.legal-table th, table.legal-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border-dark); vertical-align: top; }
+    table.legal-table th { color: #fff; font-weight: 600; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.6); }
+    table.legal-table td { color: #ccc; }
+
+    .info-callout { background: rgba(238,0,0,0.08); border: 1px solid rgba(238,0,0,0.3); border-radius: 4px; padding: 16px 18px; margin: 16px 0; font-size: 14px; }
+    .info-callout strong { color: var(--red); }
+
+    footer { background: var(--dark); border-top: 1px solid rgba(255,255,255,0.06); padding: 24px 48px; text-align: center; color: #ccc; font-size: 12px; letter-spacing: 1px; }
+    footer a { color: #ccc; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .page-hero { padding: 40px 20px 28px; }
+      .legal-layout { grid-template-columns: 1fr; gap: 24px; padding: 32px 16px 60px; }
+      .legal-toc { position: static; flex-direction: row; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">ASC <span>Muay Thaï</span></a>
+  <a href="/" class="nav-back">← Retour au site</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-tag">Informations légales</div>
+  <h1 class="page-title">Mentions légales & confidentialité</h1>
+  <p class="page-sub">Qui exploite ce site, quelles données sont collectées et comment exercer vos droits sur vos informations personnelles.</p>
+</div>
+
+<div class="legal-layout">
+
+  <nav class="legal-toc" aria-label="Sommaire">
+    <a href="#mentions-legales">Mentions légales</a>
+    <a href="#editeur">Éditeur & hébergement</a>
+    <a href="#donnees">Données collectées</a>
+    <a href="#destinataires">Destinataires & sous-traitants</a>
+    <a href="#conservation">Durée de conservation</a>
+    <a href="#droits">Vos droits (RGPD)</a>
+    <a href="#droit-image">Droit à l'image</a>
+    <a href="#cookies">Cookies & traceurs</a>
+    <a href="#contact">Contact & réclamation</a>
+  </nav>
+
+  <div class="legal-content">
+    <p class="legal-updated">Dernière mise à jour : juin 2026</p>
+
+    <section id="mentions-legales">
+      <h2>1. Mentions légales</h2>
+      <p>Le présent site est édité par l'<strong>Association Sportive Citoyenne (ASC) Muay Thaï</strong>, association régie par la loi du 1ᵉʳ juillet 1901, dont le siège social est situé :</p>
+      <ul>
+        <li>175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles</li>
+        <li>SIRET : 991 686 460 00015</li>
+        <li>E-mail : <a href="mailto:ascmuaythai95@gmail.com">ascmuaythai95@gmail.com</a></li>
+        <li>Téléphone : <a href="tel:+33775707713">+33 7 75 70 77 13</a></li>
+      </ul>
+      <p><strong>Directeur·trice de la publication</strong> : la présidence de l'association ASC Muay Thaï.</p>
+      <p>Les entraînements ont lieu au Complexe Marboulus, 21 Chemin de l'Isle, 95550 Bessancourt.</p>
+    </section>
+
+    <section id="editeur">
+      <h2>2. Hébergement</h2>
+      <p>Le site <a href="https://www.asc-muaythai.fr">asc-muaythai.fr</a> est hébergé par :</p>
+      <ul>
+        <li><strong>Vercel Inc.</strong> — 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis — <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a></li>
+      </ul>
+      <p>Les e-mails transactionnels (confirmations d'inscription, fiches PDF, notifications) sont envoyés via la plateforme <strong>Brevo</strong> (Sendinblue SAS, 7 rue de Madrid, 75008 Paris, France).</p>
+    </section>
+
+    <section id="donnees">
+      <h2>3. Données personnelles collectées</h2>
+      <p>Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi « Informatique et Libertés », l'association ASC Muay Thaï, en tant que <strong>responsable de traitement</strong>, ne collecte que les données strictement nécessaires aux finalités décrites ci-dessous.</p>
+
+      <table class="legal-table">
+        <thead>
+          <tr><th>Formulaire</th><th>Données collectées</th><th>Finalité</th><th>Base légale</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Inscription au club</td>
+            <td>Identité (nom, prénom, sexe, date et lieu de naissance, profession), coordonnées (adresse, ville, téléphone, WhatsApp, e-mail), section choisie, mode de règlement, message libre, acceptation du règlement intérieur et du droit à l'image</td>
+            <td>Constitution et gestion du dossier d'adhésion, émission de la fiche d'inscription, suivi de la cotisation, communication relative à la vie du club</td>
+            <td>Exécution du contrat d'adhésion / intérêt légitime de l'association</td>
+          </tr>
+          <tr>
+            <td>Demande de cours particulier</td>
+            <td>Nom, prénom, e-mail, téléphone, niveau, disponibilités, objectifs</td>
+            <td>Traitement de la demande et prise de contact pour organiser les séances</td>
+            <td>Mesures précontractuelles à la demande de la personne concernée</td>
+          </tr>
+          <tr>
+            <td>Paiement en ligne (HelloAsso)</td>
+            <td>Nom, prénom, e-mail transmis par HelloAsso après confirmation du paiement</td>
+            <td>Confirmation de la cotisation et envoi d'un e-mail de bienvenue</td>
+            <td>Exécution du contrat d'adhésion</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Les champs marqués d'un astérisque (*) dans les formulaires sont obligatoires : sans ces informations, votre demande ne peut pas être traitée.</p>
+    </section>
+
+    <section id="destinataires">
+      <h2>4. Destinataires et sous-traitants</h2>
+      <p>Vos données sont destinées aux membres du bureau de l'association en charge des inscriptions et ne sont <strong>ni vendues, ni cédées, ni louées</strong> à des tiers. Elles peuvent être transmises aux prestataires suivants, qui agissent en tant que sous-traitants au sens du RGPD :</p>
+      <ul>
+        <li><strong>Brevo</strong> (Sendinblue SAS, France/UE) : envoi des e-mails de confirmation et gestion du carnet de contacts des adhérents (suivi des inscriptions et de la cotisation, communications du club) ;</li>
+        <li><strong>HelloAsso</strong> : plateforme de paiement en ligne pour le règlement de la cotisation par carte bancaire ;</li>
+        <li><strong>Vercel Inc.</strong> : hébergement technique du site et exécution sécurisée des formulaires.</li>
+      </ul>
+      <p>Ces prestataires ne sont autorisés à utiliser vos données que pour exécuter les services demandés par l'association et dans le respect du RGPD.</p>
+    </section>
+
+    <section id="conservation">
+      <h2>5. Durée de conservation</h2>
+      <ul>
+        <li><strong>Adhérents</strong> : les données du dossier d'inscription sont conservées pendant la durée de l'adhésion, puis archivées au maximum 5 ans à compter de la fin de la dernière saison (obligations comptables et associatives), avant suppression ou anonymisation ;</li>
+        <li><strong>Demandes de cours particuliers / contact</strong> : conservées au maximum 12 mois à compter du dernier échange si elles n'aboutissent pas à une adhésion ;</li>
+        <li><strong>Carnet de contacts Brevo</strong> : les coordonnées des adhérents y sont conservées pour la durée de l'adhésion et supprimées sur simple demande (voir « Vos droits » ci-dessous).</li>
+      </ul>
+    </section>
+
+    <section id="droits">
+      <h2>6. Vos droits</h2>
+      <p>Conformément aux articles 15 à 22 du RGPD, vous disposez à tout moment des droits suivants sur vos données personnelles :</p>
+      <ul>
+        <li><strong>Droit d'accès</strong> : obtenir la confirmation que vos données sont traitées et en recevoir une copie ;</li>
+        <li><strong>Droit de rectification</strong> : faire corriger des données inexactes ou incomplètes ;</li>
+        <li><strong>Droit à l'effacement</strong> (« droit à l'oubli ») : demander la suppression de vos données dans les cas prévus par la loi ;</li>
+        <li><strong>Droit à la limitation</strong> du traitement ;</li>
+        <li><strong>Droit d'opposition</strong>, notamment à toute communication du club, pour des raisons tenant à votre situation particulière ;</li>
+        <li><strong>Droit à la portabilité</strong> des données que vous nous avez fournies.</li>
+      </ul>
+      <div class="info-callout">
+        Pour exercer l'un de ces droits, écrivez-nous à <a href="mailto:ascmuaythai95@gmail.com">ascmuaythai95@gmail.com</a> en précisant votre nom, prénom et la nature de votre demande. Nous vous répondrons dans un délai maximum d'<strong>un mois</strong>.
+      </div>
+    </section>
+
+    <section id="droit-image">
+      <h2>7. Droit à l'image</h2>
+      <p>Lors de l'inscription, il vous est demandé de vous prononcer sur l'autorisation d'utiliser votre image (photos et vidéos prises pendant les entraînements, stages, compétitions et événements du club). Cette autorisation est <strong>facultative et distincte</strong> de votre adhésion : un refus n'a aucune incidence sur votre inscription au club.</p>
+      <p>Si vous l'acceptez, vos photos et vidéos pourront être utilisées sur le site internet du club, ses réseaux sociaux et ses supports de communication (affiches, plaquettes), pour la durée de votre adhésion. Vous pouvez retirer cette autorisation à tout moment en écrivant à <a href="mailto:ascmuaythai95@gmail.com">ascmuaythai95@gmail.com</a> ; les contenus déjà diffusés seront retirés dans la mesure du possible.</p>
+    </section>
+
+    <section id="cookies">
+      <h2>8. Cookies et traceurs</h2>
+      <p>Ce site <strong>n'utilise aucun cookie de mesure d'audience, de publicité ou de réseau social</strong>, et ne dépose aucun traceur nécessitant votre consentement. Aucune donnée de navigation n'est collectée à des fins commerciales ou statistiques.</p>
+      <p>Le site charge des polices de caractères depuis les serveurs de Google Fonts (<code>fonts.googleapis.com</code>), ce qui peut entraîner la transmission de votre adresse IP à Google lors du chargement de la page.</p>
+    </section>
+
+    <section id="contact">
+      <h2>9. Contact et réclamation</h2>
+      <p>Pour toute question relative à vos données personnelles ou à la présente politique, contactez l'association :</p>
+      <ul>
+        <li>E-mail : <a href="mailto:ascmuaythai95@gmail.com">ascmuaythai95@gmail.com</a></li>
+        <li>Téléphone : <a href="tel:+33775707713">+33 7 75 70 77 13</a></li>
+        <li>Courrier : ASC Muay Thaï, 175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles</li>
+      </ul>
+      <p>Si vous estimez, après nous avoir contactés, que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la <strong>Commission Nationale de l'Informatique et des Libertés (CNIL)</strong> : <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener">www.cnil.fr/fr/plaintes</a>.</p>
+    </section>
+  </div>
+</div>
+
+<footer>
+  ASC Muay Thaï — Association Sportive Citoyenne · Bessancourt (95)<br>
+  <span style="font-size:10px;opacity:.7">Siège social : 175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles — SIRET : 991 686 460 00015</span>
+</footer>
+
+</body>
+</html>

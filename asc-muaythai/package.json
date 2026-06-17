@@ -1,0 +1,9 @@
+{
+  "name": "asc-muaythai",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@vercel/blob": "^2.4.0",
+    "pdf-lib": "^1.17.1"
+  }
+}

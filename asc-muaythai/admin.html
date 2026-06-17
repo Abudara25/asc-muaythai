@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administration — ASC Muay Thaï</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #ee0000;
+      --red-dark: #cc0000;
+      --dark: #111;
+      --darker: #0a0a0a;
+      --border: rgba(255,255,255,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; }
+
+    nav {
+      background: rgba(0,0,0,0.95); border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #fff; letter-spacing: 3px; text-decoration: none; }
+    .nav-logo span { color: var(--red); }
+    .nav-link { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .nav-link:hover { color: var(--red); }
+
+    h1 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+
+    /* LOGIN */
+    #login-screen { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 24px; }
+    #login-form { width: 100%; max-width: 360px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 32px; }
+    #login-form h1 { font-size: 28px; color: #fff; margin-bottom: 6px; text-align: center; }
+    #login-form p.sub { color: #888; font-size: 13px; text-align: center; margin-bottom: 24px; }
+
+    /* LAYOUT */
+    .wrap { max-width: 880px; margin: 0 auto; padding: 36px 24px 80px; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .admin-header h1 { font-size: 32px; color: #fff; }
+
+    .panel { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 24px; margin-bottom: 24px; }
+    .panel h2 { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--red); border-bottom: 1px solid rgba(238,0,0,0.3); padding-bottom: 8px; margin-bottom: 18px; }
+    .panel-hint { font-size: 12px; color: #888; margin: -10px 0 16px; line-height: 1.5; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 6px; }
+    .field input, .field select, .field textarea {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+      color: #fff; padding: 9px 12px; font-family: inherit; font-size: 14px; border-radius: 3px; outline: none;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); }
+    .field select option { background: var(--dark); }
+    .field textarea { min-height: 70px; resize: vertical; }
+    .row-grid { display: grid; gap: 10px; }
+
+    /* Repeatable rows */
+    .item-row { display: grid; gap: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 10px; position: relative; }
+    .remove-btn {
+      position: absolute; background: rgba(238,0,0,0.15); color: var(--red);
+      border: 1px solid rgba(238,0,0,0.4); border-radius: 3px; width: 26px; height: 26px; cursor: pointer; font-size: 14px; line-height: 1;
+    }
+    .remove-btn:hover { background: var(--red); color: #fff; }
+    .item-row .remove-btn { top: 10px; right: 10px; }
+    .horaire-grid { grid-template-columns: 1fr 1fr 1.4fr 1fr; }
+    .tarif-grid { grid-template-columns: 1.4fr 0.8fr; }
+    .trophee-grid { grid-template-columns: 0.6fr 1.4fr 1.6fr; }
+    @media (max-width: 640px) { .horaire-grid, .tarif-grid, .trophee-grid { grid-template-columns: 1fr; } }
+
+    .btn-add {
+      background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.25); color: #ccc;
+      padding: 10px 16px; font-family: inherit; font-size: 13px; letter-spacing: 1px; border-radius: 3px; cursor: pointer; width: 100%;
+    }
+    .btn-add:hover { background: rgba(255,255,255,0.1); border-color: var(--red); color: #fff; }
+
+    .btn-primary {
+      background: var(--red); color: #fff; border: none; padding: 14px 28px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; cursor: pointer; border-radius: 3px;
+    }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-primary:disabled { background: #555; cursor: not-allowed; }
+
+    .status-msg { margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 3px; display: none; }
+    .status-msg.ok { display: block; color: #6fdc8c; background: rgba(40,167,69,0.12); border-left: 3px solid #28a745; }
+    .status-msg.err { display: block; color: #ff8080; background: rgba(238,0,0,0.1); border-left: 3px solid var(--red); }
+
+    /* Photos */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .photo-item { position: relative; aspect-ratio: 1; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-item .remove-btn { top: 6px; right: 6px; }
+    .upload-zone {
+      border: 1px dashed rgba(255,255,255,0.25); border-radius: 4px; padding: 18px; text-align: center; color: #999; font-size: 13px;
+    }
+    .upload-zone input { display: block; margin: 10px auto 0; color: #ccc; font-size: 13px; }
+    .club-photo-row img { width: 100%; max-height: 160px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; display: block; }
+    .club-photo-row .check-field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #ccc; cursor: pointer; }
+    .club-photo-row .check-field input { width: auto; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">ASC <span>Muay Thaï</span> · Admin</a>
+  <button class="nav-link" id="logout-btn" style="display:none">Se déconnecter</button>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <form id="login-form">
+    <h1>Espace administration</h1>
+    <p class="sub">Connecte-toi pour modifier les coordonnées, horaires, tarifs et le palmarès du site.</p>
+    <div class="field">
+      <label for="login-password">Mot de passe</label>
+      <input type="password" id="login-password" autocomplete="current-password" required />
+    </div>
+    <button type="submit" class="btn-primary" id="login-btn" style="width:100%">Se connecter</button>
+    <div class="status-msg err" id="login-error"></div>
+    <p style="text-align:center;margin-top:16px">
+      <button type="button" id="forgot-btn" style="background:none;border:none;color:#888;font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline">Mot de passe oublié ?</button>
+    </p>
+    <div class="status-msg" id="forgot-status"></div>
+  </form>
+</div>
+
+<!-- RÉINITIALISATION MOT DE PASSE -->
+<div id="reset-screen" style="display:none" class="wrap" style="max-width:360px;margin:60px auto;padding:24px">
+  <div style="max-width:360px;margin:0 auto;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:32px">
+    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;margin-bottom:6px;text-align:center">Nouveau mot de passe</h1>
+    <p style="color:#888;font-size:13px;text-align:center;margin-bottom:24px">Choisis un mot de passe d'au moins 8 caractères.</p>
+    <div class="field"><label for="reset-pwd-new">Nouveau mot de passe</label><input type="password" id="reset-pwd-new" autocomplete="new-password" /></div>
+    <div class="field"><label for="reset-pwd-confirm">Confirmer</label><input type="password" id="reset-pwd-confirm" autocomplete="new-password" /></div>
+    <button type="button" class="btn-primary" id="reset-btn" style="width:100%">Enregistrer le nouveau mot de passe</button>
+    <div class="status-msg" id="reset-status"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="wrap" id="dashboard" style="display:none">
+  <div class="admin-header">
+    <h1>Gestion du contenu</h1>
+  </div>
+
+  <!-- COORDONNÉES -->
+  <section class="panel">
+    <h2>Coordonnées</h2>
+    <p class="panel-hint">Affichées automatiquement sur toutes les pages du site (accueil, inscription, cours particuliers).</p>
+    <div class="field"><label for="c-email">E-mail de contact</label><input type="email" id="c-email" required /></div>
+    <div class="field"><label for="c-telephone">Téléphone</label><input type="text" id="c-telephone" required /></div>
+    <div class="field"><label for="c-adresse">Adresse du lieu d'entraînement</label><input type="text" id="c-adresse" required /></div>
+  </section>
+
+  <!-- HORAIRES -->
+  <section class="panel">
+    <h2>Horaires</h2>
+    <p class="panel-hint">Un créneau = un jour, une heure, un groupe. Ajoute ou supprime librement.</p>
+    <div id="horaires-list"></div>
+    <button type="button" class="btn-add" id="add-horaire">+ Ajouter un créneau</button>
+  </section>
+
+  <!-- TARIFS -->
+  <section class="panel">
+    <h2>Tarifs & cotisations</h2>
+    <p class="panel-hint">Un avantage par ligne dans la zone de texte (ex : « 3 cours / semaine inclus »).</p>
+    <div id="tarifs-list"></div>
+    <button type="button" class="btn-add" id="add-tarif">+ Ajouter une section</button>
+  </section>
+
+  <!-- PALMARÈS -->
+  <section class="panel">
+    <h2>Palmarès</h2>
+    <div class="field" style="max-width:240px"><label for="p-saison">Saison affichée</label><input type="text" id="p-saison" placeholder="ex : 2025/2026" required /></div>
+
+    <p class="panel-hint" style="margin-top:18px">Trophées (le grand chiffre, le titre, et le sous-titre).</p>
+    <div id="trophees-list"></div>
+    <button type="button" class="btn-add" id="add-trophee">+ Ajouter un trophée</button>
+
+    <p class="panel-hint" style="margin-top:24px">Photos affichées dans la section Palmarès du site (formats JPEG, PNG ou WebP, 8 Mo max).</p>
+    <div class="photo-grid" id="photos-grid"></div>
+    <div class="upload-zone">
+      Ajouter une ou plusieurs photos
+      <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" multiple />
+    </div>
+    <div class="status-msg err" id="upload-error"></div>
+  </section>
+
+  <!-- PHOTOS DU CLUB -->
+  <section class="panel">
+    <h2>Photos du club</h2>
+    <p class="panel-hint">Affichées dans la section « Le Club » de la page d'accueil (formats JPEG, PNG ou WebP, 8 Mo max). Coche « grande photo » pour qu'elle occupe toute la largeur de la rangée.</p>
+    <div id="club-photos-list"></div>
+    <div class="upload-zone">
+      Ajouter une ou plusieurs photos
+      <input type="file" id="club-photo-input" accept="image/jpeg,image/png,image/webp" multiple />
+    </div>
+    <div class="status-msg err" id="club-upload-error"></div>
+  </section>
+
+  <!-- SÉCURITÉ -->
+  <section class="panel">
+    <h2>Mot de passe</h2>
+    <p class="panel-hint">Pour changer ton mot de passe de connexion à cet espace admin.</p>
+    <div class="row-grid" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="field"><label for="pwd-current">Mot de passe actuel</label><input type="password" id="pwd-current" autocomplete="current-password" /></div>
+      <div class="field"><label for="pwd-new">Nouveau mot de passe</label><input type="password" id="pwd-new" autocomplete="new-password" /></div>
+      <div class="field"><label for="pwd-confirm">Confirmer</label><input type="password" id="pwd-confirm" autocomplete="new-password" /></div>
+    </div>
+    <button type="button" class="btn-add" id="change-pwd-btn" style="margin-top:4px">Changer le mot de passe</button>
+    <div class="status-msg" id="pwd-status"></div>
+  </section>
+
+  <button type="button" class="btn-primary" id="save-btn">Enregistrer les modifications</button>
+  <div class="status-msg" id="save-status"></div>
+</div>
+
+<script src="/site-content.js"></script>
+<script>
+const CATEGORIES = [
+  { value: 'enfants',     label: 'Enfants' },
+  { value: 'ados',        label: 'Ados' },
+  { value: 'adultes',     label: 'Adultes' },
+  { value: 'competition', label: 'Compétition' },
+];
+
+let photos = [];
+let photosToDelete = []; // suppression différée : effacées du stockage seulement après l'enregistrement réussi
+let clubPhotos = [];
+let clubPhotosToDelete = [];
+
+// ─── AUTHENTIFICATION ─────────────────────────────────────────────────────────
+async function checkSession() {
+  const res = await fetch('/api/admin/session');
+  const { authenticated } = await res.json();
+  if (authenticated) showDashboard();
+}
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const errBox = document.getElementById('login-error');
+  errBox.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Connexion...';
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Connexion impossible');
+    }
+    showDashboard();
+  } catch (err) {
+    errBox.textContent = `⚠️ ${err.message}`;
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Se connecter';
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.reload();
+});
+
+async function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('logout-btn').style.display = 'inline';
+
+  const content = await window.loadSiteContent();
+  fillContact(content.contact);
+  fillHoraires(content.horaires);
+  fillTarifs(content.tarifs);
+  fillPalmares(content.palmares);
+  fillClubPhotos(content.clubPhotos);
+}
+
+// ─── COORDONNÉES ──────────────────────────────────────────────────────────────
+function fillContact(contact) {
+  document.getElementById('c-email').value = contact.email;
+  document.getElementById('c-telephone').value = contact.telephone;
+  document.getElementById('c-adresse').value = contact.adresseEntrainement;
+}
+
+function readContact() {
+  return {
+    email: document.getElementById('c-email').value.trim(),
+    telephone: document.getElementById('c-telephone').value.trim(),
+    adresseEntrainement: document.getElementById('c-adresse').value.trim(),
+  };
+}
+
+// ─── LISTES RÉPÉTABLES (génériques) ──────────────────────────────────────────
+function createRow(containerId, gridClass, fieldsHtml, fillFn, data) {
+  const row = document.createElement('div');
+  row.className = `item-row ${gridClass}`;
+  row.innerHTML = `<button type="button" class="remove-btn" title="Supprimer">×</button>${fieldsHtml}`;
+  row.querySelector('.remove-btn').addEventListener('click', () => row.remove());
+  document.getElementById(containerId).appendChild(row);
+  if (data) fillFn(row, data);
+  return row;
+}
+
+// ─── HORAIRES ─────────────────────────────────────────────────────────────────
+function addHoraireRow(data) {
+  const options = CATEGORIES.map((c) => `<option value="${c.value}">${c.label}</option>`).join('');
+  createRow('horaires-list', 'horaire-grid', `
+    <div class="field"><label>Jour</label><input type="text" class="h-jour" placeholder="ex : Lundi" /></div>
+    <div class="field"><label>Horaire</label><input type="text" class="h-horaire" placeholder="ex : 18h00 – 19h00" /></div>
+    <div class="field"><label>Groupe</label><input type="text" class="h-groupe" placeholder="ex : Ados 13–17 ans" /></div>
+    <div class="field"><label>Catégorie</label><select class="h-categorie">${options}</select></div>
+  `, (row, d) => {
+    row.querySelector('.h-jour').value = d.jour;
+    row.querySelector('.h-horaire').value = d.horaire;
+    row.querySelector('.h-groupe').value = d.groupe;
+    row.querySelector('.h-categorie').value = d.categorie;
+  }, data);
+}
+
+function fillHoraires(horaires) {
+  document.getElementById('horaires-list').innerHTML = '';
+  horaires.forEach(addHoraireRow);
+}
+
+function readHoraires() {
+  return [...document.querySelectorAll('#horaires-list .item-row')].map((row) => ({
+    jour: row.querySelector('.h-jour').value.trim(),
+    horaire: row.querySelector('.h-horaire').value.trim(),
+    groupe: row.querySelector('.h-groupe').value.trim(),
+    categorie: row.querySelector('.h-categorie').value,
+  })).filter((h) => h.jour && h.horaire && h.groupe);
+}
+
+// ─── TARIFS ───────────────────────────────────────────────────────────────────
+function addTarifRow(data) {
+  createRow('tarifs-list', 'tarif-grid', `
+    <div class="field"><label>Section</label><input type="text" class="t-section" placeholder="ex : Adultes 18 ans +" /></div>
+    <div class="field"><label>Prix (€ / saison)</label><input type="number" class="t-prix" min="0" step="1" /></div>
+    <div class="field" style="grid-column:1/-1"><label>Avantages (un par ligne)</label><textarea class="t-avantages" placeholder="3 cours / semaine inclus&#10;Accès aux compétitions"></textarea></div>
+  `, (row, d) => {
+    row.querySelector('.t-section').value = d.section;
+    row.querySelector('.t-prix').value = d.prix;
+    row.querySelector('.t-avantages').value = d.avantages.join('\n');
+  }, data);
+}
+
+function fillTarifs(tarifs) {
+  document.getElementById('tarifs-list').innerHTML = '';
+  tarifs.forEach(addTarifRow);
+}
+
+function readTarifs() {
+  return [...document.querySelectorAll('#tarifs-list .item-row')].map((row) => ({
+    section: row.querySelector('.t-section').value.trim(),
+    prix: Number(row.querySelector('.t-prix').value) || 0,
+    avantages: row.querySelector('.t-avantages').value.split('\n').map((l) => l.trim()).filter(Boolean),
+  })).filter((t) => t.section);
+}
+
+// ─── PALMARÈS — TROPHÉES ──────────────────────────────────────────────────────
+function addTropheeRow(data) {
+  createRow('trophees-list', 'trophee-grid', `
+    <div class="field"><label>Chiffre</label><input type="text" class="tr-nombre" placeholder="ex : 8" /></div>
+    <div class="field"><label>Titre</label><input type="text" class="tr-titre" placeholder="ex : Champions de France" /></div>
+    <div class="field"><label>Sous-titre</label><input type="text" class="tr-sous" placeholder="ex : FFKDA — K1 Style & Muay Thaï" /></div>
+  `, (row, d) => {
+    row.querySelector('.tr-nombre').value = d.nombre;
+    row.querySelector('.tr-titre').value = d.titre;
+    row.querySelector('.tr-sous').value = d.sousTitre;
+  }, data);
+}
+
+function fillPalmares(palmares) {
+  document.getElementById('p-saison').value = palmares.saison;
+  document.getElementById('trophees-list').innerHTML = '';
+  palmares.trophees.forEach(addTropheeRow);
+  photos = [...palmares.photos];
+  renderPhotos();
+}
+
+function readTrophees() {
+  return [...document.querySelectorAll('#trophees-list .item-row')].map((row) => ({
+    nombre: row.querySelector('.tr-nombre').value.trim(),
+    titre: row.querySelector('.tr-titre').value.trim(),
+    sousTitre: row.querySelector('.tr-sous').value.trim(),
+  })).filter((t) => t.nombre && t.titre);
+}
+
+// ─── PALMARÈS — PHOTOS ────────────────────────────────────────────────────────
+function renderPhotos() {
+  const grid = document.getElementById('photos-grid');
+  grid.innerHTML = photos.map((url) => `
+    <div class="photo-item">
+      <img src="${url}" alt="Photo du palmarès" loading="lazy" />
+      <button type="button" class="remove-btn" data-url="${url}" title="Supprimer">×</button>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.remove-btn').forEach((btn) => {
+    btn.addEventListener('click', () => removePhoto(btn.dataset.url));
+  });
+}
+
+function removePhoto(url) {
+  if (!confirm("Retirer cette photo du palmarès ?\n\nElle ne sera supprimée définitivement qu'après avoir cliqué sur « Enregistrer les modifications ».")) return;
+  photos = photos.filter((u) => u !== url);
+  photosToDelete.push(url);
+  renderPhotos();
+}
+
+document.getElementById('photo-input').addEventListener('change', async (e) => {
+  const files = [...e.target.files];
+  if (!files.length) return;
+  const errBox = document.getElementById('upload-error');
+  errBox.style.display = 'none';
+  e.target.disabled = true;
+
+  for (const file of files) {
+    try {
+      const form = new FormData();
+      form.append('photo', file);
+      const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
+      photos.push(data.url);
+      renderPhotos();
+    } catch (err) {
+      errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
+      errBox.style.display = 'block';
+    }
+  }
+
+  e.target.disabled = false;
+  e.target.value = '';
+});
+
+// ─── PHOTOS DU CLUB ───────────────────────────────────────────────────────────
+function fillClubPhotos(list) {
+  clubPhotos = (list || []).map((p) => ({ ...p }));
+  renderClubPhotos();
+}
+
+function renderClubPhotos() {
+  const list = document.getElementById('club-photos-list');
+  list.innerHTML = clubPhotos.map((p, i) => `
+    <div class="item-row club-photo-row" data-index="${i}">
+      <button type="button" class="remove-btn" title="Supprimer">×</button>
+      <img src="${p.url}" alt="" loading="lazy" />
+      <div class="field"><label>Texte alternatif (description de la photo)</label><input type="text" class="cp-alt" value="${p.alt || ''}" /></div>
+      <label class="check-field"><input type="checkbox" class="cp-large" ${p.large ? 'checked' : ''} /> Grande photo (pleine largeur)</label>
+    </div>
+  `).join('');
+  list.querySelectorAll('.club-photo-row').forEach((row) => {
+    row.querySelector('.remove-btn').addEventListener('click', () => removeClubPhoto(Number(row.dataset.index)));
+  });
+}
+
+function removeClubPhoto(index) {
+  if (!confirm("Retirer cette photo de la section « Le Club » ?\n\nElle ne sera supprimée définitivement qu'après avoir cliqué sur « Enregistrer les modifications ».")) return;
+  clubPhotosToDelete.push(clubPhotos[index].url);
+  clubPhotos.splice(index, 1);
+  renderClubPhotos();
+}
+
+function readClubPhotos() {
+  return [...document.querySelectorAll('#club-photos-list .club-photo-row')].map((row, i) => ({
+    url: clubPhotos[i].url,
+    alt: row.querySelector('.cp-alt').value.trim(),
+    large: row.querySelector('.cp-large').checked,
+  }));
+}
+
+document.getElementById('club-photo-input').addEventListener('change', async (e) => {
+  const files = [...e.target.files];
+  if (!files.length) return;
+  const errBox = document.getElementById('club-upload-error');
+  errBox.style.display = 'none';
+  e.target.disabled = true;
+
+  for (const file of files) {
+    try {
+      const form = new FormData();
+      form.append('photo', file);
+      const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
+      clubPhotos.push({ url: data.url, alt: '', large: false });
+      renderClubPhotos();
+    } catch (err) {
+      errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
+      errBox.style.display = 'block';
+    }
+  }
+
+  e.target.disabled = false;
+  e.target.value = '';
+});
+
+// ─── ENREGISTREMENT ───────────────────────────────────────────────────────────
+document.getElementById('add-horaire').addEventListener('click', () => addHoraireRow());
+document.getElementById('add-tarif').addEventListener('click', () => addTarifRow());
+document.getElementById('add-trophee').addEventListener('click', () => addTropheeRow());
+
+document.getElementById('save-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('save-btn');
+  const status = document.getElementById('save-status');
+  status.className = 'status-msg';
+  status.style.display = 'none';
+
+  const content = {
+    contact: readContact(),
+    horaires: readHoraires(),
+    tarifs: readTarifs(),
+    palmares: {
+      saison: document.getElementById('p-saison').value.trim(),
+      trophees: readTrophees(),
+      photos,
+    },
+    clubPhotos: readClubPhotos(),
+  };
+
+  if (!content.contact.email || !content.contact.telephone || !content.contact.adresseEntrainement) {
+    status.textContent = '⚠️ Merci de renseigner les coordonnées (e-mail, téléphone, adresse).';
+    status.className = 'status-msg err';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  try {
+    const res = await fetch('/api/admin/save-content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(content),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Échec de l\'enregistrement');
+
+    // Le contenu public ne référence plus ces photos : on peut les effacer du stockage sans casser le site
+    await Promise.all([...photosToDelete, ...clubPhotosToDelete].map((url) =>
+      fetch('/api/admin/delete-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      }).catch((err) => console.warn('Échec de la suppression définitive de', url, err))
+    ));
+    photosToDelete = [];
+    clubPhotosToDelete = [];
+
+    status.textContent = '✅ Modifications enregistrées — le site est à jour (peut prendre une minute pour apparaître partout).';
+    status.className = 'status-msg ok';
+  } catch (err) {
+    status.textContent = `⚠️ ${err.message}`;
+    status.className = 'status-msg err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enregistrer les modifications';
+  }
+});
+
+// ─── MOT DE PASSE ─────────────────────────────────────────────────────────────
+document.getElementById('change-pwd-btn').addEventListener('click', async () => {
+  const current = document.getElementById('pwd-current').value;
+  const next = document.getElementById('pwd-new').value;
+  const confirm = document.getElementById('pwd-confirm').value;
+  const status = document.getElementById('pwd-status');
+  status.className = 'status-msg';
+
+  if (!current || !next || !confirm) {
+    status.textContent = '⚠️ Merci de remplir les trois champs.';
+    status.className = 'status-msg err';
+    return;
+  }
+  if (next !== confirm) {
+    status.textContent = '⚠️ Les deux nouveaux mots de passe ne correspondent pas.';
+    status.className = 'status-msg err';
+    return;
+  }
+  if (next.length < 8) {
+    status.textContent = '⚠️ Le nouveau mot de passe doit faire au moins 8 caractères.';
+    status.className = 'status-msg err';
+    return;
+  }
+
+  const btn = document.getElementById('change-pwd-btn');
+  btn.disabled = true;
+  btn.textContent = 'Changement en cours...';
+  try {
+    const res = await fetch('/api/admin/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword: current, newPassword: next }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Échec');
+    status.textContent = '✅ Mot de passe modifié. Utilise-le à ta prochaine connexion.';
+    status.className = 'status-msg ok';
+    document.getElementById('pwd-current').value = '';
+    document.getElementById('pwd-new').value = '';
+    document.getElementById('pwd-confirm').value = '';
+  } catch (err) {
+    status.textContent = `⚠️ ${err.message}`;
+    status.className = 'status-msg err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Changer le mot de passe';
+  }
+});
+
+// ─── MOT DE PASSE OUBLIÉ ──────────────────────────────────────────────────────
+document.getElementById('forgot-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('forgot-btn');
+  const status = document.getElementById('forgot-status');
+  status.className = 'status-msg';
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
+  try {
+    const res = await fetch('/api/admin/forgot-password', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    status.textContent = '✅ Un e-mail de réinitialisation t\'a été envoyé. Vérifie ta boîte mail.';
+    status.className = 'status-msg ok';
+  } catch (err) {
+    status.textContent = `⚠️ ${err.message}`;
+    status.className = 'status-msg err';
+    btn.disabled = false;
+    btn.textContent = 'Mot de passe oublié ?';
+  }
+});
+
+// ─── RÉINITIALISATION DEPUIS LE LIEN E-MAIL ───────────────────────────────────
+const resetToken = new URLSearchParams(location.search).get('reset');
+if (resetToken) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('reset-screen').style.display = 'block';
+
+  document.getElementById('reset-btn').addEventListener('click', async () => {
+    const newPassword = document.getElementById('reset-pwd-new').value;
+    const confirm = document.getElementById('reset-pwd-confirm').value;
+    const status = document.getElementById('reset-status');
+    const btn = document.getElementById('reset-btn');
+    status.className = 'status-msg';
+
+    if (newPassword !== confirm) {
+      status.textContent = '⚠️ Les deux mots de passe ne correspondent pas.';
+      status.className = 'status-msg err';
+      return;
+    }
+    if (newPassword.length < 8) {
+      status.textContent = '⚠️ Le mot de passe doit faire au moins 8 caractères.';
+      status.className = 'status-msg err';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+    try {
+      const res = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+      status.textContent = '✅ Mot de passe réinitialisé ! Redirection vers la connexion...';
+      status.className = 'status-msg ok';
+      setTimeout(() => {
+        history.replaceState(null, '', '/admin');
+        document.getElementById('reset-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+      }, 2000);
+    } catch (err) {
+      status.textContent = `⚠️ ${err.message}`;
+      status.className = 'status-msg err';
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer le nouveau mot de passe';
+    }
+  });
+}
+
+checkSession();
+</script>
+
+</body>
+</html>

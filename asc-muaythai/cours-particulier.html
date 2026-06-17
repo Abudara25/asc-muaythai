@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cours Particuliers — ASC Muay Thaï Bessancourt</title>
+  <meta name="description" content="Cours particuliers de Muay Thaï à Bessancourt (95) avec l'ASC Muay Thaï. Tous niveaux, sans engagement, sur rendez-vous. Tarif personnalisé."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.asc-muaythai.fr/cours-particulier"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://www.asc-muaythai.fr/cours-particulier"/>
+  <meta property="og:title" content="Cours Particuliers de Muay Thaï — Bessancourt (95)"/>
+  <meta property="og:description" content="Cours particuliers de Muay Thaï à Bessancourt. Tous niveaux, sans engagement, tarif personnalisé."/>
+  <meta property="og:image" content="https://www.asc-muaythai.fr/logo.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="ASC Muay Thaï Bessancourt"/>
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+  <link rel="apple-touch-icon" href="/favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #ee0000;
+      --red-dark: #cc0000;
+      --dark: #111;
+      --darker: #0a0a0a;
+      --offwhite: #f5f5f5;
+      --border-dark: rgba(255,255,255,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      background: rgba(0,0,0,0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 48px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; letter-spacing: 3px; text-decoration: none; }
+    .nav-logo span { color: var(--red); }
+    .nav-back { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; }
+    .nav-back:hover { color: var(--red); }
+    footer { background: var(--dark); border-top: 1px solid rgba(255,255,255,0.06); padding: 24px 48px; text-align: center; color: #ccc; font-size: 12px; letter-spacing: 1px; }
+    footer a { color: inherit; }
+
+    /* HERO */
+    .page-hero {
+      background: var(--dark);
+      border-bottom: 3px solid var(--red);
+      padding: 56px 48px 40px;
+      text-align: center;
+    }
+    .page-tag { font-size: 11px; letter-spacing: 4px; color: var(--red); text-transform: uppercase; margin-bottom: 12px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 64px); color: #fff; letter-spacing: 3px; line-height: 1; margin-bottom: 12px; }
+    .page-sub { color: #888; font-size: 15px; letter-spacing: 1px; }
+
+    /* LAYOUT */
+    .page-layout {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    /* INFO BOXES */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .info-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-dark);
+      padding: 20px;
+      text-align: center;
+    }
+    .info-box-icon { font-size: 24px; margin-bottom: 8px; }
+    .info-box-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+    .info-box-val { font-size: 14px; color: #fff; line-height: 1.4; }
+
+    /* FORM CARD */
+    .form-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-dark);
+      padding: 40px;
+    }
+    .form-card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .form-card-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 32px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color .2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,.25); }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--red); }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-group select option { background: #222; color: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* CHECKBOXES */
+    .check-group { display: flex; flex-direction: column; gap: 10px; }
+    .check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--red); flex-shrink: 0; cursor: pointer; }
+    .check-item span { font-size: 14px; color: rgba(255,255,255,.7); }
+
+    /* SUBMIT */
+    .btn-submit {
+      width: 100%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { background: var(--red-dark); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ERROR */
+    .form-error {
+      display: none;
+      background: rgba(238,0,0,0.12);
+      border: 1px solid rgba(238,0,0,0.35);
+      color: #ff6666;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* SUCCESS */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 64px 0;
+    }
+    .success-icon { font-size: 56px; margin-bottom: 24px; }
+    .success-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 3px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .success-sub { font-size: 14px; color: rgba(255,255,255,.5); line-height: 1.7; max-width: 440px; margin: 0 auto 32px; }
+    .success-back { color: var(--red); font-size: 13px; letter-spacing: 1px; text-decoration: none; }
+    .success-back:hover { text-decoration: underline; }
+
+    @media(max-width: 640px) {
+      nav { padding: 0 20px; }
+      .page-hero { padding: 48px 24px 32px; }
+      .info-grid { grid-template-columns: 1fr; gap: 10px; }
+      .form-card { padding: 28px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="/site-content.js"></script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">ASC <span>MUAY THAÏ</span></a>
+  <a href="/" class="nav-back">← Retour au site</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-tag">Entraînement personnalisé</div>
+  <h1 class="page-title">Cours Particuliers</h1>
+  <p class="page-sub">Sans engagement · Sur rendez-vous · Tarif personnalisé</p>
+</div>
+
+<div class="page-layout">
+
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="info-box-icon">🥊</div>
+      <div class="info-box-label">Niveau</div>
+      <div class="info-box-val">Tous niveaux acceptés</div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-icon">📅</div>
+      <div class="info-box-label">Engagement</div>
+      <div class="info-box-val">Sans engagement — Sur RDV</div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-icon">💬</div>
+      <div class="info-box-label">Tarif</div>
+      <div class="info-box-val">Personnalisé selon projet</div>
+    </div>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Demande envoyée !</div>
+    <p class="success-sub">
+      Votre demande de cours particulier a bien été reçue.<br>
+      Vous allez recevoir un email de confirmation dans quelques instants.<br>
+      Nous vous contacterons rapidement pour convenir d'un rendez-vous.
+    </p>
+    <a href="/" class="success-back">← Retour au site</a>
+  </div>
+
+  <!-- FORM -->
+  <div id="formWrapper">
+    <div class="form-card">
+      <div class="form-card-title">Formulaire de demande</div>
+      <div class="form-card-sub">Remplissez ce formulaire et nous vous recontacterons sous 48h.</div>
+
+      <div class="form-error" id="errMsg"></div>
+
+      <form id="cpForm" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prenom">Prénom *</label>
+            <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required />
+          </div>
+          <div class="form-group">
+            <label for="nom">Nom *</label>
+            <input type="text" id="nom" name="nom" placeholder="Votre nom" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" placeholder="votre@email.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="telephone">Téléphone *</label>
+          <input type="tel" id="telephone" name="telephone" placeholder="06 00 00 00 00" required />
+        </div>
+
+        <div class="form-group">
+          <label for="niveau">Niveau actuel</label>
+          <select id="niveau" name="niveau">
+            <option value="">— Sélectionner —</option>
+            <option value="Débutant complet">Débutant complet</option>
+            <option value="Quelques notions">Quelques notions</option>
+            <option value="Intermédiaire">Intermédiaire</option>
+            <option value="Confirmé">Confirmé</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Disponibilités souhaitées</label>
+          <div class="check-group">
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Lundi" />
+              <span>Lundi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Mardi" />
+              <span>Mardi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Mercredi" />
+              <span>Mercredi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Jeudi" />
+              <span>Jeudi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Vendredi" />
+              <span>Vendredi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Samedi" />
+              <span>Samedi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="dispo" value="Dimanche" />
+              <span>Dimanche</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="objectif">Objectif / Message</label>
+          <textarea id="objectif" name="objectif" placeholder="Décrivez votre objectif, ce que vous souhaitez travailler, ou toute autre information utile…"></textarea>
+        </div>
+
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6">
+          Les informations de ce formulaire sont utilisées par l'ASC Muay Thaï uniquement pour traiter votre demande de cours particulier et vous recontacter. Pour en savoir plus, consultez notre <a href="/confidentialite" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
+        </p>
+        <button type="submit" class="btn-submit" id="submitBtn">Envoyer ma demande</button>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  ASC Muay Thaï · <span id="footer-adresse">Complexe Marboulus, 21 Chemin de l'Isle, 95550 Bessancourt</span> · <a href="/confidentialite" style="text-decoration:underline">Mentions légales & confidentialité</a><br>
+  <span style="font-size:10px;opacity:.7">Siège social : 175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles — SIRET : 991 686 460 00015</span>
+</footer>
+
+<script>
+window.loadSiteContent().then((content) => {
+  document.getElementById('footer-adresse').textContent = content.contact.adresseEntrainement;
+});
+
+document.getElementById('cpForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const errDiv = document.getElementById('errMsg');
+  errDiv.style.display = 'none';
+
+  const prenom = document.getElementById('prenom').value.trim();
+  const nom = document.getElementById('nom').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const telephone = document.getElementById('telephone').value.trim();
+
+  if (!prenom || !nom || !email || !telephone) {
+    errDiv.textContent = '⚠️ Veuillez remplir tous les champs obligatoires (Prénom, Nom, Email, Téléphone).';
+    errDiv.style.display = 'block';
+    return;
+  }
+
+  const dispos = Array.from(document.querySelectorAll('input[name="dispo"]:checked')).map(c => c.value);
+  const niveau = document.getElementById('niveau').value;
+  const objectif = document.getElementById('objectif').value.trim();
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+
+  try {
+    const res = await fetch('/api/cours-particulier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prenom, nom, email, telephone, niveau, dispos, objectif })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+
+    document.getElementById('formWrapper').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    errDiv.textContent = '❌ Une erreur est survenue. Veuillez réessayer ou nous contacter directement.';
+    errDiv.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ma demande';
+  }
+});
+</script>
+
+</body>
+</html>
