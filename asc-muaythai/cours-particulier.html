@@ -341,8 +341,14 @@
           <textarea id="objectif" name="objectif" placeholder="Décrivez votre objectif, ce que vous souhaitez travailler, ou toute autre information utile…"></textarea>
         </div>
 
+        <div class="form-group">
+          <label class="check-item" style="align-items:flex-start">
+            <input type="checkbox" id="acceptData" required style="margin-top:3px" />
+            <span>J'accepte que les informations saisies dans ce formulaire soient utilisées par l'ASC Muay Thaï pour traiter ma demande de cours particulier et me recontacter *</span>
+          </label>
+        </div>
         <p style="font-size:11.5px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6">
-          Les informations de ce formulaire sont utilisées par l'ASC Muay Thaï uniquement pour traiter votre demande de cours particulier et vous recontacter. Pour en savoir plus, consultez notre <a href="/confidentialite" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
+          Ces données sont conservées 12 mois maximum à compter de votre dernier échange avec le club si aucun cours n'est engagé. Pour en savoir plus, consultez notre <a href="/confidentialite" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
         </p>
         <button type="submit" class="btn-submit" id="submitBtn">Envoyer ma demande</button>
 
@@ -375,6 +381,12 @@ document.getElementById('cpForm').addEventListener('submit', async function(e) {
 
   if (!prenom || !nom || !email || !telephone) {
     errDiv.textContent = '⚠️ Veuillez remplir tous les champs obligatoires (Prénom, Nom, Email, Téléphone).';
+    errDiv.style.display = 'block';
+    return;
+  }
+
+  if (!document.getElementById('acceptData').checked) {
+    errDiv.textContent = "⚠️ Vous devez accepter l'utilisation de vos données pour traiter votre demande.";
     errDiv.style.display = 'block';
     return;
   }

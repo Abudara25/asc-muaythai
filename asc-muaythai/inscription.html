@@ -306,9 +306,13 @@
             <input id="f-accept-droit-image" type="checkbox" />
             <span>J'accepte l'autorisation du droit à l'image (photos et vidéos) *</span>
           </label>
+          <label class="check-label">
+            <input id="f-accept-data" type="checkbox" />
+            <span>J'accepte que les informations saisies dans ce formulaire soient utilisées par l'ASC Muay Thaï pour gérer mon inscription et le suivi de ma cotisation *</span>
+          </label>
         </div>
         <p style="font-size:11.5px;color:rgba(255,255,255,.45);margin-top:8px;line-height:1.6">
-          Les informations recueillies dans ce formulaire sont utilisées par l'ASC Muay Thaï pour traiter votre dossier d'inscription, émettre votre fiche d'adhérent et assurer le suivi de votre cotisation. Pour en savoir plus sur l'utilisation de vos données et vos droits, consultez notre <a href="/confidentialite" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
+          En cas d'adhésion, ces données sont conservées pour la durée de l'adhésion. Si l'inscription n'est pas finalisée, elles sont conservées 12 mois maximum à compter de votre dernier échange avec le club. Pour en savoir plus sur l'utilisation de vos données et vos droits, consultez notre <a href="/confidentialite" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
         </p>
       </div>
 
@@ -444,6 +448,7 @@ async function submitInscription() {
   const message        = document.getElementById("f-message").value.trim();
   const acceptReglement  = document.getElementById("f-accept-reglement").checked;
   const acceptDroitImage = document.getElementById("f-accept-droit-image").checked;
+  const acceptData       = document.getElementById("f-accept-data").checked;
 
   const errDiv = document.getElementById("form-error");
   const btn    = document.getElementById("btn-submit");
@@ -460,6 +465,9 @@ async function submitInscription() {
   if (!acceptDroitImage) {
     return showError(errDiv, "⚠️ Vous devez vous prononcer sur le droit à l'image.");
   }
+  if (!acceptData) {
+    return showError(errDiv, "⚠️ Vous devez accepter l'utilisation de vos données pour traiter votre inscription.");
+  }
 
   errDiv.style.display = "none";
   btn.textContent = "Envoi en cours...";
@@ -472,7 +480,7 @@ async function submitInscription() {
       body: JSON.stringify({
         nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
         profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message,
-        acceptReglement, acceptDroitImage
+        acceptReglement, acceptDroitImage, acceptData
       })
     });
     const data = await res.json();
