@@ -414,15 +414,26 @@ function readTrophees() {
 // ─── PALMARÈS — PHOTOS ────────────────────────────────────────────────────────
 function renderPhotos() {
   const grid = document.getElementById('photos-grid');
-  grid.innerHTML = photos.map((url) => `
-    <div class="photo-item">
-      <img src="${url}" alt="Photo du palmarès" loading="lazy" />
-      <button type="button" class="remove-btn" data-url="${url}" title="Supprimer">×</button>
-    </div>
-  `).join('');
-  grid.querySelectorAll('.remove-btn').forEach((btn) => {
-    btn.addEventListener('click', () => removePhoto(btn.dataset.url));
-  });
+  grid.replaceChildren();
+  for (const url of photos) {
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Photo du palmarès';
+    img.loading = 'lazy';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'remove-btn';
+    btn.title = 'Supprimer';
+    btn.textContent = '×';
+    btn.addEventListener('click', () => removePhoto(url));
+
+    item.append(img, btn);
+    grid.append(item);
+  }
 }
 
 function removePhoto(url) {
@@ -466,16 +477,43 @@ function fillClubPhotos(list) {
 
 function renderClubPhotos() {
   const list = document.getElementById('club-photos-list');
-  list.innerHTML = clubPhotos.map((p, i) => `
-    <div class="item-row club-photo-row" data-index="${i}">
-      <button type="button" class="remove-btn" title="Supprimer">×</button>
-      <img src="${p.url}" alt="" loading="lazy" />
-      <div class="field"><label>Texte alternatif (description de la photo)</label><input type="text" class="cp-alt" value="${p.alt || ''}" /></div>
-      <label class="check-field"><input type="checkbox" class="cp-large" ${p.large ? 'checked' : ''} /> Grande photo (pleine largeur)</label>
-    </div>
-  `).join('');
-  list.querySelectorAll('.club-photo-row').forEach((row) => {
-    row.querySelector('.remove-btn').addEventListener('click', () => removeClubPhoto(Number(row.dataset.index)));
+  list.replaceChildren();
+  clubPhotos.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'item-row club-photo-row';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-btn';
+    removeBtn.title = 'Supprimer';
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', () => removeClubPhoto(i));
+
+    const img = document.createElement('img');
+    img.src = p.url;
+    img.alt = '';
+    img.loading = 'lazy';
+
+    const field = document.createElement('div');
+    field.className = 'field';
+    const label = document.createElement('label');
+    label.textContent = 'Texte alternatif (description de la photo)';
+    const altInput = document.createElement('input');
+    altInput.type = 'text';
+    altInput.className = 'cp-alt';
+    altInput.value = p.alt || '';
+    field.append(label, altInput);
+
+    const checkField = document.createElement('label');
+    checkField.className = 'check-field';
+    const largeInput = document.createElement('input');
+    largeInput.type = 'checkbox';
+    largeInput.className = 'cp-large';
+    largeInput.checked = !!p.large;
+    checkField.append(largeInput, document.createTextNode(' Grande photo (pleine largeur)'));
+
+    row.append(removeBtn, img, field, checkField);
+    list.append(row);
   });
 }
 

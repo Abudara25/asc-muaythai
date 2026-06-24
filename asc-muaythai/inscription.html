@@ -504,12 +504,18 @@ async function submitInscription() {
       const passSportWarning = hasPassSport
         ? `<br><div style="margin-top:10px;padding:10px 12px;background:rgba(255,193,7,0.12);border-left:3px solid #ffc107;border-radius:3px;font-size:12px;line-height:1.6;color:#ccc">⚠️ <strong>Attention Pass'Sport :</strong> La réduction de 70€ est soumise à validation de ton coupon par le club. Si le coupon n'est pas accepté, un complément de <strong>70€</strong> te sera demandé.</div>`
         : "";
+      // Le montant et le nom sont insérés après coup via textContent (jamais
+      // interprétés comme du HTML), seul le gabarit statique passe par innerHTML.
       const reglementInstructions = {
-        "Virement": `<strong>💳 Virement bancaire :</strong><br>Montant : <strong style="color:#ee0000">${data.montant}€</strong><br><span class="iban">FR76 1027 8063 4700 0232 4440 117</span>Libellé obligatoire : <strong>Cotisation ${prenom} ${nom}</strong>${passSportWarning}`,
-        "Cheque": `<strong>📝 Chèque :</strong><br>Montant total : <strong style="color:#ee0000">${data.montant}€</strong> — jusqu'à 3 chèques acceptés.<br>Ordre : <strong>ASC MUAY THAI</strong>. À remettre lors de ta première séance.${passSportWarning}`,
-        "Especes": `<strong>💵 Espèces :</strong><br>Apporte <strong style="color:#ee0000">${data.montant}€</strong> exacts lors de ta première séance.${passSportWarning}`
+        "Virement": `<strong>💳 Virement bancaire :</strong><br>Montant : <strong style="color:#ee0000"><span id="ri-montant"></span>€</strong><br><span class="iban">FR76 1027 8063 4700 0232 4440 117</span>Libellé obligatoire : <strong>Cotisation <span id="ri-name"></span></strong>${passSportWarning}`,
+        "Cheque": `<strong>📝 Chèque :</strong><br>Montant total : <strong style="color:#ee0000"><span id="ri-montant"></span>€</strong> — jusqu'à 3 chèques acceptés.<br>Ordre : <strong>ASC MUAY THAI</strong>. À remettre lors de ta première séance.${passSportWarning}`,
+        "Especes": `<strong>💵 Espèces :</strong><br>Apporte <strong style="color:#ee0000"><span id="ri-montant"></span>€</strong> exacts lors de ta première séance.${passSportWarning}`
       };
       document.getElementById("sa-instructions").innerHTML = reglementInstructions[reglement] || "";
+      const riMontant = document.getElementById("ri-montant");
+      if (riMontant) riMontant.textContent = data.montant;
+      const riName = document.getElementById("ri-name");
+      if (riName) riName.textContent = `${prenom} ${nom}`;
       document.getElementById("sa-passsport-note").style.display = hasPassSport ? "block" : "none";
       document.getElementById("step-autres").style.display = "block";
     }

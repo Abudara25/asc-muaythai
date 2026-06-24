@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   objectif = escapeHtml(objectif);
   const emailDisplay = escapeHtml(email);
 
-  const disposText = escapeHtml(dispos && dispos.length > 0 ? dispos.join(", ") : "Non précisé");
+  const disposText = escapeHtml(Array.isArray(dispos) && dispos.length > 0 ? dispos.join(", ") : "Non précisé");
 
   try {
     await sendEmail({
