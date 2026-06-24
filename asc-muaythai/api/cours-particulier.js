@@ -1,28 +1,46 @@
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const CLUB_EMAIL = "ascmuaythai95@gmail.com";
 const SENDER_EMAIL = "noreply@asc-muaythai.fr";
+const SITE_ORIGIN = "https://www.asc-muaythai.fr";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", SITE_ORIGIN);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Méthode non autorisée" });
 
-  const { prenom, nom, email, telephone, niveau, dispos, objectif } = req.body;
+  let { prenom, nom, email, telephone, niveau, dispos, objectif } = req.body;
 
   if (!prenom || !nom || !email || !telephone) {
     return res.status(400).json({ error: "Champs obligatoires manquants" });
   }
+  if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: "Adresse e-mail invalide" });
+  }
 
-  const disposText = dispos && dispos.length > 0 ? dispos.join(", ") : "Non précisé";
+  prenom = escapeHtml(prenom);
+  nom = escapeHtml(nom);
+  telephone = escapeHtml(telephone);
+  niveau = escapeHtml(niveau);
+  objectif = escapeHtml(objectif);
+  const emailDisplay = escapeHtml(email);
+
+  const disposText = escapeHtml(dispos && dispos.length > 0 ? dispos.join(", ") : "Non précisé");
 
   try {
     await sendEmail({
       to: [{ email: CLUB_EMAIL, name: "ASC Muay Thaï" }],
       subject: `🥊 Demande de cours particulier — ${prenom} ${nom.toUpperCase()}`,
-      html: buildClubEmail({ prenom, nom, email, telephone, niveau, disposText, objectif })
+      html: buildClubEmail({ prenom, nom, email: emailDisplay, telephone, niveau, disposText, objectif })
     });
 
     await sendEmail({

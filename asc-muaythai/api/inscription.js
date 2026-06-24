@@ -2,6 +2,14 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SITE_ORIGIN = "https://www.asc-muaythai.fr";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
 
 // Saison automatique : nouvelle saison à partir du 15 juin
 const _now = new Date();
@@ -13,14 +21,14 @@ const SENDER_EMAIL = "noreply@asc-muaythai.fr";
 const HELLOASSO_URL = "https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai";
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", SITE_ORIGIN);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Méthode non autorisée" });
 
-  const {
+  let {
     nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
     profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport: rawPassSport, message,
     acceptReglement, acceptDroitImage
@@ -29,6 +37,27 @@ export default async function handler(req, res) {
   if (!prenom || !nom || !email || !telephone || !naissanceDate || !naissanceLieu || !adresse || !ville) {
     return res.status(400).json({ error: "Champs obligatoires manquants" });
   }
+  if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: "Adresse e-mail invalide" });
+  }
+
+  // Échappement pour l'insertion dans les e-mails HTML (le contenu vient du visiteur)
+  prenom = escapeHtml(prenom);
+  nom = escapeHtml(nom);
+  sexe = escapeHtml(sexe);
+  naissanceDate = escapeHtml(naissanceDate);
+  naissanceLieu = escapeHtml(naissanceLieu);
+  profession = escapeHtml(profession);
+  adresse = escapeHtml(adresse);
+  ville = escapeHtml(ville);
+  whatsapp = escapeHtml(whatsapp);
+  telephone = escapeHtml(telephone);
+  section = escapeHtml(section);
+  nouveau = escapeHtml(nouveau);
+  dejaPratique = escapeHtml(dejaPratique);
+  message = escapeHtml(message);
+  reglement = escapeHtml(reglement);
+  const emailDisplay = escapeHtml(email);
 
   let baseTarif = 290;
   if (section && section.includes("Enfants")) baseTarif = 250;
@@ -51,7 +80,7 @@ export default async function handler(req, res) {
     await sendEmail({
       to: [{ email: CLUB_EMAIL, name: "ASC Muay Thaï" }],
       subject: `🥊 Dossier d'inscription — ${prenom} ${nom.toUpperCase()}`,
-      html: buildClubEmail({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email, whatsapp, section, reglementText, montant, nouveau, dejaPratique, acceptDroitImage, message })
+      html: buildClubEmail({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email: emailDisplay, whatsapp, section, reglementText, montant, nouveau, dejaPratique, acceptDroitImage, message })
     });
 
     // 2. Email à L'ADHÉRENT

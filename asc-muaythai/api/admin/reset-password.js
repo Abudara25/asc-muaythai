@@ -1,9 +1,9 @@
 // api/admin/reset-password.js
 import { del } from '@vercel/blob';
 import { timingSafeEqual } from 'crypto';
-import { storePassword } from './_auth.js';
+import { storePassword, secretPathname } from './_auth.js';
 
-const TOKEN_PATHNAME = 'reset-token.json';
+const TOKEN_PATHNAME = secretPathname('reset-token');
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
 
 export default async function handler(req, res) {

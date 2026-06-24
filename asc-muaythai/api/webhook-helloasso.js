@@ -1,11 +1,49 @@
 // api/webhook-helloasso.js
 // Reçoit les webhooks HelloAsso après paiement confirmé → email de confirmation Brevo
+import { timingSafeEqual } from 'crypto';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const CLUB_EMAIL = "ascmuaythai95@gmail.com";
 
+// Les comptes association classiques (par opposition aux comptes "Partenaire
+// API") n'ont pas de signatureKey HMAC fournie par HelloAsso. On vérifie donc :
+// 1. que la requête vient bien d'une IP HelloAsso connue ;
+// 2. qu'elle contient le jeton secret HELLOASSO_WEBHOOK_TOKEN, configuré dans
+//    l'URL de callback HelloAsso (ex. .../api/webhook-helloasso?key=...) —
+//    cette URL n'apparaît jamais dans le code source public.
+const ALLOWED_IPS = ['51.138.206.200', '4.233.135.234']; // prod + sandbox HelloAsso
+
+function getClientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) return xff.split(',')[0].trim();
+  return req.socket?.remoteAddress || '';
+}
+
+function isValidRequest(req) {
+  if (!ALLOWED_IPS.includes(getClientIp(req))) return false;
+
+  const expectedToken = process.env.HELLOASSO_WEBHOOK_TOKEN;
+  if (!expectedToken) return false;
+
+  const url = new URL(req.url, 'http://localhost');
+  const token = url.searchParams.get('key') || '';
+  const a = Buffer.from(token);
+  const b = Buffer.from(expectedToken);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
+
+  if (!isValidRequest(req)) {
+    return res.status(401).json({ error: 'Requête non autorisée' });
+  }
 
   try {
     const _n = new Date();
@@ -15,7 +53,7 @@ export default async function handler(req, res) {
 
     const payload = req.body;
     const eventType = payload?.eventType || payload?.data?.eventType;
-    
+
     // On traite uniquement les paiements confirmés
     if (eventType !== "Payment" && eventType !== "Order") {
       return res.status(200).json({ ignored: true });
@@ -23,9 +61,10 @@ export default async function handler(req, res) {
 
     const order = payload?.data?.order || payload?.data;
     const payer = order?.payer || {};
-    const prenom = payer?.firstName || "Adhérent";
-    const nom = payer?.lastName || "";
-    const email = payer?.email;
+    const prenom = escapeHtml(payer?.firstName || "Adhérent");
+    const nom = escapeHtml(payer?.lastName || "");
+    const email = payer?.email || "";
+    const emailDisplay = escapeHtml(email);
     const montant = (order?.amount || 0) / 100; // HelloAsso envoie en centimes
 
     // Email de confirmation de paiement au club
@@ -46,7 +85,7 @@ export default async function handler(req, res) {
               <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px;width:40%"><strong>Adhérent</strong></td>
                   <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${prenom} ${nom}</td></tr>
               <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Email</strong></td>
-                  <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${email || "Non renseigné"}</td></tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${emailDisplay || "Non renseigné"}</td></tr>
               <tr><td style="padding:10px 0;color:#555;font-size:13px"><strong>Montant</strong></td>
                   <td style="padding:10px 0;font-size:18px;color:#28a745;font-weight:bold">${montant}€</td></tr>
             </table>

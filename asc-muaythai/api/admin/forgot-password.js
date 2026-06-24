@@ -1,8 +1,9 @@
 // api/admin/forgot-password.js
 import { put } from '@vercel/blob';
 import { randomBytes } from 'crypto';
+import { secretPathname } from './_auth.js';
 
-const TOKEN_PATHNAME = 'reset-token.json';
+const TOKEN_PATHNAME = secretPathname('reset-token');
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
 const SENDER_EMAIL = 'noreply@asc-muaythai.fr';
 const TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1h

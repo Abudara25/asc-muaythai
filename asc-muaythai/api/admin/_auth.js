@@ -4,8 +4,19 @@
 import { createHmac, timingSafeEqual, scryptSync, randomBytes } from 'crypto';
 import { put } from '@vercel/blob';
 
-const AUTH_PATHNAME = 'auth.json';
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
+
+// Vercel Blob ne propose pas d'accès privé : tout blob "public" est lisible
+// par quiconque connaît son URL. Comme ce code source est public, un nom de
+// fichier fixe (ex. "auth.json") expose le hash du mot de passe à tout le
+// monde. On dérive donc le nom du blob à partir d'ADMIN_SESSION_SECRET (connu
+// seulement du serveur) pour que l'URL reste impossible à deviner.
+export function secretPathname(name) {
+  const suffix = createHmac('sha256', process.env.ADMIN_SESSION_SECRET).update(name).digest('hex').slice(0, 24);
+  return `${name}.${suffix}.json`;
+}
+
+const AUTH_PATHNAME = secretPathname('auth');
 
 async function getStoredHash() {
   try {
