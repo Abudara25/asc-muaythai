@@ -12,6 +12,13 @@
       'analytics_storage': 'denied'
     });
   </script>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-TJLXG2LB');</script>
+  <!-- End Google Tag Manager -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9TTYY8WKL"></script>
   <script>
     gtag('js', new Date());
@@ -159,6 +166,10 @@
   <script src="/site-content.js"></script>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <nav>
   <a href="/" class="nav-logo">ASC <span>Muay Thaï</span></a>
@@ -485,6 +496,8 @@ async function submitInscription() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erreur serveur");
+
+    gtag("event", "generate_lead", { form_name: "inscription", payment_method: reglement });
 
     // Sauvegarder pour le PDF client
     lastSubmission = { nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message, acceptDroitImage, montant: data.montant };
