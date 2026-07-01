@@ -47,8 +47,8 @@ nav{
 
 .nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{
-  font-family:'Barlow Condensed',sans-serif;font-size:13px;
-  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);
+  font-family:'Barlow Condensed',sans-serif;font-size:17px;
+  letter-spacing:2px;text-transform:uppercase;color:#fff;
   text-decoration:none;border-bottom:2px solid transparent;padding-bottom:2px;transition:.2s;
 }
 .nav-links a:hover,.nav-links a.active{color:#fff;border-color:var(--red)}
@@ -86,7 +86,7 @@ nav{
 .nav-links li{position:relative}
 .nav-links .dropdown{display:none;position:absolute;top:100%;padding-top:12px;left:50%;transform:translateX(-50%);background:var(--darker);border-top:2px solid var(--red);flex-direction:column;min-width:180px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .nav-links li:hover .dropdown{display:flex}
-.nav-links .dropdown a{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);text-decoration:none;padding:12px 20px;white-space:nowrap;transition:.2s;border-bottom:none}
+.nav-links .dropdown a{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#fff;${2}text-decoration:none;padding:12px 20px;white-space:nowrap;transition:.2s;border-bottom:none}
 .nav-links .dropdown a+a{border-top:1px solid rgba(255,255,255,.06)}
 .nav-links .dropdown a:hover{color:#fff;background:rgba(255,255,255,.06)}
 .has-drop > a::after{content:' ▾';font-size:9px;opacity:.45;margin-left:1px}
@@ -427,6 +427,7 @@ window.loadSiteContent().then((content) => {
 
 </body>
 </html>
+
 
 
 
