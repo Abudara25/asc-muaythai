@@ -210,7 +210,7 @@ function formatDate(str) {
   return `${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-fetch('/content/actualites.json', {cache:'no-store'})
+fetch('https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/actualites.json?t='+Date.now())
   .then(r => r.json())
   .then(articles => {
     const grid = document.getElementById('actu-grid');
@@ -242,6 +242,7 @@ document.querySelector('.f-copy').innerHTML = document.querySelector('.f-copy').
 
 </body>
 </html>
+
 
 
 

@@ -261,6 +261,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="status-msg err" id="partenaires-error"></div>
   </section>
 
+  <!-- ACTUALITÉS -->
+  <section class="panel">
+    <h2>Actualités</h2>
+    <p class="panel-hint">Articles publiés sur la page /actualites. Titre et date sont obligatoires.</p>
+
+    <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);padding:20px;margin-bottom:24px">
+      <h3 class="panel-subtitle" style="margin-top:0">Nouvel article</h3>
+      <div class="row-grid" style="grid-template-columns:1fr 180px">
+        <div class="field"><label>Titre *</label><input type="text" id="art-titre" placeholder="ex : Résultats du championnat régional" /></div>
+        <div class="field"><label>Date *</label><input type="date" id="art-date" /></div>
+      </div>
+      <div class="field"><label>Extrait <span style="color:#666;font-weight:normal">(affiché dans la liste)</span></label><input type="text" id="art-extrait" placeholder="2-3 phrases résumant l'article" /></div>
+      <div class="field"><label>Contenu complet</label><textarea id="art-contenu" rows="6" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:#fff;padding:10px 12px;font-family:inherit;font-size:14px;resize:vertical;line-height:1.6"></textarea></div>
+      <div class="field">
+        <label>Image <span style="color:#666;font-weight:normal">(optionnel)</span></label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="text" id="art-image-url" placeholder="URL auto-remplie après upload" style="flex:1;color:#aaa" readonly />
+          <input type="file" id="art-image-file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+          <button type="button" class="btn-add" id="art-image-btn">📷 Ajouter une image</button>
+        </div>
+        <div class="status-msg err" id="art-image-error"></div>
+      </div>
+      <button type="button" class="btn-primary" id="art-save-btn">Publier l'article</button>
+      <div class="status-msg" id="art-status"></div>
+    </div>
+
+    <div id="articles-list"><p style="color:#888;font-size:13px">Chargement…</p></div>
+  </section>
+
   <!-- SÉCURITÉ -->
   <section class="panel">
     <h2>Mot de passe</h2>
@@ -354,6 +383,7 @@ async function showDashboard() {
   fillPalmares(content.palmares);
   fillGalerie(content.galeriePhotos || {});
   fillPartenaires(content.partenaires || []);
+  loadArticles();
 }
 
 // ─── COORDONNÉES ──────────────────────────────────────────────────────────────
@@ -898,6 +928,117 @@ if (resetToken) {
 }
 
 checkSession();
+
+// ─── ACTUALITÉS ──────────────────────────────────────────────────────────────
+const BLOB_ACTUALITES = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/actualites.json';
+
+async function loadArticles() {
+  const el = document.getElementById('articles-list');
+  el.innerHTML = '<p style="color:#888;font-size:13px">Chargement…</p>';
+  try {
+    const r = await fetch(BLOB_ACTUALITES + '?t=' + Date.now());
+    if (!r.ok) throw new Error();
+    const articles = await r.json();
+    if (!articles.length) {
+      el.innerHTML = '<p style="color:#888;font-size:13px">Aucun article publié pour le moment.</p>';
+      return;
+    }
+    const sorted = [...articles].sort((a, b) => new Date(b.date) - new Date(a.date));
+    el.innerHTML = sorted.map(a => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:15px;color:#fff;font-weight:500">${a.titre}</div>
+          <div style="font-size:12px;color:#888;margin-top:3px">${a.date}${a.extrait ? ' · ' + a.extrait.slice(0, 80) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
+        </div>
+        <button type="button" data-id="${a.id}" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px;flex-shrink:0;margin-left:16px">Supprimer</button>
+      </div>`).join('');
+    el.querySelectorAll('button[data-id]').forEach(btn => {
+      btn.addEventListener('click', () => deleteArticle(btn.dataset.id, btn.closest('div[style]').querySelector('div > div').textContent));
+    });
+  } catch {
+    el.innerHTML = '<p style="color:#888;font-size:13px">Aucun article publié pour le moment.</p>';
+  }
+}
+
+async function deleteArticle(id, titre) {
+  if (!confirm(`Supprimer l'article "${titre}" ?`)) return;
+  const r = await fetch('/api/admin/save-content?type=article-delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  if (r.ok) loadArticles();
+  else alert('Erreur lors de la suppression');
+}
+
+document.getElementById('art-image-btn').addEventListener('click', () => {
+  document.getElementById('art-image-file').click();
+});
+
+document.getElementById('art-image-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const errEl = document.getElementById('art-image-error');
+  errEl.className = 'status-msg';
+  errEl.textContent = 'Upload en cours…';
+  const form = new FormData();
+  form.append('photo', file);
+  try {
+    const r = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
+    if (!r.ok) { errEl.className = 'status-msg err'; errEl.textContent = 'Erreur lors de l\'upload'; return; }
+    const { url } = await r.json();
+    document.getElementById('art-image-url').value = url;
+    errEl.textContent = '✓ Image prête';
+    errEl.className = 'status-msg';
+  } catch { errEl.className = 'status-msg err'; errEl.textContent = 'Erreur lors de l\'upload'; }
+  e.target.value = '';
+});
+
+document.getElementById('art-save-btn').addEventListener('click', async () => {
+  const titre = document.getElementById('art-titre').value.trim();
+  const date = document.getElementById('art-date').value;
+  const extrait = document.getElementById('art-extrait').value.trim();
+  const contenu = document.getElementById('art-contenu').value.trim();
+  const image = document.getElementById('art-image-url').value.trim();
+  const statusEl = document.getElementById('art-status');
+
+  if (!titre || !date) {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'Le titre et la date sont obligatoires.';
+    return;
+  }
+
+  statusEl.className = 'status-msg';
+  statusEl.textContent = 'Publication en cours…';
+  document.getElementById('art-save-btn').disabled = true;
+
+  try {
+    const r = await fetch('/api/admin/save-content?type=article-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ titre, date, extrait, contenu, image }),
+    });
+    if (r.ok) {
+      statusEl.textContent = '✓ Article publié !';
+      document.getElementById('art-titre').value = '';
+      document.getElementById('art-date').value = '';
+      document.getElementById('art-extrait').value = '';
+      document.getElementById('art-contenu').value = '';
+      document.getElementById('art-image-url').value = '';
+      document.getElementById('art-image-error').textContent = '';
+      loadArticles();
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } else {
+      statusEl.className = 'status-msg err';
+      statusEl.textContent = 'Erreur lors de la publication.';
+    }
+  } catch {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'Erreur réseau.';
+  } finally {
+    document.getElementById('art-save-btn').disabled = false;
+  }
+});
 </script>
 
 </body>
