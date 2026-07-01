@@ -93,18 +93,18 @@ body{background:var(--white);color:var(--text-dark);font-family:'Barlow',sans-se
 
 /* ── NAV — NOIR ── */
 nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;height:64px;
+  position:fixed;top:0;left:0;right:0;z-index:100;height:110px;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 48px;
   background:var(--darker);
   border-bottom:2px solid var(--red);
 }
 .logo{display:flex;align-items:center;gap:14px;text-decoration:none}
-.logo-icon{width:48px;height:48px;display:flex;align-items:center;justify-content:center}
+.logo-icon{width:100px;height:100px;display:flex;align-items:center;justify-content:center}
 .logo-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.5}
-.logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:#fff}
 .logo-text span{color:var(--red)}
-.logo-sub{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.6);text-transform:uppercase;margin-top:-2px}
+.logo-sub{font-size:12px;letter-spacing:2px;color:rgba(255,255,255,.6);text-transform:uppercase;margin-top:-2px}
 .nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{
   color:rgba(255,255,255,.75);font-family:'Barlow Condensed',sans-serif;
@@ -123,7 +123,7 @@ nav{
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
 .hamburger span{width:24px;height:2px;background:#fff;transition:.3s}
 .mobile-menu{
-  display:none;position:fixed;top:64px;left:0;right:0;
+  display:none;position:fixed;top:110px;left:0;right:0;
   background:var(--darker);padding:24px 32px;
   border-bottom:1px solid var(--border-dark);z-index:99;
   flex-direction:column;gap:0;
@@ -455,7 +455,7 @@ footer{
   .nav-links,.nav-btn{display:none}
   .hamburger{display:flex}
   section{padding:64px 24px}
-  .hero{height:auto;padding:120px 24px 64px}
+  .hero{height:auto;padding:165px 24px 64px}
   .hero-stats{position:static;flex-wrap:wrap;gap:0;margin-top:32px}
   .h-stat{background:rgba(255,255,255,.06);flex:1;min-width:80px}
   .disc-grid,.hor-grid,.tarif-grid{grid-template-columns:1fr}
@@ -473,7 +473,7 @@ footer{
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:var(--darker);z-index:99;border-bottom:1px solid var(--border-dark);flex-direction:column;padding:0}
+.mobile-menu{display:none;position:fixed;top:110px;left:0;right:0;background:var(--darker);z-index:99;border-bottom:1px solid var(--border-dark);flex-direction:column;padding:0}
 .mobile-menu.open{display:flex}
 .mobile-menu a{color:#fff;text-decoration:none;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;padding:16px 24px;border-bottom:1px solid var(--border-dark);transition:.2s}
 .mobile-menu a:hover{color:var(--red);background:rgba(255,255,255,.03)}
@@ -508,7 +508,7 @@ footer{
   section{padding:56px 20px}
 
   /* HERO */
-  .hero{height:auto;min-height:100vh;padding:100px 24px 240px;display:flex;flex-direction:column;justify-content:flex-end}
+  .hero{height:auto;min-height:100vh;padding:155px 24px 240px;display:flex;flex-direction:column;justify-content:flex-end}
   h1.hero-title{font-size:clamp(64px,18vw,100px)}
   .hero-thai{font-size:15px;letter-spacing:4px}
   .hero-btns{flex-direction:column;gap:10px}
@@ -618,7 +618,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <nav>
   <a class="logo" href="#">
     <div class="logo-icon">
-    <img src="/logo.png" alt="Logo ASC Muay Thaï" width="48" height="48" style="object-fit:contain" />
+    <img src="/logo.png" alt="Logo ASC Muay Thaï" width="100" height="100" style="object-fit:contain" />
   </div>
     <div>
       <div class="logo-text">ASC <span>Muay Thaï</span></div>
@@ -1098,6 +1098,10 @@ function renderPartenaires(list) {
 
 </body>
 </html>
+
+
+
+
 
 
 

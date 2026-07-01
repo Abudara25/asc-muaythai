@@ -65,7 +65,7 @@
       background: rgba(0,0,0,0.95);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       padding: 0 48px;
-      height: 64px;
+      height: 110px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -73,8 +73,10 @@
       top: 0;
       z-index: 100;
     }
-    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; letter-spacing: 3px; text-decoration: none; }
-    .nav-logo span { color: var(--red); }
+    .nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .nav-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: #fff; letter-spacing: 3px; }
+    .nav-logo-text span { color: var(--red); }
+    .nav-logo-sub { font-size: 12px; letter-spacing: 2px; color: rgba(255,255,255,.6); text-transform: uppercase; margin-top: -2px; }
     .nav-back { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; }
     .nav-back:hover { color: var(--red); }
 
@@ -101,7 +103,7 @@
     }
 
     /* SIDEBAR INFO */
-    .sidebar { position: sticky; top: 88px; }
+    .sidebar { position: sticky; top: 120px; }
     .sidebar-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: #fff; margin-bottom: 20px; }
     .citem { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-dark); }
     .citem:last-of-type { border: none; }
@@ -177,7 +179,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <nav>
-  <a href="/" class="nav-logo">ASC <span>Muay Thaï</span></a>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt="Logo ASC Muay Thaï" width="100" height="100" style="object-fit:contain"><div><div class="nav-logo-text">ASC <span>Muay Tha&iuml;</span></div><div class="nav-logo-sub">Bessancourt &middot; 95550</div></div></a>
   <a href="/" class="nav-back">← Retour au site</a>
 </nav>
 
@@ -754,3 +756,5 @@ async function downloadPDF() {
 
 </body>
 </html>
+
+

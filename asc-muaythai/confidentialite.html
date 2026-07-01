@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <!-- Google tag (gtag.js) -->
@@ -50,7 +50,7 @@
       background: rgba(0,0,0,0.95);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       padding: 0 48px;
-      height: 64px;
+      height: 110px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -58,8 +58,10 @@
       top: 0;
       z-index: 100;
     }
-    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; letter-spacing: 3px; text-decoration: none; }
-    .nav-logo span { color: var(--red); }
+    .nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .nav-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: #fff; letter-spacing: 3px; }
+    .nav-logo-text span { color: var(--red); }
+    .nav-logo-sub { font-size: 12px; letter-spacing: 2px; color: rgba(255,255,255,.6); text-transform: uppercase; margin-top: -2px; }
     .nav-back { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; }
     .nav-back:hover { color: var(--red); }
 
@@ -82,14 +84,14 @@
       gap: 48px;
       align-items: start;
     }
-    .legal-toc { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 4px; }
+    .legal-toc { position: sticky; top: 120px; display: flex; flex-direction: column; gap: 4px; }
     .legal-toc a {
       color: #999; text-decoration: none; font-size: 13px; letter-spacing: .5px;
       padding: 8px 12px; border-left: 2px solid transparent; transition: all .15s;
     }
     .legal-toc a:hover { color: #fff; border-left-color: var(--red); background: rgba(255,255,255,.03); }
 
-    .legal-content section { margin-bottom: 44px; scroll-margin-top: 88px; }
+    .legal-content section { margin-bottom: 44px; scroll-margin-top: 120px; }
     .legal-content h2 {
       font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: #fff;
       border-bottom: 1px solid rgba(238,0,0,0.4); padding-bottom: 8px; margin-bottom: 16px;
@@ -128,7 +130,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <nav>
-  <a href="/" class="nav-logo">ASC <span>Muay Thaï</span></a>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt="Logo ASC Muay Thaï" width="100" height="100" style="object-fit:contain"><div><div class="nav-logo-text">ASC <span>Muay Tha&iuml;</span></div><div class="nav-logo-sub">Bessancourt &middot; 95550</div></div></a>
   <a href="/" class="nav-back">← Retour au site</a>
 </nav>
 
@@ -279,3 +281,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 </body>
 </html>
+
+
