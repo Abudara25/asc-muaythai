@@ -1,0 +1,78 @@
+backend:
+  name: github
+  repo: Abudara25/asc-muaythai
+  branch: main
+  base_url: https://www.asc-muaythai.fr
+  auth_endpoint: api/cms-auth
+
+locale: fr
+
+# Photos uploadées via le CMS (chemin relatif à la racine du dépôt Git)
+media_folder: asc-muaythai/photos
+public_folder: /photos
+
+collections:
+  - name: actualites
+    label: "Actualités"
+    label_singular: "Article"
+    folder: asc-muaythai/content/actualites
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: json
+    format: json
+    fields:
+      - label: "Titre"
+        name: titre
+        widget: string
+      - label: "Date"
+        name: date
+        widget: datetime
+        format: "YYYY-MM-DD"
+        date_format: "DD/MM/YYYY"
+        time_format: false
+      - label: "Extrait"
+        name: extrait
+        widget: text
+        hint: "Court résumé affiché dans la liste (2-3 phrases)"
+        required: false
+      - label: "Contenu"
+        name: contenu
+        widget: markdown
+      - label: "Image"
+        name: image
+        widget: image
+        required: false
+        hint: "Photo principale de l'article (optionnel)"
+
+  - name: feminines
+    label: "Section Féminines"
+    files:
+      - name: contenu
+        label: "Contenu de la section Féminines"
+        file: asc-muaythai/content/feminines.json
+        fields:
+          - label: "Titre (sans la partie rouge)"
+            name: titre
+            widget: string
+            hint: 'Ex : "Pour Elles Aussi" — le mot coloré est géré séparément dans le code'
+          - label: "Texte d'introduction"
+            name: lead
+            widget: text
+          - label: "Sous-texte"
+            name: sous_texte
+            widget: text
+          - label: "Avantages"
+            name: avantages
+            widget: list
+            label_singular: "Avantage"
+            fields:
+              - label: "Icône (emoji)"
+                name: icone
+                widget: string
+                hint: "Ex : 💪 🛡️ 🔥"
+              - label: "Titre"
+                name: titre
+                widget: string
+              - label: "Description"
+                name: description
+                widget: text

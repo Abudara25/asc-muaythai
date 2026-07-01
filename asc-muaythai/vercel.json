@@ -1,9 +1,17 @@
 {
   "rewrites": [
+    { "source": "/api/callback", "destination": "/api/cms-auth" },
+    { "source": "/api/auth", "destination": "/api/cms-auth" },
+    { "source": "/api/admin/forgot-password", "destination": "/api/admin/password-reset" },
+    { "source": "/api/admin/reset-password", "destination": "/api/admin/password-reset" },
     { "source": "/inscription", "destination": "/inscription.html" },
     { "source": "/cours-particulier", "destination": "/cours-particulier.html" },
     { "source": "/confidentialite", "destination": "/confidentialite.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/galerie", "destination": "/galerie.html" },
+    { "source": "/cms", "destination": "/cms/index.html" },
+    { "source": "/partenaires", "destination": "/partenaires.html" },
+    { "source": "/actualites", "destination": "/actualites.html" }
   ],
   "headers": [
     {
