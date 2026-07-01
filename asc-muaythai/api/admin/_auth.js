@@ -6,13 +6,15 @@ import { put } from '@vercel/blob';
 
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
 
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'dev-local-fallback-not-for-production';
+
 // Vercel Blob ne propose pas d'accès privé : tout blob "public" est lisible
 // par quiconque connaît son URL. Comme ce code source est public, un nom de
 // fichier fixe (ex. "auth.json") expose le hash du mot de passe à tout le
 // monde. On dérive donc le nom du blob à partir d'ADMIN_SESSION_SECRET (connu
 // seulement du serveur) pour que l'URL reste impossible à deviner.
 export function secretPathname(name) {
-  const suffix = createHmac('sha256', process.env.ADMIN_SESSION_SECRET).update(name).digest('hex').slice(0, 24);
+  const suffix = createHmac('sha256', SESSION_SECRET).update(name).digest('hex').slice(0, 24);
   return `${name}.${suffix}.json`;
 }
 
@@ -48,7 +50,7 @@ const SESSION_COOKIE = 'asc_admin_session';
 const SESSION_DURATION_MS = 12 * 60 * 60 * 1000; // 12h
 
 function sign(value) {
-  return createHmac('sha256', process.env.ADMIN_SESSION_SECRET).update(value).digest('hex');
+  return createHmac('sha256', SESSION_SECRET).update(value).digest('hex');
 }
 
 export function createSessionToken() {

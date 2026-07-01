@@ -122,6 +122,8 @@
     .club-photo-row img { width: 100%; max-height: 160px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; display: block; }
     .club-photo-row .check-field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #ccc; cursor: pointer; }
     .club-photo-row .check-field input { width: auto; }
+    .panel-subtitle { font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .partenaire-row img { width: 90px; height: 60px; object-fit: contain; background: #fff; border-radius: 4px; padding: 6px; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -214,16 +216,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="status-msg err" id="upload-error"></div>
   </section>
 
-  <!-- PHOTOS DU CLUB -->
+  <!-- GALERIE PHOTOS -->
   <section class="panel">
-    <h2>Photos du club</h2>
-    <p class="panel-hint">Affichées dans la section « Le Club » de la page d'accueil (formats JPEG, PNG ou WebP, 8 Mo max). Coche « grande photo » pour qu'elle occupe toute la largeur de la rangée.</p>
-    <div id="club-photos-list"></div>
-    <div class="upload-zone">
-      Ajouter une ou plusieurs photos
-      <input type="file" id="club-photo-input" accept="image/jpeg,image/png,image/webp" multiple />
+    <h2>Galerie Photos</h2>
+    <p class="panel-hint">Photos affichées sur la page /galerie. Coche « grande photo » pour qu'elle occupe toute la largeur. Formats JPEG, PNG ou WebP, 8 Mo max par image.</p>
+
+    <h3 class="panel-subtitle">Le Club</h3>
+    <div id="galerie-club-list"></div>
+    <div class="upload-zone">Ajouter des photos — Le Club
+      <input type="file" id="galerie-club-input" accept="image/jpeg,image/png,image/webp" multiple />
     </div>
-    <div class="status-msg err" id="club-upload-error"></div>
+    <div class="status-msg err" id="galerie-club-error"></div>
+
+    <h3 class="panel-subtitle">Féminines</h3>
+    <div id="galerie-feminines-list"></div>
+    <div class="upload-zone">Ajouter des photos — Féminines
+      <input type="file" id="galerie-feminines-input" accept="image/jpeg,image/png,image/webp" multiple />
+    </div>
+    <div class="status-msg err" id="galerie-feminines-error"></div>
+
+    <h3 class="panel-subtitle">Ados &amp; Enfants</h3>
+    <div id="galerie-ados-list"></div>
+    <div class="upload-zone">Ajouter des photos — Ados &amp; Enfants
+      <input type="file" id="galerie-ados-input" accept="image/jpeg,image/png,image/webp" multiple />
+    </div>
+    <div class="status-msg err" id="galerie-ados-error"></div>
+
+    <h3 class="panel-subtitle">Compétitions</h3>
+    <div id="galerie-competition-list"></div>
+    <div class="upload-zone">Ajouter des photos — Compétitions
+      <input type="file" id="galerie-competition-input" accept="image/jpeg,image/png,image/webp" multiple />
+    </div>
+    <div class="status-msg err" id="galerie-competition-error"></div>
+  </section>
+
+  <!-- PARTENAIRES -->
+  <section class="panel">
+    <h2>Partenaires</h2>
+    <p class="panel-hint">Logos affichés sur l'accueil et sur la page /partenaires. Quand la liste est vide, la section est invisible sur le site. Upload le logo puis renseigne le nom et le lien.</p>
+    <div id="partenaires-list"></div>
+    <div class="upload-zone">Ajouter un logo partenaire (un à la fois)
+      <input type="file" id="partenaires-input" accept="image/jpeg,image/png,image/webp" />
+    </div>
+    <div class="status-msg err" id="partenaires-error"></div>
   </section>
 
   <!-- SÉCURITÉ -->
@@ -253,9 +288,18 @@ const CATEGORIES = [
 ];
 
 let photos = [];
-let photosToDelete = []; // suppression différée : effacées du stockage seulement après l'enregistrement réussi
-let clubPhotos = [];
-let clubPhotosToDelete = [];
+let photosToDelete = [];
+let galeriePhotos = { club: [], feminines: [], ados: [], competition: [] };
+let galeriePhotosToDelete = [];
+let partenaires = [];
+let partenairesToDelete = [];
+
+const GALERIE_CATS = [
+  { key: 'club',        label: 'Le Club' },
+  { key: 'feminines',   label: 'Féminines' },
+  { key: 'ados',        label: 'Ados & Enfants' },
+  { key: 'competition', label: 'Compétitions' },
+];
 
 // ─── AUTHENTIFICATION ─────────────────────────────────────────────────────────
 async function checkSession() {
@@ -308,7 +352,8 @@ async function showDashboard() {
   fillHoraires(content.horaires);
   fillTarifs(content.tarifs);
   fillPalmares(content.palmares);
-  fillClubPhotos(content.clubPhotos);
+  fillGalerie(content.galeriePhotos || {});
+  fillPartenaires(content.partenaires || []);
 }
 
 // ─── COORDONNÉES ──────────────────────────────────────────────────────────────
@@ -480,16 +525,18 @@ document.getElementById('photo-input').addEventListener('change', async (e) => {
   e.target.value = '';
 });
 
-// ─── PHOTOS DU CLUB ───────────────────────────────────────────────────────────
-function fillClubPhotos(list) {
-  clubPhotos = (list || []).map((p) => ({ ...p }));
-  renderClubPhotos();
+// ─── GALERIE PHOTOS (4 catégories) ───────────────────────────────────────────
+function fillGalerie(data) {
+  GALERIE_CATS.forEach(({ key }) => {
+    galeriePhotos[key] = (data[key] || []).map((p) => ({ ...p }));
+    renderGalerieSection(key);
+  });
 }
 
-function renderClubPhotos() {
-  const list = document.getElementById('club-photos-list');
+function renderGalerieSection(key) {
+  const list = document.getElementById(`galerie-${key}-list`);
   list.replaceChildren();
-  clubPhotos.forEach((p, i) => {
+  galeriePhotos[key].forEach((p, i) => {
     const row = document.createElement('div');
     row.className = 'item-row club-photo-row';
 
@@ -498,7 +545,7 @@ function renderClubPhotos() {
     removeBtn.className = 'remove-btn';
     removeBtn.title = 'Supprimer';
     removeBtn.textContent = '×';
-    removeBtn.addEventListener('click', () => removeClubPhoto(i));
+    removeBtn.addEventListener('click', () => removeGaleriePhoto(key, i));
 
     const img = document.createElement('img');
     img.src = p.url;
@@ -528,41 +575,138 @@ function renderClubPhotos() {
   });
 }
 
-function removeClubPhoto(index) {
-  if (!confirm("Retirer cette photo de la section « Le Club » ?\n\nElle ne sera supprimée définitivement qu'après avoir cliqué sur « Enregistrer les modifications ».")) return;
-  clubPhotosToDelete.push(clubPhotos[index].url);
-  clubPhotos.splice(index, 1);
-  renderClubPhotos();
+function removeGaleriePhoto(key, index) {
+  if (!confirm("Retirer cette photo ?\n\nElle ne sera supprimée définitivement qu'après avoir cliqué sur « Enregistrer les modifications ».")) return;
+  galeriePhotosToDelete.push(galeriePhotos[key][index].url);
+  galeriePhotos[key].splice(index, 1);
+  renderGalerieSection(key);
 }
 
-function readClubPhotos() {
-  return [...document.querySelectorAll('#club-photos-list .club-photo-row')].map((row, i) => ({
-    url: clubPhotos[i].url,
+function readGalerieSection(key) {
+  return [...document.querySelectorAll(`#galerie-${key}-list .club-photo-row`)].map((row, i) => ({
+    url: galeriePhotos[key][i].url,
     alt: row.querySelector('.cp-alt').value.trim(),
     large: row.querySelector('.cp-large').checked,
   }));
 }
 
-document.getElementById('club-photo-input').addEventListener('change', async (e) => {
-  const files = [...e.target.files];
-  if (!files.length) return;
-  const errBox = document.getElementById('club-upload-error');
+function readGalerie() {
+  return Object.fromEntries(GALERIE_CATS.map(({ key }) => [key, readGalerieSection(key)]));
+}
+
+GALERIE_CATS.forEach(({ key }) => {
+  document.getElementById(`galerie-${key}-input`).addEventListener('change', async (e) => {
+    const files = [...e.target.files];
+    if (!files.length) return;
+    const errBox = document.getElementById(`galerie-${key}-error`);
+    errBox.style.display = 'none';
+    e.target.disabled = true;
+
+    for (const file of files) {
+      try {
+        const form = new FormData();
+        form.append('photo', file);
+        const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
+        galeriePhotos[key].push({ url: data.url, alt: '', large: false });
+        renderGalerieSection(key);
+      } catch (err) {
+        errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
+        errBox.style.display = 'block';
+      }
+    }
+
+    e.target.disabled = false;
+    e.target.value = '';
+  });
+});
+
+// ─── PARTENAIRES ──────────────────────────────────────────────────────────────
+function fillPartenaires(list) {
+  partenaires = (list || []).map((p) => ({ ...p }));
+  renderPartenairesAdmin();
+}
+
+function renderPartenairesAdmin() {
+  const container = document.getElementById('partenaires-list');
+  container.replaceChildren();
+  partenaires.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'item-row partenaire-row';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-btn';
+    removeBtn.title = 'Supprimer';
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', () => removePartenaire(i));
+
+    const img = document.createElement('img');
+    img.src = p.logo;
+    img.alt = p.nom || 'Logo partenaire';
+    img.loading = 'lazy';
+
+    const nomField = document.createElement('div');
+    nomField.className = 'field';
+    const nomLabel = document.createElement('label');
+    nomLabel.textContent = 'Nom du partenaire';
+    const nomInput = document.createElement('input');
+    nomInput.type = 'text';
+    nomInput.className = 'p-nom';
+    nomInput.value = p.nom || '';
+    nomInput.placeholder = 'Ex : Mairie de Bessancourt';
+    nomField.append(nomLabel, nomInput);
+
+    const urlField = document.createElement('div');
+    urlField.className = 'field';
+    const urlLabel = document.createElement('label');
+    urlLabel.textContent = 'Site web (optionnel)';
+    const urlInput = document.createElement('input');
+    urlInput.type = 'url';
+    urlInput.className = 'p-url';
+    urlInput.value = p.url || '';
+    urlInput.placeholder = 'https://...';
+    urlField.append(urlLabel, urlInput);
+
+    row.append(removeBtn, img, nomField, urlField);
+    container.append(row);
+  });
+}
+
+function removePartenaire(index) {
+  if (!confirm("Supprimer ce partenaire ?\n\nLe logo ne sera effacé définitivement qu'après « Enregistrer les modifications ».")) return;
+  partenairesToDelete.push(partenaires[index].logo);
+  partenaires.splice(index, 1);
+  renderPartenairesAdmin();
+}
+
+function readPartenaires() {
+  return [...document.querySelectorAll('#partenaires-list .partenaire-row')].map((row, i) => ({
+    logo: partenaires[i].logo,
+    nom: row.querySelector('.p-nom').value.trim(),
+    url: row.querySelector('.p-url').value.trim(),
+  })).filter((p) => p.logo);
+}
+
+document.getElementById('partenaires-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const errBox = document.getElementById('partenaires-error');
   errBox.style.display = 'none';
   e.target.disabled = true;
 
-  for (const file of files) {
-    try {
-      const form = new FormData();
-      form.append('photo', file);
-      const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
-      clubPhotos.push({ url: data.url, alt: '', large: false });
-      renderClubPhotos();
-    } catch (err) {
-      errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
-      errBox.style.display = 'block';
-    }
+  try {
+    const form = new FormData();
+    form.append('photo', file);
+    const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
+    partenaires.push({ logo: data.url, nom: '', url: '' });
+    renderPartenairesAdmin();
+  } catch (err) {
+    errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
+    errBox.style.display = 'block';
   }
 
   e.target.disabled = false;
@@ -589,7 +733,8 @@ document.getElementById('save-btn').addEventListener('click', async () => {
       trophees: readTrophees(),
       photos,
     },
-    clubPhotos: readClubPhotos(),
+    galeriePhotos: readGalerie(),
+    partenaires: readPartenaires(),
   };
 
   if (!content.contact.email || !content.contact.telephone || !content.contact.adresseEntrainement) {
@@ -610,7 +755,7 @@ document.getElementById('save-btn').addEventListener('click', async () => {
     if (!res.ok) throw new Error(data.error || 'Échec de l\'enregistrement');
 
     // Le contenu public ne référence plus ces photos : on peut les effacer du stockage sans casser le site
-    await Promise.all([...photosToDelete, ...clubPhotosToDelete].map((url) =>
+    await Promise.all([...photosToDelete, ...galeriePhotosToDelete, ...partenairesToDelete].map((url) =>
       fetch('/api/admin/delete-photo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -618,7 +763,8 @@ document.getElementById('save-btn').addEventListener('click', async () => {
       }).catch((err) => console.warn('Échec de la suppression définitive de', url, err))
     ));
     photosToDelete = [];
-    clubPhotosToDelete = [];
+    galeriePhotosToDelete = [];
+    partenairesToDelete = [];
 
     status.textContent = '✅ Modifications enregistrées — le site est à jour (peut prendre une minute pour apparaître partout).';
     status.className = 'status-msg ok';

@@ -50,11 +50,17 @@ window.SITE_CONTENT_DEFAULTS = {
     ],
     photos: [],
   },
-  clubPhotos: [
-    { url: 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/photos/1780930516798-wDJ5luYLoBx2eolDA0x2bnJuka6CqX.jpg', alt: 'Équipe ASC en compétition', large: true },
-    { url: 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/photos/1780930517515-GO5uERycoLE3BircEee4ZhSsvAMLLG.jpg', alt: 'Équipe ASC', large: false },
-    { url: 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/photos/1780930518187-Qz26SpuVJN1QNBIxqPXWbaYbTKrPn6.jpg', alt: 'Les enfants et leurs médailles', large: false },
-  ],
+  partenaires: [],
+  galeriePhotos: {
+    club: [
+      { url: 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/photos/1780930516798-wDJ5luYLoBx2eolDA0x2bnJuka6CqX.jpg', alt: 'Équipe ASC en compétition', large: true },
+      { url: 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/photos/1780930517515-GO5uERycoLE3BircEee4ZhSsvAMLLG.jpg', alt: 'Équipe ASC', large: false },
+      { url: 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/photos/1780930518187-Qz26SpuVJN1QNBIxqPXWbaYbTKrPn6.jpg', alt: 'Les enfants et leurs médailles', large: false },
+    ],
+    feminines: [],
+    ados: [],
+    competition: [],
+  },
 };
 
 window.loadSiteContent = async function loadSiteContent() {

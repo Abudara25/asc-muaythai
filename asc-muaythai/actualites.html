@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Actualités — ASC Muay Thaï Bessancourt (95)</title>
+<meta name="description" content="Toutes les actualités du club ASC Muay Thaï de Bessancourt — résultats, événements, stages et annonces."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://www.asc-muaythai.fr/actualites"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+<link rel="apple-touch-icon" href="/favicon.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#e00;--red-dark:#b00;--white:#fff;--offwhite:#f5f5f5;
+  --dark:#111;--darker:#0a0a0a;--gold:#c9941a;
+  --muted-light:#888;--border-light:#e0e0e0;--border-dark:#222;
+  --text-dark:#1a1a1a;
+}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--text-dark);font-family:'Barlow',sans-serif;font-weight:300;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:var(--darker);border-bottom:2px solid var(--red)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo img{width:32px;height:32px;object-fit:contain}
+.logo span{color:var(--red)}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);text-decoration:none;border-bottom:2px solid transparent;padding-bottom:2px;transition:.2s}
+.nav-links a:hover,.nav-links a.active{color:#fff;border-color:var(--red)}
+.nav-btn{background:var(--red);color:#fff;border:none;padding:10px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;transition:.2s;text-decoration:none}
+.nav-btn:hover{background:var(--red-dark)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+.hamburger span{width:24px;height:2px;background:#fff}
+.nav-links li{position:relative}
+.nav-links .dropdown{display:none;position:absolute;top:100%;padding-top:12px;left:50%;transform:translateX(-50%);background:var(--darker);border-top:2px solid var(--red);flex-direction:column;min-width:180px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.nav-links li:hover .dropdown{display:flex}
+.nav-links .dropdown a{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);text-decoration:none;padding:12px 20px;white-space:nowrap;transition:.2s;border-bottom:none}
+.nav-links .dropdown a+a{border-top:1px solid rgba(255,255,255,.06)}
+.nav-links .dropdown a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.has-drop > a::after{content:' ▾';font-size:9px;opacity:.45;margin-left:1px}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:var(--darker);z-index:99;padding:20px 24px;flex-direction:column;gap:0;border-top:1px solid var(--border-dark)}
+.mobile-menu a{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);text-decoration:none;padding:14px 0;border-bottom:1px solid var(--border-dark);display:block}
+.mobile-menu a:hover{color:#fff}
+.mobile-menu a.mob-cta{color:var(--red);font-weight:600;border:none;margin-top:8px}
+.mobile-menu.open{display:flex}
+.mob-group{border-bottom:1px solid rgba(255,255,255,.07)}
+.mob-group-toggle{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);padding:14px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:none;border:none;width:100%;text-align:left}
+.mob-group-toggle::after{content:'＋';font-size:12px;color:var(--red)}
+.mob-group.open .mob-group-toggle::after{content:'－'}
+.mob-sub{display:none;padding:4px 0 8px 16px}
+.mob-group.open .mob-sub{display:block}
+.mob-sub a{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);text-decoration:none;padding:9px 0;display:block}
+.mob-sub a:hover{color:#fff}
+
+/* ── PAGE HEADER ── */
+.page-header{background:var(--darker);padding:120px 80px 72px;border-bottom:2px solid var(--red)}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;margin-bottom:28px;transition:.2s}
+.back-link:hover{color:var(--red)}
+.s-tag{display:flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--red);margin-bottom:10px;font-weight:500}
+.s-tag::before{content:'';width:20px;height:1px;background:var(--red)}
+.page-header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);color:#fff;letter-spacing:3px;line-height:1;margin-bottom:16px}
+.page-header p{font-size:16px;color:rgba(255,255,255,.55);max-width:560px;line-height:1.7}
+
+/* ── ARTICLES ── */
+.actu-section{padding:80px 80px;background:var(--white)}
+.actu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.actu-card{border:1px solid var(--border-light);overflow:hidden;transition:.3s}
+.actu-card:hover{border-color:var(--red);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.actu-card-img{width:100%;height:220px;object-fit:cover;display:block}
+.actu-card-img-placeholder{width:100%;height:220px;background:var(--offwhite);display:flex;align-items:center;justify-content:center}
+.actu-card-img-placeholder span{font-size:40px;opacity:.3}
+.actu-card-body{padding:24px}
+.actu-date{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.actu-titre{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--dark);line-height:1.1;margin-bottom:10px}
+.actu-extrait{font-size:13px;color:var(--muted-light);line-height:1.6}
+.actu-card-lien{display:block;text-decoration:none;color:inherit;height:100%}
+
+/* ── ÉTAT VIDE ── */
+.empty-actu{text-align:center;padding:80px 32px;border:1px dashed var(--border-light);max-width:560px;margin:0 auto}
+.empty-actu h3{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--dark);margin-bottom:12px}
+.empty-actu p{font-size:14px;color:var(--muted-light);line-height:1.6}
+
+/* ── FOOTER ── */
+footer{background:var(--darker);border-top:2px solid var(--red);padding:24px 80px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.f-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:rgba(255,255,255,.5)}
+.f-logo span{color:var(--red)}
+.f-copy{font-size:11px;color:rgba(255,255,255,.3);line-height:1.8;text-align:right}
+.f-copy a{color:inherit;text-decoration:underline}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.actu-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){
+  nav{padding:0 24px}
+  .nav-links,.nav-btn{display:none}
+  .hamburger{display:flex}
+  .page-header{padding:96px 24px 56px}
+  .actu-section{padding:56px 24px}
+  footer{padding:20px 24px;flex-direction:column;align-items:flex-start;gap:8px}
+  .f-copy{text-align:left}
+}
+@media(max-width:480px){.actu-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <img src="/logo.png" alt="Logo ASC Muay Thaï"/>
+    ASC <span>Muay Thaï</span>
+  </a>
+  <ul class="nav-links">
+    <li class="has-drop"><a href="/#disciplines">Le Club</a>
+      <div class="dropdown">
+        <a href="/#disciplines">Disciplines</a>
+        <a href="/#palmares">Palmarès</a>
+        <a href="/#feminines">Féminines</a>
+      </div>
+    </li>
+    <li class="has-drop"><a href="/#horaires">Rejoindre</a>
+      <div class="dropdown">
+        <a href="/#horaires">Horaires</a>
+        <a href="/#tarifs">Tarifs</a>
+        <a href="/galerie">Galerie</a>
+      </div>
+    </li>
+    <li><a href="/actualites" class="active">Actualités</a></li>
+    <li><a href="/partenaires">Partenaires</a></li>
+    <li><a href="/#contact">Contact</a></li>
+  </ul>
+  <a href="/inscription" class="nav-btn">S'inscrire</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mob-group">
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Le Club</button>
+    <div class="mob-sub">
+      <a href="/#disciplines" onclick="closeMobile()">Disciplines</a>
+      <a href="/#palmares" onclick="closeMobile()">Palmarès</a>
+      <a href="/#feminines" onclick="closeMobile()">Féminines</a>
+    </div>
+  </div>
+  <div class="mob-group">
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Rejoindre</button>
+    <div class="mob-sub">
+      <a href="/#horaires" onclick="closeMobile()">Horaires</a>
+      <a href="/#tarifs" onclick="closeMobile()">Tarifs</a>
+      <a href="/galerie" onclick="closeMobile()">Galerie</a>
+    </div>
+  </div>
+  <a href="/actualites" onclick="closeMobile()">Actualités</a>
+  <a href="/partenaires" onclick="closeMobile()">Partenaires</a>
+  <a href="/#contact" onclick="closeMobile()">Contact</a>
+  <a href="/inscription" onclick="closeMobile()" class="mob-cta">S'inscrire</a>
+</div>
+
+<script>
+function toggleMobGroup(btn){btn.parentElement.classList.toggle('open')}
+function toggleMobile(){document.getElementById('mobileMenu').classList.toggle('open')}
+function closeMobile(){document.getElementById('mobileMenu').classList.remove('open')}
+</script>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <a href="/" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+  <div class="s-tag">Club ASC Muay Thaï · Bessancourt</div>
+  <h1>Actualités</h1>
+  <p>Résultats, événements, stages et toutes les nouvelles du club.</p>
+</div>
+
+<!-- ARTICLES -->
+<section class="actu-section">
+  <div id="actu-grid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">ASC <span>Muay Thaï</span> · Bessancourt (95)</div>
+  <div class="f-copy">
+    © 2026 ASC Muay Thaï — Association Sportive Citoyenne · <a href="/confidentialite">Mentions légales & confidentialité</a><br>
+    <span style="font-size:10px;color:rgba(255,255,255,.4)">Siège social : 175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles — SIRET : 991 686 460 00015</span>
+  </div>
+</footer>
+
+<script>
+const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+function formatDate(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  if (isNaN(d)) return str;
+  return `${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+fetch('/content/actualites.json', {cache:'no-store'})
+  .then(r => r.json())
+  .then(articles => {
+    const grid = document.getElementById('actu-grid');
+    if (!Array.isArray(articles) || !articles.length) {
+      grid.innerHTML = '<div class="empty-actu"><h3>Bientôt disponible</h3><p>Les actualités du club seront publiées ici — résultats de compétitions, stages, annonces et événements.</p></div>';
+      return;
+    }
+    const sorted = [...articles].sort((a,b) => new Date(b.date) - new Date(a.date));
+    grid.className = 'actu-grid';
+    grid.innerHTML = sorted.map(a => `
+      <article class="actu-card">
+        ${a.image
+          ? `<img class="actu-card-img" src="${a.image}" alt="${a.titre || ''}" loading="lazy"/>`
+          : `<div class="actu-card-img-placeholder"><span>📰</span></div>`}
+        <div class="actu-card-body">
+          <div class="actu-date">${formatDate(a.date)}</div>
+          <div class="actu-titre">${a.titre || ''}</div>
+          <p class="actu-extrait">${a.extrait || a.contenu?.slice(0,120) || ''}</p>
+        </div>
+      </article>`).join('');
+  })
+  .catch(() => {
+    document.getElementById('actu-grid').innerHTML = '<div class="empty-actu"><h3>Bientôt disponible</h3><p>Les actualités arrivent bientôt.</p></div>';
+  });
+
+const yr = new Date().getFullYear();
+document.querySelector('.f-copy').innerHTML = document.querySelector('.f-copy').innerHTML.replace(/© \d{4}/, `© ${yr}`);
+</script>
+
+</body>
+</html>

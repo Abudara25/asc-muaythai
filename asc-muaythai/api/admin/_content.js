@@ -54,12 +54,28 @@ function isValidPalmares(p) {
   );
 }
 
-function isValidClubPhoto(p) {
+function isValidPartenaire(p) {
+  return (
+    p && typeof p === 'object' &&
+    isNonEmptyString(p.logo) &&
+    isString(p.nom) &&
+    isString(p.url)
+  );
+}
+
+function isValidGaleriePhoto(p) {
   return (
     p && typeof p === 'object' &&
     isNonEmptyString(p.url) &&
     isString(p.alt) &&
     typeof p.large === 'boolean'
+  );
+}
+
+function isValidGaleriePhotos(g) {
+  if (!g || typeof g !== 'object') return false;
+  return ['club', 'feminines', 'ados', 'competition'].every(
+    (key) => Array.isArray(g[key]) && g[key].every(isValidGaleriePhoto)
   );
 }
 
@@ -70,6 +86,7 @@ export function isValidContent(content) {
     Array.isArray(content.horaires) && content.horaires.every(isValidCreneau) &&
     Array.isArray(content.tarifs) && content.tarifs.every(isValidTarif) &&
     isValidPalmares(content.palmares) &&
-    Array.isArray(content.clubPhotos) && content.clubPhotos.every(isValidClubPhoto)
+    isValidGaleriePhotos(content.galeriePhotos) &&
+    Array.isArray(content.partenaires) && content.partenaires.every(isValidPartenaire)
   );
 }

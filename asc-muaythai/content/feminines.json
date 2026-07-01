@@ -1,0 +1,17 @@
+{
+  "titre": "Pour Elles Aussi",
+  "lead": "Le Muay Thaï ne connaît pas de genre. À l'ASC, les femmes s'entraînent dans un cadre bienveillant, technique et respectueux — en séances mixtes, aux côtés des hommes.",
+  "sous_texte": "Débutante ou pratiquante confirmée, nos coachs t'accompagnent à ton rythme dès la première séance. Ici, la progression prime sur tout le reste.",
+  "avantages": [
+    {
+      "icone": "💪",
+      "titre": "Condition physique",
+      "description": "Cardio intensif, renforcement musculaire, souplesse et coordination. Une séance de Muay Thaï brûle entre 500 et 800 kcal."
+    },
+    {
+      "icone": "🔥",
+      "titre": "Confiance en soi",
+      "description": "Se dépasser, progresser et s'épanouir dans une communauté solidaire. Le sport de combat le plus complet au monde."
+    }
+  ]
+}
