@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Galerie Photos — ASC Muay Thaï Bessancourt (95)</title>
+<meta name="description" content="Galerie photos du club ASC Muay Thaï de Bessancourt (Val d'Oise). Photos du club, compétitions et palmarès."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://www.asc-muaythai.fr/galerie"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+<link rel="apple-touch-icon" href="/favicon.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#e00;--red-dark:#b00;--white:#fff;--offwhite:#f5f5f5;
+  --dark:#111;--darker:#0a0a0a;--card:#1a1a1a;--gold:#c9941a;
+  --muted-light:#888;--border-light:#e0e0e0;--border-dark:#222;
+  --text-dark:#1a1a1a;--text-light:#ccc;
+}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--text-dark);font-family:'Barlow',sans-serif;font-weight:300;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;background:var(--darker);border-bottom:2px solid var(--red);
+}
+.logo{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;
+  color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px;
+}
+.logo img{width:32px;height:32px;object-fit:contain}
+.logo span{color:var(--red)}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);
+  text-decoration:none;border-bottom:2px solid transparent;padding-bottom:2px;transition:.2s;
+}
+.nav-links a:hover,.nav-links a.active{color:#fff;border-color:var(--red)}
+.nav-btn{
+  background:var(--red);color:#fff;border:none;padding:10px 24px;
+  font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;
+  cursor:pointer;transition:.2s;text-decoration:none;
+}
+.nav-btn:hover{background:var(--red-dark)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+.hamburger span{width:24px;height:2px;background:#fff;transition:.3s}
+
+/* ── MOBILE MENU ── */
+.mobile-menu{
+  display:none;position:fixed;top:64px;left:0;right:0;
+  background:var(--darker);z-index:99;padding:20px 24px;
+  flex-direction:column;gap:0;border-top:1px solid var(--border-dark);
+}
+.mobile-menu a{
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,.7);text-decoration:none;
+  padding:14px 0;border-bottom:1px solid var(--border-dark);display:block;
+}
+.mobile-menu a:hover{color:#fff}
+.mobile-menu a.mob-cta{color:var(--red);font-weight:600;border:none;margin-top:8px}
+.mobile-menu.open{display:flex}
+.mob-group{border-bottom:1px solid rgba(255,255,255,.07)}
+.mob-group-toggle{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);padding:14px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:none;border:none;width:100%;text-align:left}
+.mob-group-toggle::after{content:'＋';font-size:12px;color:var(--red)}
+.mob-group.open .mob-group-toggle::after{content:'－'}
+.mob-sub{display:none;padding:4px 0 8px 16px}
+.mob-group.open .mob-sub{display:block}
+.mob-sub a{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);text-decoration:none;padding:9px 0;display:block;border-bottom:none}
+.mob-sub a:hover{color:#fff}
+.nav-links li{position:relative}
+.nav-links .dropdown{display:none;position:absolute;top:100%;padding-top:12px;left:50%;transform:translateX(-50%);background:var(--darker);border-top:2px solid var(--red);flex-direction:column;min-width:180px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.nav-links li:hover .dropdown{display:flex}
+.nav-links .dropdown a{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);text-decoration:none;padding:12px 20px;white-space:nowrap;transition:.2s;border-bottom:none}
+.nav-links .dropdown a+a{border-top:1px solid rgba(255,255,255,.06)}
+.nav-links .dropdown a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.has-drop > a::after{content:' ▾';font-size:9px;opacity:.45;margin-left:1px}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  background:var(--darker);padding:120px 80px 72px;
+  border-bottom:2px solid var(--red);
+}
+.page-header .s-tag{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:5px;text-transform:uppercase;color:var(--red);
+  margin-bottom:12px;font-weight:500;
+}
+.page-header .s-tag::before{content:'';width:20px;height:1px;background:var(--red)}
+.page-header h1{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,6vw,80px);
+  color:#fff;letter-spacing:3px;line-height:1;margin-bottom:16px;
+}
+.page-header p{font-size:15px;color:rgba(255,255,255,.5);max-width:500px;line-height:1.6}
+.back-link{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;
+  margin-bottom:28px;transition:.2s;
+}
+.back-link:hover{color:var(--red)}
+.back-link svg{transition:.2s}
+.back-link:hover svg{transform:translateX(-3px)}
+
+/* ── GALERIE SECTIONS ── */
+.galerie-section{padding:80px 80px}
+.galerie-section.dark{background:var(--darker)}
+.galerie-section.light{background:var(--white)}
+.s-tag{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:5px;text-transform:uppercase;color:var(--red);
+  margin-bottom:10px;font-weight:500;
+}
+.s-tag::before{content:'';width:20px;height:1px;background:var(--red)}
+.s-title-dark{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4.5vw,52px);color:var(--dark);letter-spacing:2px;margin:0 0 40px;line-height:1;font-weight:normal}
+.s-title-light{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4.5vw,52px);color:#fff;letter-spacing:2px;margin:0 0 40px;line-height:1;font-weight:normal}
+
+/* ── GRILLE PHOTOS ── */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+.gallery-item{
+  overflow:hidden;aspect-ratio:4/3;cursor:pointer;
+  position:relative;
+}
+.gallery-item.wide{grid-column:span 2;aspect-ratio:16/9}
+.gallery-item img{
+  width:100%;height:100%;object-fit:cover;object-position:center top;
+  transition:.4s;display:block;
+}
+.gallery-item:hover img{transform:scale(1.05)}
+.gallery-item::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,0,0,0);transition:.3s;
+}
+.gallery-item:hover::after{background:rgba(0,0,0,.15)}
+
+/* ── ÉTAT VIDE ── */
+.empty-state{
+  text-align:center;padding:64px 32px;
+  border:1px dashed var(--border-dark);
+}
+.empty-state p{font-size:14px;color:rgba(255,255,255,.35);letter-spacing:1px}
+.empty-state.light-empty{border-color:var(--border-light)}
+.empty-state.light-empty p{color:var(--muted-light)}
+
+/* ── LIGHTBOX ── */
+.lightbox{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.92);
+  display:flex;align-items:center;justify-content:center;
+  z-index:999;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.lightbox.active{opacity:1;pointer-events:all}
+.lightbox-img{
+  max-width:90vw;max-height:90vh;
+  object-fit:contain;
+  box-shadow:0 0 80px rgba(0,0,0,.8);
+}
+.lb-close{
+  position:fixed;top:20px;right:24px;
+  background:none;border:none;color:#fff;
+  font-size:32px;cursor:pointer;line-height:1;
+  opacity:.7;transition:.2s;
+}
+.lb-close:hover{opacity:1;color:var(--red)}
+.lb-counter{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;
+  letter-spacing:2px;color:rgba(255,255,255,.4);
+}
+.lb-nav{
+  position:fixed;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,.08);border:none;color:#fff;
+  font-size:24px;cursor:pointer;padding:16px 20px;
+  transition:.2s;line-height:1;
+}
+.lb-nav:hover{background:rgba(255,255,255,.15)}
+.lb-prev{left:16px}
+.lb-next{right:16px}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--darker);border-top:2px solid var(--red);
+  padding:24px 80px;display:flex;align-items:center;
+  justify-content:space-between;gap:24px;flex-wrap:wrap;
+}
+.f-logo{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  letter-spacing:3px;color:rgba(255,255,255,.5);
+}
+.f-logo span{color:var(--red)}
+.f-copy{font-size:11px;color:rgba(255,255,255,.3);line-height:1.8;text-align:right}
+.f-copy a{color:inherit;text-decoration:underline}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:0 24px}
+  .nav-links,.nav-btn{display:none}
+  .hamburger{display:flex}
+  .page-header{padding:96px 24px 56px}
+  .galerie-section{padding:56px 24px}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .gallery-item.wide{grid-column:span 2}
+  footer{padding:20px 24px;flex-direction:column;align-items:flex-start;gap:8px}
+  .f-copy{text-align:left}
+}
+@media(max-width:480px){
+  .gallery-grid{grid-template-columns:1fr}
+  .gallery-item.wide{grid-column:auto;aspect-ratio:4/3}
+  .lb-nav{padding:12px 14px;font-size:18px}
+}
+</style>
+<script src="/site-content.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="/">
+    <img src="/logo.png" alt="Logo ASC Muay Thaï"/>
+    ASC <span>Muay Thaï</span>
+  </a>
+  <ul class="nav-links">
+    <li class="has-drop"><a href="/#disciplines">Le Club</a>
+      <div class="dropdown">
+        <a href="/#disciplines">Disciplines</a>
+        <a href="/#palmares">Palmarès</a>
+        <a href="/#feminines">Féminines</a>
+      </div>
+    </li>
+    <li class="has-drop"><a href="/#horaires">Rejoindre</a>
+      <div class="dropdown">
+        <a href="/#horaires">Horaires</a>
+        <a href="/#tarifs">Tarifs</a>
+        <a href="/galerie" class="active">Galerie</a>
+      </div>
+    </li>
+    <li><a href="/actualites">Actualités</a></li>
+    <li><a href="/partenaires">Partenaires</a></li>
+    <li><a href="/#contact">Contact</a></li>
+  </ul>
+  <a href="/inscription" class="nav-btn">S'inscrire</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mob-group">
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Le Club</button>
+    <div class="mob-sub">
+      <a href="/#disciplines" onclick="closeMobile()">Disciplines</a>
+      <a href="/#palmares" onclick="closeMobile()">Palmarès</a>
+      <a href="/#feminines" onclick="closeMobile()">Féminines</a>
+    </div>
+  </div>
+  <div class="mob-group">
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Rejoindre</button>
+    <div class="mob-sub">
+      <a href="/#horaires" onclick="closeMobile()">Horaires</a>
+      <a href="/#tarifs" onclick="closeMobile()">Tarifs</a>
+      <a href="/galerie" onclick="closeMobile()">Galerie</a>
+    </div>
+  </div>
+  <a href="/actualites" onclick="closeMobile()">Actualités</a>
+  <a href="/partenaires" onclick="closeMobile()">Partenaires</a>
+  <a href="/#contact" onclick="closeMobile()">Contact</a>
+  <a href="/inscription" onclick="closeMobile()" class="mob-cta">S'inscrire</a>
+</div>
+
+<script>
+function toggleMobGroup(btn){btn.parentElement.classList.toggle('open')}
+function toggleMobile(){document.getElementById('mobileMenu').classList.toggle('open')}
+function closeMobile(){document.getElementById('mobileMenu').classList.remove('open')}
+</script>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <a href="/" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+  <div class="s-tag">ASC Muay Thaï · Bessancourt</div>
+  <h1>Galerie</h1>
+  <p>Photos du club, compétitions et moments forts de la saison.</p>
+</div>
+
+<!-- LE CLUB -->
+<section class="galerie-section light">
+  <div class="s-tag">Le club au quotidien</div>
+  <h2 class="s-title-dark">Le Club</h2>
+  <div id="gallery-club" class="gallery-grid"></div>
+</section>
+
+<!-- FÉMININES -->
+<section class="galerie-section dark">
+  <div class="s-tag">Muay Thaï au féminin</div>
+  <h2 class="s-title-light">Féminines</h2>
+  <div id="gallery-feminines" class="gallery-grid"></div>
+</section>
+
+<!-- ADOS & ENFANTS -->
+<section class="galerie-section light">
+  <div class="s-tag">Les jeunes du club</div>
+  <h2 class="s-title-dark">Ados &amp; Enfants</h2>
+  <div id="gallery-ados" class="gallery-grid"></div>
+</section>
+
+<!-- COMPÉTITIONS -->
+<section class="galerie-section dark">
+  <div class="s-tag">Compétitions &amp; Palmarès</div>
+  <h2 class="s-title-light">Compétitions</h2>
+  <div id="gallery-competition" class="gallery-grid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">ASC <span>Muay Thaï</span> · Bessancourt (95)</div>
+  <div class="f-copy">
+    © 2026 ASC Muay Thaï — Association Sportive Citoyenne · <a href="/confidentialite">Mentions légales & confidentialité</a><br>
+    <span style="font-size:10px;color:rgba(255,255,255,.4)">Siège social : 175 rue Général de Gaulle, 95370 Montigny-lès-Cormeilles — SIRET : 991 686 460 00015</span>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="lbClickOutside(event)">
+  <button class="lb-close" onclick="closeLb()" aria-label="Fermer">✕</button>
+  <button class="lb-nav lb-prev" onclick="lbNav(-1)" aria-label="Précédent">‹</button>
+  <img id="lb-img" class="lightbox-img" src="" alt=""/>
+  <button class="lb-nav lb-next" onclick="lbNav(1)" aria-label="Suivant">›</button>
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
+<script>
+let lbItems = [];
+let lbIndex = 0;
+
+function openLb(items, index) {
+  lbItems = items;
+  lbIndex = index;
+  showLb();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function showLb() {
+  const item = lbItems[lbIndex];
+  document.getElementById('lb-img').src = item.src;
+  document.getElementById('lb-img').alt = item.alt || '';
+  document.getElementById('lb-counter').textContent = `${lbIndex + 1} / ${lbItems.length}`;
+}
+
+function lbNav(dir) {
+  lbIndex = (lbIndex + dir + lbItems.length) % lbItems.length;
+  showLb();
+}
+
+function closeLb() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+  document.getElementById('lb-img').src = '';
+}
+
+function lbClickOutside(e) {
+  if (e.target === document.getElementById('lightbox')) closeLb();
+}
+
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightbox').classList.contains('active')) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+});
+
+const GALERIE_CATS = [
+  { key: 'club',        gridId: 'gallery-club',        dark: false, alt: 'Photo du club ASC Muay Thaï' },
+  { key: 'feminines',   gridId: 'gallery-feminines',   dark: true,  alt: 'Cours féminin ASC Muay Thaï' },
+  { key: 'ados',        gridId: 'gallery-ados',        dark: false, alt: 'Jeunes ASC Muay Thaï' },
+  { key: 'competition', gridId: 'gallery-competition', dark: true,  alt: 'Compétition ASC Muay Thaï' },
+];
+
+function renderGalerieSection({ key, gridId, dark, alt: defaultAlt }) {
+  const grid = document.getElementById(gridId);
+  const photos = (window.__galerieData || {})[key] || [];
+  if (!photos.length) {
+    grid.outerHTML = `<div class="empty-state${dark ? '' : ' light-empty'}"><p>Photos à venir</p></div>`;
+    return;
+  }
+  const items = photos.map((p) => ({ src: p.url, alt: p.alt || defaultAlt }));
+  const encoded = JSON.stringify(items).replace(/"/g, '&quot;');
+  grid.innerHTML = photos.map((p, i) => `
+    <div class="gallery-item${p.large ? ' wide' : ''}" onclick="openLb(${encoded}, ${i})">
+      <img src="${p.url}" alt="${(p.alt || defaultAlt).replace(/"/g,'&quot;')}" loading="lazy"/>
+    </div>
+  `).join('');
+}
+
+window.loadSiteContent().then((content) => {
+  window.__galerieData = content.galeriePhotos || {};
+  GALERIE_CATS.forEach(renderGalerieSection);
+
+  const yr = new Date().getFullYear();
+  document.querySelector('.f-copy').innerHTML =
+    document.querySelector('.f-copy').innerHTML.replace(/© \d{4}/, `© ${yr}`);
+});
+</script>
+
+</body>
+</html>
