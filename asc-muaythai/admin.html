@@ -290,6 +290,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div id="articles-list"><p style="color:#888;font-size:13px">Chargement…</p></div>
   </section>
 
+  <!-- VIDÉOS -->
+  <section class="panel">
+    <h2>Vidéos</h2>
+    <p class="panel-hint">Vidéos YouTube publiées sur la page /videos. Colle l'URL YouTube, ajoute un titre si besoin, puis clique sur « Publier ».</p>
+
+    <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);padding:20px;margin-bottom:24px">
+      <h3 class="panel-subtitle" style="margin-top:0">Nouvelle vidéo</h3>
+      <div class="field"><label>URL YouTube *</label><input type="url" id="vid-url" placeholder="https://www.youtube.com/watch?v=..." /></div>
+      <div class="field"><label>Titre <span style="color:#666;font-weight:normal">(optionnel)</span></label><input type="text" id="vid-titre" placeholder="ex : Finale championnat régional 2024" /></div>
+      <div class="field"><label>Description <span style="color:#666;font-weight:normal">(optionnel)</span></label><input type="text" id="vid-description" placeholder="ex : Léo vs Antoine — K1 -67 kg" /></div>
+      <button type="button" class="btn-primary" id="vid-save-btn">Publier la vidéo</button>
+      <div class="status-msg" id="vid-status"></div>
+    </div>
+
+    <div id="videos-list"><p style="color:#888;font-size:13px">Chargement…</p></div>
+  </section>
+
   <!-- SÉCURITÉ -->
   <section class="panel">
     <h2>Mot de passe</h2>
@@ -384,6 +401,7 @@ async function showDashboard() {
   fillGalerie(content.galeriePhotos || {});
   fillPartenaires(content.partenaires || []);
   loadArticles();
+  loadVideos();
 }
 
 // ─── COORDONNÉES ──────────────────────────────────────────────────────────────
@@ -1037,6 +1055,106 @@ document.getElementById('art-save-btn').addEventListener('click', async () => {
     statusEl.textContent = 'Erreur réseau.';
   } finally {
     document.getElementById('art-save-btn').disabled = false;
+  }
+});
+
+// ─── VIDÉOS ──────────────────────────────────────────────────────────────────
+const BLOB_VIDEOS = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/videos.json';
+
+function getYouTubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/\s]{11})/);
+  return m ? m[1] : null;
+}
+
+async function loadVideos() {
+  const el = document.getElementById('videos-list');
+  el.innerHTML = '<p style="color:#888;font-size:13px">Chargement…</p>';
+  try {
+    const r = await fetch(BLOB_VIDEOS + '?t=' + Date.now());
+    if (!r.ok) throw new Error();
+    const videos = await r.json();
+    if (!videos.length) {
+      el.innerHTML = '<p style="color:#888;font-size:13px">Aucune vidéo publiée pour le moment.</p>';
+      return;
+    }
+    const sorted = [...videos].sort((a, b) => new Date(b.date) - new Date(a.date));
+    el.innerHTML = sorted.map(v => {
+      const ytId = getYouTubeId(v.url);
+      const thumb = ytId ? `<img src="https://img.youtube.com/vi/${ytId}/default.jpg" style="width:80px;height:60px;object-fit:cover;border-radius:3px;flex-shrink:0" />` : '';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">
+        <div style="display:flex;gap:12px;align-items:center;min-width:0">
+          ${thumb}
+          <div style="min-width:0">
+            <div style="font-size:15px;color:#fff;font-weight:500">${v.titre || v.url}</div>
+            <div style="font-size:12px;color:#888;margin-top:3px">${v.date}${v.description ? ' · ' + v.description.slice(0, 80) : ''}</div>
+          </div>
+        </div>
+        <button type="button" data-id="${v.id}" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px;flex-shrink:0">Supprimer</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('button[data-id]').forEach(btn => {
+      btn.addEventListener('click', () => deleteVideo(btn.dataset.id, btn.closest('div[style]').querySelector('div > div').textContent.trim()));
+    });
+  } catch {
+    el.innerHTML = '<p style="color:#888;font-size:13px">Aucune vidéo publiée pour le moment.</p>';
+  }
+}
+
+async function deleteVideo(id, titre) {
+  if (!confirm(`Supprimer la vidéo "${titre}" ?`)) return;
+  const r = await fetch('/api/admin/save-content?type=video-delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  if (r.ok) loadVideos();
+  else alert('Erreur lors de la suppression');
+}
+
+document.getElementById('vid-save-btn').addEventListener('click', async () => {
+  const url = document.getElementById('vid-url').value.trim();
+  const titre = document.getElementById('vid-titre').value.trim();
+  const description = document.getElementById('vid-description').value.trim();
+  const statusEl = document.getElementById('vid-status');
+
+  if (!url) {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'L\'URL YouTube est obligatoire.';
+    return;
+  }
+  if (!getYouTubeId(url)) {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'URL YouTube non reconnue. Colle l\'adresse depuis youtube.com.';
+    return;
+  }
+
+  statusEl.className = 'status-msg';
+  statusEl.textContent = 'Publication en cours…';
+  document.getElementById('vid-save-btn').disabled = true;
+
+  try {
+    const r = await fetch('/api/admin/save-content?type=video-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, titre, description }),
+    });
+    if (r.ok) {
+      statusEl.textContent = '✓ Vidéo publiée !';
+      document.getElementById('vid-url').value = '';
+      document.getElementById('vid-titre').value = '';
+      document.getElementById('vid-description').value = '';
+      loadVideos();
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } else {
+      statusEl.className = 'status-msg err';
+      statusEl.textContent = 'Erreur lors de la publication.';
+    }
+  } catch {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'Erreur réseau.';
+  } finally {
+    document.getElementById('vid-save-btn').disabled = false;
   }
 });
 </script>

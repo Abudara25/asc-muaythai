@@ -11,7 +11,8 @@
     { "source": "/galerie", "destination": "/galerie.html" },
     { "source": "/cms", "destination": "/cms/index.html" },
     { "source": "/partenaires", "destination": "/partenaires.html" },
-    { "source": "/actualites", "destination": "/actualites.html" }
+    { "source": "/actualites", "destination": "/actualites.html" },
+    { "source": "/videos", "destination": "/videos.html" }
   ],
   "headers": [
     {
