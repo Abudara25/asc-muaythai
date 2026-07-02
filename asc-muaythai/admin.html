@@ -283,6 +283,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <div class="status-msg err" id="art-image-error"></div>
       </div>
+      <input type="hidden" id="art-editing-id" value=""/>
       <button type="button" class="btn-primary" id="art-save-btn">Publier l'article</button>
       <div class="status-msg" id="art-status"></div>
     </div>
@@ -949,6 +950,7 @@ checkSession();
 
 // ─── ACTUALITÉS ──────────────────────────────────────────────────────────────
 const BLOB_ACTUALITES = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/actualites.json';
+let _articles = [];
 
 async function loadArticles() {
   const el = document.getElementById('articles-list');
@@ -956,26 +958,53 @@ async function loadArticles() {
   try {
     const r = await fetch(BLOB_ACTUALITES + '?t=' + Date.now());
     if (!r.ok) throw new Error();
-    const articles = await r.json();
-    if (!articles.length) {
-      el.innerHTML = '<p style="color:#888;font-size:13px">Aucun article publié pour le moment.</p>';
-      return;
-    }
-    const sorted = [...articles].sort((a, b) => new Date(b.date) - new Date(a.date));
-    el.innerHTML = sorted.map(a => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-size:15px;color:#fff;font-weight:500">${a.titre}</div>
-          <div style="font-size:12px;color:#888;margin-top:3px">${a.date}${a.extrait ? ' · ' + a.extrait.slice(0, 80) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
-        </div>
-        <button type="button" data-id="${a.id}" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px;flex-shrink:0;margin-left:16px">Supprimer</button>
-      </div>`).join('');
-    el.querySelectorAll('button[data-id]').forEach(btn => {
-      btn.addEventListener('click', () => deleteArticle(btn.dataset.id, btn.closest('div[style]').querySelector('div > div').textContent));
-    });
+    _articles = await r.json();
+    renderArticlesList();
   } catch {
     el.innerHTML = '<p style="color:#888;font-size:13px">Aucun article publié pour le moment.</p>';
   }
+}
+
+function renderArticlesList() {
+  const el = document.getElementById('articles-list');
+  if (!_articles.length) {
+    el.innerHTML = '<p style="color:#888;font-size:13px">Aucun article publié pour le moment.</p>';
+    return;
+  }
+  const sorted = [..._articles].sort((a, b) => new Date(b.date) - new Date(a.date));
+  el.innerHTML = sorted.map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:10px">
+      <div style="min-width:0;flex:1">
+        <div style="font-size:15px;color:#fff;font-weight:500">${a.titre}</div>
+        <div style="font-size:12px;color:#888;margin-top:3px">${a.date}${a.extrait ? ' · ' + a.extrait.slice(0, 80) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button type="button" data-id="${a.id}" class="art-edit-btn" style="background:none;border:1px solid #555;color:#ccc;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Modifier</button>
+        <button type="button" data-id="${a.id}" class="art-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Supprimer</button>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.art-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => editArticle(btn.dataset.id));
+  });
+  el.querySelectorAll('.art-del-btn').forEach(btn => {
+    const titre = btn.closest('div[style]').querySelector('div > div').textContent;
+    btn.addEventListener('click', () => deleteArticle(btn.dataset.id, titre));
+  });
+}
+
+function editArticle(id) {
+  const a = _articles.find(art => art.id === id);
+  if (!a) return;
+  document.getElementById('art-titre').value = a.titre || '';
+  document.getElementById('art-date').value = a.date || '';
+  document.getElementById('art-extrait').value = a.extrait || '';
+  document.getElementById('art-contenu').value = a.contenu || '';
+  document.getElementById('art-image-url').value = a.image || '';
+  document.getElementById('art-image-error').textContent = '';
+  document.getElementById('art-editing-id').value = id;
+  document.getElementById('art-save-btn').textContent = 'Mettre à jour';
+  document.getElementById('art-titre').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('art-titre').focus();
 }
 
 async function deleteArticle(id, titre) {
@@ -985,7 +1014,7 @@ async function deleteArticle(id, titre) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id }),
   });
-  if (r.ok) loadArticles();
+  if (r.ok) setTimeout(() => loadArticles(), 1500);
   else alert('Erreur lors de la suppression');
 }
 
@@ -1018,6 +1047,7 @@ document.getElementById('art-save-btn').addEventListener('click', async () => {
   const extrait = document.getElementById('art-extrait').value.trim();
   const contenu = document.getElementById('art-contenu').value.trim();
   const image = document.getElementById('art-image-url').value.trim();
+  const editingId = document.getElementById('art-editing-id').value;
   const statusEl = document.getElementById('art-status');
 
   if (!titre || !date) {
@@ -1027,24 +1057,29 @@ document.getElementById('art-save-btn').addEventListener('click', async () => {
   }
 
   statusEl.className = 'status-msg';
-  statusEl.textContent = 'Publication en cours…';
+  statusEl.textContent = editingId ? 'Mise à jour en cours…' : 'Publication en cours…';
   document.getElementById('art-save-btn').disabled = true;
+
+  const body = { titre, date, extrait, contenu, image };
+  if (editingId) body.id = editingId;
 
   try {
     const r = await fetch('/api/admin/save-content?type=article-save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ titre, date, extrait, contenu, image }),
+      body: JSON.stringify(body),
     });
     if (r.ok) {
-      statusEl.textContent = '✓ Article publié !';
+      statusEl.textContent = editingId ? '✓ Article mis à jour !' : '✓ Article publié !';
       document.getElementById('art-titre').value = '';
       document.getElementById('art-date').value = '';
       document.getElementById('art-extrait').value = '';
       document.getElementById('art-contenu').value = '';
       document.getElementById('art-image-url').value = '';
       document.getElementById('art-image-error').textContent = '';
-      loadArticles();
+      document.getElementById('art-editing-id').value = '';
+      document.getElementById('art-save-btn').textContent = "Publier l'article";
+      setTimeout(() => loadArticles(), 1500);
       setTimeout(() => { statusEl.textContent = ''; }, 3000);
     } else {
       statusEl.className = 'status-msg err';
@@ -1108,7 +1143,7 @@ async function deleteVideo(id, titre) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id }),
   });
-  if (r.ok) loadVideos();
+  if (r.ok) setTimeout(() => loadVideos(), 1500);
   else alert('Erreur lors de la suppression');
 }
 
@@ -1144,7 +1179,7 @@ document.getElementById('vid-save-btn').addEventListener('click', async () => {
       document.getElementById('vid-url').value = '';
       document.getElementById('vid-titre').value = '';
       document.getElementById('vid-description').value = '';
-      loadVideos();
+      setTimeout(() => loadVideos(), 1500);
       setTimeout(() => { statusEl.textContent = ''; }, 3000);
     } else {
       statusEl.className = 'status-msg err';
