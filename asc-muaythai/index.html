@@ -1038,7 +1038,10 @@ function renderPalmares(palmares) {
     <div class="trophy"><div class="trophy-n">${t.nombre}</div><div class="trophy-info"><div class="trophy-title">${t.titre}</div><div class="trophy-sub">${t.sousTitre}</div></div></div>
   `).join('');
   const photosRow = document.getElementById('palm-photos-row');
-  photosRow.style.display = palmares.photos.length ? '' : 'none';
+  const n = palmares.photos.length;
+  photosRow.style.display = n ? '' : 'none';
+  const cols = n <= 1 ? 1 : n === 2 || n === 4 ? 2 : 3;
+  photosRow.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   photosRow.innerHTML = palmares.photos.map((url) => `<div class="pp2"><img src="${url}" alt="Photo du palmarès ASC Muay Thaï" loading="lazy"/></div>`).join('');
 }
 
