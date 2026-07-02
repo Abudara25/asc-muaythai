@@ -1013,8 +1013,13 @@ async function deleteArticle(id, titre) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id }),
   });
-  if (r.ok) loadArticles();
-  else alert('Erreur lors de la suppression');
+  if (r.ok) {
+    const data = await r.json();
+    _articles = data.articles || _articles.filter(a => a.id !== id);
+    renderArticlesList();
+  } else {
+    alert('Erreur lors de la suppression');
+  }
 }
 
 document.getElementById('art-image-btn').addEventListener('click', () => {
@@ -1069,6 +1074,9 @@ document.getElementById('art-save-btn').addEventListener('click', async () => {
       body: JSON.stringify(body),
     });
     if (r.ok) {
+      const data = await r.json();
+      _articles = data.articles || _articles;
+      renderArticlesList();
       statusEl.textContent = editingId ? '✓ Article mis à jour !' : '✓ Article publié !';
       document.getElementById('art-titre').value = '';
       document.getElementById('art-date').value = '';
@@ -1078,7 +1086,6 @@ document.getElementById('art-save-btn').addEventListener('click', async () => {
       document.getElementById('art-image-error').textContent = '';
       document.getElementById('art-editing-id').value = '';
       document.getElementById('art-save-btn').textContent = "Publier l'article";
-      loadArticles();
       setTimeout(() => { statusEl.textContent = ''; }, 3000);
     } else {
       statusEl.className = 'status-msg err';

@@ -17,7 +17,7 @@ async function getArticles() {
 async function saveArticles(articles) {
   return put(ACTUALITES_PATHNAME, JSON.stringify(articles), {
     access: 'public', contentType: 'application/json',
-    addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 30,
+    addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 0,
   });
 }
 
@@ -32,7 +32,7 @@ async function getVideos() {
 async function saveVideos(videos) {
   return put(VIDEOS_PATHNAME, JSON.stringify(videos), {
     access: 'public', contentType: 'application/json',
-    addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 30,
+    addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 0,
   });
 }
 
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     const idx = articles.findIndex(a => a.id === articleId);
     if (idx >= 0) articles[idx] = article; else articles.push(article);
     await saveArticles(articles);
-    return res.status(200).json({ success: true, id: articleId });
+    return res.status(200).json({ success: true, id: articleId, articles });
   }
 
   if (type === 'video-save') {
@@ -86,8 +86,9 @@ export default async function handler(req, res) {
     const { id } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id requis' });
     const articles = await getArticles();
-    await saveArticles(articles.filter(a => a.id !== id));
-    return res.status(200).json({ success: true });
+    const updated = articles.filter(a => a.id !== id);
+    await saveArticles(updated);
+    return res.status(200).json({ success: true, articles: updated });
   }
 
   const content = req.body;
