@@ -15,7 +15,11 @@ const ALLOWED_IPS = ['51.138.206.200', '4.233.135.234']; // prod + sandbox Hello
 
 function getClientIp(req) {
   const xff = req.headers['x-forwarded-for'];
-  if (xff) return xff.split(',')[0].trim();
+  if (xff) {
+    // Prendre le dernier IP ajouté par le proxy Vercel (non falsifiable par le client)
+    const ips = xff.split(',').map(s => s.trim());
+    return ips[ips.length - 1];
+  }
   return req.socket?.remoteAddress || '';
 }
 

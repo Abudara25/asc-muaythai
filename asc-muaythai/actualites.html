@@ -209,6 +209,9 @@ function formatDate(str) {
   if (isNaN(d)) return str;
   return `${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
 }
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 fetch('https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/actualites.json?t='+Date.now())
   .then(r => r.json())
@@ -223,12 +226,12 @@ fetch('https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/actualites.json?t
     grid.innerHTML = sorted.map(a => `
       <article class="actu-card">
         ${a.image
-          ? `<img class="actu-card-img" src="${a.image}" alt="${a.titre || ''}" loading="lazy"/>`
+          ? `<img class="actu-card-img" src="${esc(a.image)}" alt="${esc(a.titre)}" loading="lazy"/>`
           : `<div class="actu-card-img-placeholder"><span>📰</span></div>`}
         <div class="actu-card-body">
           <div class="actu-date">${formatDate(a.date)}</div>
-          <div class="actu-titre">${a.titre || ''}</div>
-          <p class="actu-extrait">${a.extrait || a.contenu?.slice(0,120) || ''}</p>
+          <div class="actu-titre">${esc(a.titre)}</div>
+          <p class="actu-extrait">${esc(a.extrait || a.contenu?.slice(0,120))}</p>
         </div>
       </article>`).join('');
   })
