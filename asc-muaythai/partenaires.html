@@ -337,7 +337,7 @@ window.loadSiteContent().then((content) => {
   const grid = document.getElementById('partners-page-grid');
 
   if (!list.length) {
-    grid.innerHTML = `<div class="premiers-partenaires">Rejoignez nos premiers partenaires et contribuez à construire la saison ${saison} avec nous.</div>`;
+    document.getElementById('partners-page-section').style.display = 'none';
   } else {
     grid.className = 'partners-grid';
     grid.innerHTML = list.map((p) => {
