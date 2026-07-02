@@ -406,6 +406,11 @@ function renderGalerieSection({ key, gridId, dark, alt: defaultAlt }) {
     grid.outerHTML = `<div class="empty-state${dark ? '' : ' light-empty'}"><p>Photos à venir</p></div>`;
     return;
   }
+  if (!photos.some(p => p.large)) {
+    const n = photos.length;
+    const cols = n <= 1 ? 1 : n === 2 || n === 4 ? 2 : 3;
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  }
   const items = photos.map((p) => ({ src: p.url, alt: p.alt || defaultAlt }));
   const encoded = JSON.stringify(items).replace(/"/g, '&quot;');
   grid.innerHTML = photos.map((p, i) => `
