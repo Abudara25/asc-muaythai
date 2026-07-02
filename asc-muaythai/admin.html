@@ -949,14 +949,13 @@ if (resetToken) {
 checkSession();
 
 // ─── ACTUALITÉS ──────────────────────────────────────────────────────────────
-const BLOB_ACTUALITES = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/actualites.json';
 let _articles = [];
 
 async function loadArticles() {
   const el = document.getElementById('articles-list');
   el.innerHTML = '<p style="color:#888;font-size:13px">Chargement…</p>';
   try {
-    const r = await fetch(BLOB_ACTUALITES + '?t=' + Date.now());
+    const r = await fetch('/api/admin/save-content?type=articles-list');
     if (!r.ok) throw new Error();
     _articles = await r.json();
     renderArticlesList();
@@ -1014,7 +1013,7 @@ async function deleteArticle(id, titre) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id }),
   });
-  if (r.ok) setTimeout(() => loadArticles(), 1500);
+  if (r.ok) loadArticles();
   else alert('Erreur lors de la suppression');
 }
 
@@ -1079,7 +1078,7 @@ document.getElementById('art-save-btn').addEventListener('click', async () => {
       document.getElementById('art-image-error').textContent = '';
       document.getElementById('art-editing-id').value = '';
       document.getElementById('art-save-btn').textContent = "Publier l'article";
-      setTimeout(() => loadArticles(), 1500);
+      loadArticles();
       setTimeout(() => { statusEl.textContent = ''; }, 3000);
     } else {
       statusEl.className = 'status-msg err';
@@ -1106,7 +1105,7 @@ async function loadVideos() {
   const el = document.getElementById('videos-list');
   el.innerHTML = '<p style="color:#888;font-size:13px">Chargement…</p>';
   try {
-    const r = await fetch(BLOB_VIDEOS + '?t=' + Date.now());
+    const r = await fetch('/api/admin/save-content?type=videos-list');
     if (!r.ok) throw new Error();
     const videos = await r.json();
     if (!videos.length) {
@@ -1143,7 +1142,7 @@ async function deleteVideo(id, titre) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id }),
   });
-  if (r.ok) setTimeout(() => loadVideos(), 1500);
+  if (r.ok) loadVideos();
   else alert('Erreur lors de la suppression');
 }
 
@@ -1179,7 +1178,7 @@ document.getElementById('vid-save-btn').addEventListener('click', async () => {
       document.getElementById('vid-url').value = '';
       document.getElementById('vid-titre').value = '';
       document.getElementById('vid-description').value = '';
-      setTimeout(() => loadVideos(), 1500);
+      loadVideos();
       setTimeout(() => { statusEl.textContent = ''; }, 3000);
     } else {
       statusEl.className = 'status-msg err';

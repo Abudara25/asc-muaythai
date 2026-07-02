@@ -37,10 +37,18 @@ async function saveVideos(videos) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   if (!requireAuth(req, res)) return;
 
   const { type } = req.query;
+
+  // ── GET : lecture sans cache CDN (usage admin) ────────────────────────────
+  if (req.method === 'GET') {
+    if (type === 'articles-list') return res.status(200).json(await getArticles());
+    if (type === 'videos-list')   return res.status(200).json(await getVideos());
+    return res.status(400).json({ error: 'type inconnu' });
+  }
+
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
 
   if (type === 'article-save') {
     const { id, titre, date, extrait, contenu, image } = req.body || {};
