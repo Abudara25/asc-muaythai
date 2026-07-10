@@ -41,9 +41,11 @@
       --border: rgba(255,255,255,0.1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; }
 
     nav {
+      position: sticky; top: 0; z-index: 50;
       background: rgba(0,0,0,0.95); border-bottom: 1px solid rgba(255,255,255,0.08);
       padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between;
     }
@@ -62,12 +64,34 @@
 
     /* LAYOUT */
     .wrap { max-width: 880px; margin: 0 auto; padding: 36px 24px 80px; }
-    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .admin-header { margin-bottom: 8px; }
     .admin-header h1 { font-size: 32px; color: #fff; }
+    .admin-header p { font-size: 13px; color: #888; margin-top: 4px; }
 
-    .panel { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 24px; margin-bottom: 24px; }
+    .admin-layout { max-width: 1180px; margin: 0 auto; padding: 32px 24px 60px; }
+    .admin-body { display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 32px; align-items: start; margin-top: 28px; }
+
+    .admin-sidebar { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 2px; }
+    .side-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 4px; color: rgba(255,255,255,.55); text-decoration: none; font-size: 13px; letter-spacing: .3px; transition: .15s; border-left: 2px solid transparent; }
+    .side-link svg { flex-shrink: 0; opacity: .85; }
+    .side-link:hover { color: #fff; background: rgba(255,255,255,0.04); }
+    .side-link.active { color: #fff; background: rgba(238,0,0,0.1); border-left-color: var(--red); }
+
+    .admin-main { min-width: 0; }
+    .panel { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 26px; margin-bottom: 26px; scroll-margin-top: 130px; }
     .panel h2 { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--red); border-bottom: 1px solid rgba(238,0,0,0.3); padding-bottom: 8px; margin-bottom: 18px; }
-    .panel-hint { font-size: 12px; color: #888; margin: -10px 0 16px; line-height: 1.5; }
+    .panel-hint { font-size: 12.5px; color: #999; line-height: 1.6; background: rgba(255,255,255,.03); border-left: 2px solid rgba(238,0,0,.4); padding: 10px 14px; border-radius: 0 3px 3px 0; margin: -6px 0 18px; }
+
+    .save-bar { position: sticky; bottom: 0; margin-top: 8px; padding: 16px 20px; background: rgba(15,15,15,.95); backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: 8px 8px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .save-bar .status-msg { margin: 0; flex: 1; min-width: 220px; }
+
+    @media (max-width: 960px) {
+      .admin-body { grid-template-columns: 1fr; margin-top: 16px; }
+      .admin-sidebar { position: sticky; top: 60px; flex-direction: row; overflow-x: auto; gap: 6px; background: var(--darker); z-index: 40; padding: 10px 0; border-bottom: 1px solid var(--border); }
+      .side-link { flex-shrink: 0; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; }
+      .side-link.active { border-left-color: transparent; border-bottom-color: var(--red); }
+      .panel { scroll-margin-top: 116px; }
+    }
 
     .field { margin-bottom: 14px; }
     .field label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 6px; }
@@ -109,6 +133,7 @@
     .status-msg { margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 3px; display: none; }
     .status-msg.ok { display: block; color: #6fdc8c; background: rgba(40,167,69,0.12); border-left: 3px solid #28a745; }
     .status-msg.err { display: block; color: #ff8080; background: rgba(238,0,0,0.1); border-left: 3px solid var(--red); }
+    .status-msg:empty { display: none; }
 
     /* Photos */
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
@@ -170,13 +195,56 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <!-- DASHBOARD -->
-<div class="wrap" id="dashboard" style="display:none">
+<div class="admin-layout" id="dashboard" style="display:none">
   <div class="admin-header">
     <h1>Gestion du contenu</h1>
+    <p>Modifie ici ce qui est affiché sur le site public — clique une section à gauche pour t'y rendre directement.</p>
   </div>
 
+  <div class="admin-body">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <a class="side-link" href="#panel-coordonnees" data-target="panel-coordonnees">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Coordonnées
+      </a>
+      <a class="side-link" href="#panel-horaires" data-target="panel-horaires">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Horaires
+      </a>
+      <a class="side-link" href="#panel-tarifs" data-target="panel-tarifs">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        Tarifs
+      </a>
+      <a class="side-link" href="#panel-palmares" data-target="panel-palmares">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        Palmarès
+      </a>
+      <a class="side-link" href="#panel-galerie" data-target="panel-galerie">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        Galerie
+      </a>
+      <a class="side-link" href="#panel-partenaires" data-target="panel-partenaires">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Partenaires
+      </a>
+      <a class="side-link" href="#panel-actualites" data-target="panel-actualites">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z"/></svg>
+        Actualités
+      </a>
+      <a class="side-link" href="#panel-videos" data-target="panel-videos">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        Vidéos
+      </a>
+      <a class="side-link" href="#panel-securite" data-target="panel-securite">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Mot de passe
+      </a>
+    </aside>
+
+    <div class="admin-main">
+
   <!-- COORDONNÉES -->
-  <section class="panel">
+  <section class="panel" id="panel-coordonnees">
     <h2>Coordonnées</h2>
     <p class="panel-hint">Affichées automatiquement sur toutes les pages du site (accueil, inscription, cours particuliers).</p>
     <div class="field"><label for="c-email">E-mail de contact</label><input type="email" id="c-email" required /></div>
@@ -185,7 +253,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- HORAIRES -->
-  <section class="panel">
+  <section class="panel" id="panel-horaires">
     <h2>Horaires</h2>
     <p class="panel-hint">Un créneau = un jour, une heure, un groupe. Ajoute ou supprime librement.</p>
     <div id="horaires-list"></div>
@@ -193,7 +261,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- TARIFS -->
-  <section class="panel">
+  <section class="panel" id="panel-tarifs">
     <h2>Tarifs & cotisations</h2>
     <p class="panel-hint">Un avantage par ligne dans la zone de texte (ex : « 3 cours / semaine inclus »).</p>
     <div id="tarifs-list"></div>
@@ -201,7 +269,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- PALMARÈS -->
-  <section class="panel">
+  <section class="panel" id="panel-palmares">
     <h2>Palmarès</h2>
     <div class="field" style="max-width:240px"><label for="p-saison">Saison affichée</label><input type="text" id="p-saison" placeholder="ex : 2025/2026" required /></div>
 
@@ -219,7 +287,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- GALERIE PHOTOS -->
-  <section class="panel">
+  <section class="panel" id="panel-galerie">
     <h2>Galerie Photos</h2>
     <p class="panel-hint">Photos affichées sur la page /galerie. Coche « grande photo » pour qu'elle occupe toute la largeur. Formats JPEG, PNG ou WebP, 8 Mo max par image.</p>
 
@@ -253,7 +321,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- PARTENAIRES -->
-  <section class="panel">
+  <section class="panel" id="panel-partenaires">
     <h2>Partenaires</h2>
     <p class="panel-hint"><strong>1.</strong> Upload le logo ci-dessous : une fiche apparaît juste au-dessus, avec son logo. <strong>2.</strong> Dans cette fiche, renseigne son nom, puis — si besoin — son activité, une courte description et ses coordonnées (téléphone, e-mail, adresse, site web). Seul le nom est requis, tout le reste est optionnel. Affichés sur l'accueil et sur /partenaires ; la section est invisible tant que la liste est vide.</p>
     <div id="partenaires-list"></div>
@@ -264,7 +332,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- ACTUALITÉS -->
-  <section class="panel">
+  <section class="panel" id="panel-actualites">
     <h2>Actualités</h2>
     <p class="panel-hint">Articles publiés sur la page /actualites. Titre et date sont obligatoires.</p>
 
@@ -294,7 +362,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- VIDÉOS -->
-  <section class="panel">
+  <section class="panel" id="panel-videos">
     <h2>Vidéos</h2>
     <p class="panel-hint">Vidéos YouTube publiées sur la page /videos. Colle l'URL YouTube, ajoute un titre si besoin, puis clique sur « Publier ».</p>
 
@@ -311,7 +379,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- SÉCURITÉ -->
-  <section class="panel">
+  <section class="panel" id="panel-securite">
     <h2>Mot de passe</h2>
     <p class="panel-hint">Pour changer ton mot de passe de connexion à cet espace admin.</p>
     <div class="row-grid" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
@@ -323,8 +391,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="status-msg" id="pwd-status"></div>
   </section>
 
-  <button type="button" class="btn-primary" id="save-btn">Enregistrer les modifications</button>
-  <div class="status-msg" id="save-status"></div>
+      <div class="save-bar">
+        <div class="status-msg" id="save-status"></div>
+        <button type="button" class="btn-primary" id="save-btn">Enregistrer les modifications</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="/site-content.js"></script>
@@ -405,6 +477,28 @@ async function showDashboard() {
   fillPartenaires(content.partenaires || []);
   loadArticles();
   loadVideos();
+  setupSectionNav();
+}
+
+// ─── NAVIGATION LATÉRALE (scroll-spy) ─────────────────────────────────────────
+function setupSectionNav() {
+  const links = [...document.querySelectorAll('.side-link')];
+  const sections = links.map((l) => document.getElementById(l.dataset.target)).filter(Boolean);
+  if (!sections.length) return;
+
+  const setActive = (id) => {
+    links.forEach((l) => l.classList.toggle('active', l.dataset.target === id));
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter((e) => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (visible.length) setActive(visible[0].target.id);
+  }, { rootMargin: '-110px 0px -70% 0px', threshold: 0 });
+
+  sections.forEach((s) => observer.observe(s));
+  setActive(sections[0].id);
 }
 
 // ─── COORDONNÉES ──────────────────────────────────────────────────────────────
