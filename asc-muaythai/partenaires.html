@@ -108,11 +108,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:110px;display:flex;al
 
 /* ── PARTENAIRES GRID ── */
 .partners-section{padding:72px 80px;background:var(--white)}
-.partners-grid{display:flex;flex-wrap:wrap;gap:40px;align-items:center;justify-content:center;margin-bottom:32px}
-.partner-item{display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none}
-.partner-item img{max-width:160px;max-height:90px;object-fit:contain;filter:grayscale(100%);opacity:.5;transition:.3s}
-.partner-item:hover img{filter:none;opacity:1}
-.partner-name{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted-light)}
+.partners-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-bottom:32px}
+.partner-card{border:1px solid var(--border-light);padding:32px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--white);transition:.25s}
+.partner-card:hover{border-color:var(--red);box-shadow:0 10px 28px rgba(0,0,0,.07);transform:translateY(-2px)}
+.partner-card-logo{height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.partner-card-logo img{max-width:170px;max-height:72px;object-fit:contain}
+.partner-card-name{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:1px;color:var(--dark);line-height:1.2}
+.partner-card-activite{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-top:5px;font-weight:500}
+.partner-card-desc{font-size:13px;color:#666;line-height:1.7;margin-top:12px}
+.partner-card-contacts{display:flex;flex-direction:column;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border-light);width:100%}
+.partner-card-row{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:#555;line-height:1.4}
+.partner-card-row svg{flex-shrink:0;color:var(--red)}
+.partner-card-row a{color:inherit;text-decoration:none}
+.partner-card-row a:hover{color:var(--red)}
+.partner-card-site{margin-top:16px}
+.partner-card-site a{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--dark);text-decoration:none;border-bottom:1px solid var(--dark);padding-bottom:2px;transition:.2s}
+.partner-card-site a:hover{color:var(--red);border-color:var(--red)}
 .premiers-partenaires{
   text-align:center;padding:48px 32px;
   border:1px dashed var(--border-light);
@@ -332,6 +343,28 @@ function getSaison() {
 const saison = getSaison();
 document.querySelector('.s-tag').textContent = `Appel au mécénat · Saison ${saison}`;
 
+const partnerIcons = {
+  tel: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  mail: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>',
+  pin: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+};
+
+function renderPartnerCard(p) {
+  const contacts = [];
+  if (p.telephone) contacts.push(`<div class="partner-card-row">${partnerIcons.tel}<a href="tel:${p.telephone.replace(/\s+/g, '')}">${p.telephone}</a></div>`);
+  if (p.email) contacts.push(`<div class="partner-card-row">${partnerIcons.mail}<a href="mailto:${p.email}">${p.email}</a></div>`);
+  if (p.adresse) contacts.push(`<div class="partner-card-row">${partnerIcons.pin}<span>${p.adresse}</span></div>`);
+
+  return `<div class="partner-card">
+    <div class="partner-card-logo"><img src="${p.logo}" alt="${p.nom || 'Partenaire ASC Muay Thaï'}" loading="lazy"/></div>
+    ${p.nom ? `<div class="partner-card-name">${p.nom}</div>` : ''}
+    ${p.activite ? `<div class="partner-card-activite">${p.activite}</div>` : ''}
+    ${p.description ? `<p class="partner-card-desc">${p.description}</p>` : ''}
+    ${contacts.length ? `<div class="partner-card-contacts">${contacts.join('')}</div>` : ''}
+    ${p.url ? `<div class="partner-card-site"><a href="${p.url}" target="_blank" rel="noopener">Voir le site →</a></div>` : ''}
+  </div>`;
+}
+
 window.loadSiteContent().then((content) => {
   const list = content.partenaires || [];
   const grid = document.getElementById('partners-page-grid');
@@ -340,14 +373,7 @@ window.loadSiteContent().then((content) => {
     document.getElementById('partners-page-section').style.display = 'none';
   } else {
     grid.className = 'partners-grid';
-    grid.innerHTML = list.map((p) => {
-      const tag = p.url ? 'a' : 'div';
-      const attrs = p.url ? `href="${p.url}" target="_blank" rel="noopener"` : '';
-      return `<${tag} class="partner-item" ${attrs}>
-        <img src="${p.logo}" alt="${p.nom || 'Partenaire ASC Muay Thaï'}" loading="lazy"/>
-        ${p.nom ? `<span class="partner-name">${p.nom}</span>` : ''}
-      </${tag}>`;
-    }).join('');
+    grid.innerHTML = list.map(renderPartnerCard).join('');
   }
 
   const yr = new Date().getFullYear();

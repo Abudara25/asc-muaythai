@@ -59,7 +59,12 @@ function isValidPartenaire(p) {
     p && typeof p === 'object' &&
     isNonEmptyString(p.logo) &&
     isString(p.nom) &&
-    isString(p.url)
+    isString(p.url) &&
+    isString(p.activite) &&
+    isString(p.description) &&
+    isString(p.telephone) &&
+    isString(p.email) &&
+    isString(p.adresse)
   );
 }
 

@@ -124,6 +124,8 @@
     .club-photo-row .check-field input { width: auto; }
     .panel-subtitle { font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .partenaire-row img { width: 90px; height: 60px; object-fit: contain; background: #fff; border-radius: 4px; padding: 6px; flex-shrink: 0; }
+    .partenaire-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px) { .partenaire-contact-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -253,7 +255,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- PARTENAIRES -->
   <section class="panel">
     <h2>Partenaires</h2>
-    <p class="panel-hint">Logos affichés sur l'accueil et sur la page /partenaires. Quand la liste est vide, la section est invisible sur le site. Upload le logo puis renseigne le nom et le lien.</p>
+    <p class="panel-hint">Affichés sur l'accueil et sur la page /partenaires. Quand la liste est vide, la section est invisible sur le site. Upload le logo puis renseigne le nom — les autres champs sont optionnels : renseigne l'activité et les coordonnées pour un partenaire professionnel (ex : un praticien) qui veut être trouvé directement, ou laisse-les vides pour un simple logo.</p>
     <div id="partenaires-list"></div>
     <div class="upload-zone">Ajouter un logo partenaire (un à la fois)
       <input type="file" id="partenaires-input" accept="image/jpeg,image/png,image/webp" />
@@ -677,6 +679,20 @@ function fillPartenaires(list) {
   renderPartenairesAdmin();
 }
 
+function makePartenaireField(labelText, type, cls, value, placeholder) {
+  const field = document.createElement('div');
+  field.className = 'field';
+  const label = document.createElement('label');
+  label.textContent = labelText;
+  const input = document.createElement('input');
+  input.type = type;
+  input.className = cls;
+  input.value = value || '';
+  input.placeholder = placeholder || '';
+  field.append(label, input);
+  return field;
+}
+
 function renderPartenairesAdmin() {
   const container = document.getElementById('partenaires-list');
   container.replaceChildren();
@@ -696,29 +712,21 @@ function renderPartenairesAdmin() {
     img.alt = p.nom || 'Logo partenaire';
     img.loading = 'lazy';
 
-    const nomField = document.createElement('div');
-    nomField.className = 'field';
-    const nomLabel = document.createElement('label');
-    nomLabel.textContent = 'Nom du partenaire';
-    const nomInput = document.createElement('input');
-    nomInput.type = 'text';
-    nomInput.className = 'p-nom';
-    nomInput.value = p.nom || '';
-    nomInput.placeholder = 'Ex : Mairie de Bessancourt';
-    nomField.append(nomLabel, nomInput);
+    const nomField = makePartenaireField('Nom du partenaire', 'text', 'p-nom', p.nom, 'Ex : Mairie de Bessancourt');
+    const activiteField = makePartenaireField('Activité (optionnel)', 'text', 'p-activite', p.activite, 'Ex : Chiropracteure');
+    const descriptionField = makePartenaireField('Description courte (optionnel)', 'text', 'p-description', p.description, 'Ex : Soins pour sportifs, sur rendez-vous');
 
-    const urlField = document.createElement('div');
-    urlField.className = 'field';
-    const urlLabel = document.createElement('label');
-    urlLabel.textContent = 'Site web (optionnel)';
-    const urlInput = document.createElement('input');
-    urlInput.type = 'url';
-    urlInput.className = 'p-url';
-    urlInput.value = p.url || '';
-    urlInput.placeholder = 'https://...';
-    urlField.append(urlLabel, urlInput);
+    const contactGrid = document.createElement('div');
+    contactGrid.className = 'partenaire-contact-grid';
+    contactGrid.append(
+      makePartenaireField('Téléphone (optionnel)', 'text', 'p-telephone', p.telephone, '06 12 34 56 78'),
+      makePartenaireField('E-mail (optionnel)', 'email', 'p-email', p.email, 'contact@...')
+    );
 
-    row.append(removeBtn, img, nomField, urlField);
+    const adresseField = makePartenaireField('Adresse (optionnel)', 'text', 'p-adresse', p.adresse, 'Ex : 12 rue de Paris, Bessancourt');
+    const urlField = makePartenaireField('Site web (optionnel)', 'url', 'p-url', p.url, 'https://...');
+
+    row.append(removeBtn, img, nomField, activiteField, descriptionField, contactGrid, adresseField, urlField);
     container.append(row);
   });
 }
@@ -734,6 +742,11 @@ function readPartenaires() {
   return [...document.querySelectorAll('#partenaires-list .partenaire-row')].map((row, i) => ({
     logo: partenaires[i].logo,
     nom: row.querySelector('.p-nom').value.trim(),
+    activite: row.querySelector('.p-activite').value.trim(),
+    description: row.querySelector('.p-description').value.trim(),
+    telephone: row.querySelector('.p-telephone').value.trim(),
+    email: row.querySelector('.p-email').value.trim(),
+    adresse: row.querySelector('.p-adresse').value.trim(),
     url: row.querySelector('.p-url').value.trim(),
   })).filter((p) => p.logo);
 }
@@ -751,7 +764,7 @@ document.getElementById('partenaires-input').addEventListener('change', async (e
     const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
-    partenaires.push({ logo: data.url, nom: '', url: '' });
+    partenaires.push({ logo: data.url, nom: '', activite: '', description: '', telephone: '', email: '', adresse: '', url: '' });
     renderPartenairesAdmin();
   } catch (err) {
     errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
