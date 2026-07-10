@@ -255,9 +255,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- PARTENAIRES -->
   <section class="panel">
     <h2>Partenaires</h2>
-    <p class="panel-hint">Affichés sur l'accueil et sur la page /partenaires. Quand la liste est vide, la section est invisible sur le site. Upload le logo puis renseigne le nom — les autres champs sont optionnels : renseigne l'activité et les coordonnées pour un partenaire professionnel (ex : un praticien) qui veut être trouvé directement, ou laisse-les vides pour un simple logo.</p>
+    <p class="panel-hint"><strong>1.</strong> Upload le logo ci-dessous : une fiche apparaît juste au-dessus, avec son logo. <strong>2.</strong> Dans cette fiche, renseigne son nom, puis — si besoin — son activité, une courte description et ses coordonnées (téléphone, e-mail, adresse, site web). Seul le nom est requis, tout le reste est optionnel. Affichés sur l'accueil et sur /partenaires ; la section est invisible tant que la liste est vide.</p>
     <div id="partenaires-list"></div>
-    <div class="upload-zone">Ajouter un logo partenaire (un à la fois)
+    <div class="upload-zone">Ajouter un logo partenaire (un à la fois) — une fiche à compléter apparaîtra juste au-dessus
       <input type="file" id="partenaires-input" accept="image/jpeg,image/png,image/webp" />
     </div>
     <div class="status-msg err" id="partenaires-error"></div>
@@ -696,6 +696,14 @@ function makePartenaireField(labelText, type, cls, value, placeholder) {
 function renderPartenairesAdmin() {
   const container = document.getElementById('partenaires-list');
   container.replaceChildren();
+
+  if (!partenaires.length) {
+    const empty = document.createElement('p');
+    empty.style.cssText = 'color:#888;font-size:13px;padding:10px 0 16px';
+    empty.textContent = 'Aucun partenaire pour l\'instant — ajoute un logo ci-dessous pour créer la première fiche.';
+    container.append(empty);
+  }
+
   partenaires.forEach((p, i) => {
     const row = document.createElement('div');
     row.className = 'item-row partenaire-row';
