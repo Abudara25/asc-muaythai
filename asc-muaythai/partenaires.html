@@ -351,19 +351,30 @@ const partnerIcons = {
   pin: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
 };
 
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeUrl(u) {
+  try {
+    const parsed = new URL(String(u || '').trim());
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+  } catch { return ''; }
+}
+
 function renderPartnerCard(p) {
   const contacts = [];
-  if (p.telephone) contacts.push(`<div class="partner-card-row">${partnerIcons.tel}<a href="tel:${p.telephone.replace(/\s+/g, '')}">${p.telephone}</a></div>`);
-  if (p.email) contacts.push(`<div class="partner-card-row">${partnerIcons.mail}<a href="mailto:${p.email}">${p.email}</a></div>`);
-  if (p.adresse) contacts.push(`<div class="partner-card-row">${partnerIcons.pin}<span>${p.adresse}</span></div>`);
+  if (p.telephone) contacts.push(`<div class="partner-card-row">${partnerIcons.tel}<a href="tel:${esc(p.telephone.replace(/\s+/g, ''))}">${esc(p.telephone)}</a></div>`);
+  if (p.email) contacts.push(`<div class="partner-card-row">${partnerIcons.mail}<a href="mailto:${esc(p.email)}">${esc(p.email)}</a></div>`);
+  if (p.adresse) contacts.push(`<div class="partner-card-row">${partnerIcons.pin}<span>${esc(p.adresse)}</span></div>`);
 
+  const url = safeUrl(p.url);
   return `<div class="partner-card">
-    <div class="partner-card-logo"><img src="${p.logo}" alt="${p.nom || 'Partenaire ASC Muay Thaï'}" loading="lazy"/></div>
-    ${p.nom ? `<div class="partner-card-name">${p.nom}</div>` : ''}
-    ${p.activite ? `<div class="partner-card-activite">${p.activite}</div>` : ''}
-    ${p.description ? `<p class="partner-card-desc">${p.description}</p>` : ''}
+    <div class="partner-card-logo"><img src="${esc(safeUrl(p.logo))}" alt="${esc(p.nom || 'Partenaire ASC Muay Thaï')}" loading="lazy"/></div>
+    ${p.nom ? `<div class="partner-card-name">${esc(p.nom)}</div>` : ''}
+    ${p.activite ? `<div class="partner-card-activite">${esc(p.activite)}</div>` : ''}
+    ${p.description ? `<p class="partner-card-desc">${esc(p.description)}</p>` : ''}
     ${contacts.length ? `<div class="partner-card-contacts">${contacts.join('')}</div>` : ''}
-    ${p.url ? `<div class="partner-card-site"><a href="${p.url}" target="_blank" rel="noopener">Voir le site →</a></div>` : ''}
+    ${url ? `<div class="partner-card-site"><a href="${esc(url)}" target="_blank" rel="noopener">Voir le site →</a></div>` : ''}
   </div>`;
 }
 

@@ -934,14 +934,14 @@ async function submitInscription() {
       if (reglement === "Virement") {
         instDiv.innerHTML = `
           <strong>💳 Virement Bancaire :</strong><br>
-          Veuillez effectuer un virement de <strong style="color:var(--red); font-size:16px;">${data.montant}€</strong> sur l'IBAN du club :<br>
+          Veuillez effectuer un virement de <strong style="color:var(--red); font-size:16px;">${esc(data.montant)}€</strong> sur l'IBAN du club :<br>
           <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 6px 10px; display: block; margin: 8px 0; word-break: break-all; border: 1px solid rgba(255,255,255,0.2); font-size: 13px;">FR76 1027 8063 4700 0232 4440 117</span>
-          Veuillez indiquer le libellé précis suivant : <strong>Cotisation ${prenom} ${nom}</strong>.
+          Veuillez indiquer le libellé précis suivant : <strong>Cotisation ${esc(prenom)} ${esc(nom)}</strong>.
         `;
       } else if (reglement === "Cheque") {
         instDiv.innerHTML = `
           <strong>📝 Règlement par Chèque :</strong><br>
-          Veuillez préparer vos chèques pour un montant total de <strong style="color:var(--red); font-size:16px;">${data.montant}€</strong>.<br>
+          Veuillez préparer vos chèques pour un montant total de <strong style="color:var(--red); font-size:16px;">${esc(data.montant)}€</strong>.<br>
           Vous pouvez payer en <strong>3 fois maximum</strong> par chèque (indiquez les dates d'encaissement souhaitées au dos).<br>
           Libellé des chèques à l'ordre de : <strong>ASC MUAY THAI</strong>.<br>
           Remettez-les en main propre au club lors de votre première séance.
@@ -949,7 +949,7 @@ async function submitInscription() {
       } else if (reglement === "Especes") {
         instDiv.innerHTML = `
           <strong>💵 Règlement en Espèces :</strong><br>
-          Veuillez apporter le montant de votre cotisation (<strong style="color:var(--red); font-size:16px;">${data.montant}€</strong>) en espèces lors de votre première séance.<br>
+          Veuillez apporter le montant de votre cotisation (<strong style="color:var(--red); font-size:16px;">${esc(data.montant)}€</strong>) en espèces lors de votre première séance.<br>
           Merci de bien vouloir préparer l'appoint.
         `;
       }
@@ -986,9 +986,19 @@ const HORAIRE_BADGES = {
   competition: { label: 'Compétition', style: 'background:rgba(156,39,176,0.25);color:#ce93d8' },
 };
 
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeUrl(u) {
+  try {
+    const parsed = new URL(String(u || '').trim());
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+  } catch { return ''; }
+}
+
 function renderContact(contact) {
   const [titre, ...reste] = contact.adresseEntrainement.split(',').map((s) => s.trim());
-  const detail = reste.join('<br>');
+  const detail = reste.map(esc).join('<br>');
   document.getElementById('contact-adresse-titre').textContent = titre;
   document.getElementById('contact-adresse-detail').innerHTML = detail;
 
@@ -1011,10 +1021,10 @@ function renderHoraires(horaires) {
   });
   document.getElementById('hor-grid').innerHTML = jours.map((jour) => `
     <div class="hor-card">
-      <div class="hor-day">${jour}</div>
+      <div class="hor-day">${esc(jour)}</div>
       ${parJour.get(jour).map((h) => {
         const badge = HORAIRE_BADGES[h.categorie] || HORAIRE_BADGES.adultes;
-        return `<div class="hor-slot"><div><div class="hor-time">${h.horaire}</div><div class="hor-who">${h.groupe}</div></div><span class="hor-badge" style="${badge.style}">${badge.label}</span></div>`;
+        return `<div class="hor-slot"><div><div class="hor-time">${esc(h.horaire)}</div><div class="hor-who">${esc(h.groupe)}</div></div><span class="hor-badge" style="${badge.style}">${badge.label}</span></div>`;
       }).join('')}
     </div>
   `).join('');
@@ -1025,10 +1035,10 @@ function renderTarifs(tarifs) {
   document.getElementById('tarif-grid').innerHTML = tarifs.map((t, i) => `
     <div class="tc${i === vedette ? ' feat' : ''}">
       <div class="tc-label">Section</div>
-      <div class="tc-name">${t.section}</div>
+      <div class="tc-name">${esc(t.section)}</div>
       <div class="tc-price"><sup>€</sup>${t.prix}</div>
       <div class="tc-per">par saison</div>
-      <ul class="tc-list">${t.avantages.map((a) => `<li>${a}</li>`).join('')}</ul>
+      <ul class="tc-list">${t.avantages.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>
       <a class="tc-btn" href="/inscription">S'inscrire</a>
     </div>
   `).join('');
@@ -1037,14 +1047,14 @@ function renderTarifs(tarifs) {
 function renderPalmares(palmares) {
   document.getElementById('palmares-saison').textContent = `Saison ${palmares.saison}`;
   document.getElementById('trophy-list').innerHTML = palmares.trophees.map((t) => `
-    <div class="trophy"><div class="trophy-n">${t.nombre}</div><div class="trophy-info"><div class="trophy-title">${t.titre}</div><div class="trophy-sub">${t.sousTitre}</div></div></div>
+    <div class="trophy"><div class="trophy-n">${esc(t.nombre)}</div><div class="trophy-info"><div class="trophy-title">${esc(t.titre)}</div><div class="trophy-sub">${esc(t.sousTitre)}</div></div></div>
   `).join('');
   const photosRow = document.getElementById('palm-photos-row');
   const n = palmares.photos.length;
   photosRow.style.display = n ? '' : 'none';
   const cols = n <= 1 ? 1 : n === 2 || n === 4 ? 2 : 3;
   photosRow.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  photosRow.innerHTML = palmares.photos.map((url) => `<div class="pp2"><img src="${url}" alt="Photo du palmarès ASC Muay Thaï" loading="lazy"/></div>`).join('');
+  photosRow.innerHTML = palmares.photos.map((url) => `<div class="pp2"><img src="${esc(safeUrl(url))}" alt="Photo du palmarès ASC Muay Thaï" loading="lazy"/></div>`).join('');
 }
 
 window.loadSiteContent().then((content) => {
@@ -1059,11 +1069,12 @@ function renderPartenaires(list) {
   if (!list || !list.length) return;
   document.getElementById('partenaires-section').style.display = '';
   document.getElementById('partners-grid').innerHTML = list.map((p) => {
-    const tag = p.url ? 'a' : 'div';
-    const attrs = p.url ? `href="${p.url}" target="_blank" rel="noopener"` : '';
+    const url = safeUrl(p.url);
+    const tag = url ? 'a' : 'div';
+    const attrs = url ? `href="${esc(url)}" target="_blank" rel="noopener"` : '';
     return `<${tag} class="partner-item" ${attrs}>
-      <img src="${p.logo}" alt="${p.nom || 'Partenaire ASC Muay Thaï'}" loading="lazy"/>
-      ${p.nom ? `<span class="partner-name">${p.nom}</span>` : ''}
+      <img src="${esc(safeUrl(p.logo))}" alt="${esc(p.nom || 'Partenaire ASC Muay Thaï')}" loading="lazy"/>
+      ${p.nom ? `<span class="partner-name">${esc(p.nom)}</span>` : ''}
     </${tag}>`;
   }).join('');
 }
@@ -1081,7 +1092,7 @@ function renderPartenaires(list) {
       const before = words.slice(0, 1).join(' ');
       const accent = words.slice(1, mid).join(' ');
       const after = words.slice(mid).join(' ');
-      document.getElementById('fem-titre').innerHTML = before + ' <span style="color:var(--red)">' + accent + '</span> ' + after;
+      document.getElementById('fem-titre').innerHTML = esc(before) + ' <span style="color:var(--red)">' + esc(accent) + '</span> ' + esc(after);
     }
     if (d.lead) document.getElementById('fem-lead').textContent = d.lead;
     if (d.sous_texte) document.getElementById('fem-sub').textContent = d.sous_texte;

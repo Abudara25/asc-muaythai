@@ -399,6 +399,16 @@ const GALERIE_CATS = [
   { key: 'competition', gridId: 'gallery-competition', dark: true,  alt: 'Compétition ASC Muay Thaï' },
 ];
 
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeUrl(u) {
+  try {
+    const parsed = new URL(String(u || '').trim());
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+  } catch { return ''; }
+}
+
 function renderGalerieSection({ key, gridId, dark, alt: defaultAlt }) {
   const grid = document.getElementById(gridId);
   const photos = (window.__galerieData || {})[key] || [];
@@ -415,7 +425,7 @@ function renderGalerieSection({ key, gridId, dark, alt: defaultAlt }) {
   const encoded = JSON.stringify(items).replace(/"/g, '&quot;');
   grid.innerHTML = photos.map((p, i) => `
     <div class="gallery-item${p.large ? ' wide' : ''}" onclick="openLb(${encoded}, ${i})">
-      <img src="${p.url}" alt="${(p.alt || defaultAlt).replace(/"/g,'&quot;')}" loading="lazy"/>
+      <img src="${esc(safeUrl(p.url))}" alt="${esc(p.alt || defaultAlt)}" loading="lazy"/>
     </div>
   `).join('');
 }

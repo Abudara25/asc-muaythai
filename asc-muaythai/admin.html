@@ -401,6 +401,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <script src="/site-content.js"></script>
 <script>
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 const CATEGORIES = [
   { value: 'enfants',     label: 'Enfants' },
   { value: 'ados',        label: 'Ados' },
@@ -1089,12 +1093,12 @@ function renderArticlesList() {
   el.innerHTML = sorted.map(a => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:10px">
       <div style="min-width:0;flex:1">
-        <div style="font-size:15px;color:#fff;font-weight:500">${a.titre}</div>
-        <div style="font-size:12px;color:#888;margin-top:3px">${a.date}${a.extrait ? ' · ' + a.extrait.slice(0, 80) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
+        <div style="font-size:15px;color:#fff;font-weight:500">${esc(a.titre)}</div>
+        <div style="font-size:12px;color:#888;margin-top:3px">${esc(a.date)}${a.extrait ? ' · ' + esc(a.extrait.slice(0, 80)) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <button type="button" data-id="${a.id}" class="art-edit-btn" style="background:none;border:1px solid #555;color:#ccc;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Modifier</button>
-        <button type="button" data-id="${a.id}" data-titre="${(a.titre||'').replace(/"/g,'&quot;')}" class="art-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Supprimer</button>
+        <button type="button" data-id="${esc(a.id)}" class="art-edit-btn" style="background:none;border:1px solid #555;color:#ccc;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Modifier</button>
+        <button type="button" data-id="${esc(a.id)}" data-titre="${esc(a.titre||'')}" class="art-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Supprimer</button>
       </div>
     </div>`).join('');
   el.querySelectorAll('.art-edit-btn').forEach(btn => {
@@ -1235,17 +1239,17 @@ async function loadVideos() {
     }
     const sorted = [...videos].sort((a, b) => new Date(b.date) - new Date(a.date));
     el.innerHTML = sorted.map(v => {
-      const ytId = getYouTubeId(v.url);
+      const ytId = esc(getYouTubeId(v.url));
       const thumb = ytId ? `<img src="https://img.youtube.com/vi/${ytId}/default.jpg" style="width:80px;height:60px;object-fit:cover;border-radius:3px;flex-shrink:0" />` : '';
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">
         <div style="display:flex;gap:12px;align-items:center;min-width:0">
           ${thumb}
           <div style="min-width:0">
-            <div style="font-size:15px;color:#fff;font-weight:500">${v.titre || v.url}</div>
-            <div style="font-size:12px;color:#888;margin-top:3px">${v.date}${v.description ? ' · ' + v.description.slice(0, 80) : ''}</div>
+            <div style="font-size:15px;color:#fff;font-weight:500">${esc(v.titre || v.url)}</div>
+            <div style="font-size:12px;color:#888;margin-top:3px">${esc(v.date)}${v.description ? ' · ' + esc(v.description.slice(0, 80)) : ''}</div>
           </div>
         </div>
-        <button type="button" data-id="${v.id}" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px;flex-shrink:0">Supprimer</button>
+        <button type="button" data-id="${esc(v.id)}" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px;flex-shrink:0">Supprimer</button>
       </div>`;
     }).join('');
     el.querySelectorAll('button[data-id]').forEach(btn => {

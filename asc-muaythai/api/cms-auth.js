@@ -5,7 +5,10 @@ export default async function handler(req, res) {
   // ── Callback OAuth ──────────────────────────────────────────────────────────
   if (code || error) {
     const sendMessage = (type, payload) => {
-      const json = JSON.stringify(payload);
+      // JSON.stringify n'échappe pas "</script>" : sans ce remplacement, un
+      // paramètre "error" contenant ce littéral casserait la balise <script>
+      // et injecterait du HTML/JS arbitraire (XSS réfléchi non authentifié).
+      const json = JSON.stringify(payload).replace(/</g, '\\u003c');
       const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>
 <script id="__payload" type="application/json">${json}<\/script>
 <script>

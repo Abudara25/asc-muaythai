@@ -6,7 +6,16 @@ import { put } from '@vercel/blob';
 
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
 
-const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'dev-local-fallback-not-for-production';
+// Sur Vercel (Production ou Preview), ADMIN_SESSION_SECRET doit toujours être
+// défini : ce code source est public, donc une valeur de repli codée en dur y
+// serait connue de tous et permettrait de forger une session admin valide.
+// On n'autorise ce repli qu'en exécution locale hors Vercel (ex. `node` direct).
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || (() => {
+  if (process.env.VERCEL_ENV) {
+    throw new Error('ADMIN_SESSION_SECRET manquant : requis sur Vercel (Production/Preview).');
+  }
+  return 'dev-local-fallback-not-for-production';
+})();
 
 // Vercel Blob ne propose pas d'accès privé : tout blob "public" est lisible
 // par quiconque connaît son URL. Comme ce code source est public, un nom de
