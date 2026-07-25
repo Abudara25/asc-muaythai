@@ -1,6 +1,10 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<!-- Préchargement de l'image LCP du hero (doit rester aligné sur le <picture> de .hero-bg) -->
+<link rel="preload" as="image" type="image/webp" imagesrcset="/hero-sm.webp 1280w, /hero.webp 2400w" imagesizes="100vw" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Google tag (gtag.js) -->
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -68,7 +72,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 }
 </script>
 <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
-<link rel="apple-touch-icon" href="/favicon.png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -148,7 +152,7 @@ padding-top:12px}
 .nav-links .dropdown a{
   font-family:'Barlow Condensed',sans-serif;font-size:12px;
   letter-spacing:2px;text-transform:uppercase;
-  color:#fff;${2}text-decoration:none;
+  color:#fff;text-decoration:none;
   padding:12px 20px;white-space:nowrap;transition:.2s;
 }
 .nav-links .dropdown a+a{border-top:1px solid rgba(255,255,255,.06)}
@@ -180,8 +184,13 @@ padding-top:12px}
 }
 .hero-bg{
   position:absolute;inset:0;
-  background:url('/hero.jpg') center top / cover no-repeat;
+  background:var(--darker);
   filter:brightness(0.70);
+}
+.hero-bg picture,.hero-bg img{
+  position:absolute;inset:0;
+  width:100%;height:100%;display:block;
+  object-fit:cover;object-position:center top;
 }
 .hero-bg::after{
   content:'';position:absolute;inset:0;
@@ -237,7 +246,14 @@ h1.hero-title .accent{color:var(--red);display:block}
 .photo-break{
   height:480px;
   background:url('/disciplines-bg.jpg') center 30% / cover no-repeat;
+  background-image:image-set(url('/disciplines-bg.webp') type('image/webp'),url('/disciplines-bg.jpg') type('image/jpeg'));
   position:relative;
+}
+@media (max-width:900px){
+  .photo-break{
+    background-image:url('/disciplines-bg-sm.jpg');
+    background-image:image-set(url('/disciplines-bg-sm.webp') type('image/webp'),url('/disciplines-bg-sm.jpg') type('image/jpeg'));
+  }
 }
 .photo-break::after{
   content:'';position:absolute;inset:0;
@@ -680,7 +696,13 @@ function closeMobile(){
 
 <!-- HERO NOIR -->
 <section class="hero" id="accueil">
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+    <picture>
+      <source type="image/webp" srcset="/hero-sm.webp 1280w, /hero.webp 2400w" sizes="100vw">
+      <source type="image/jpeg" srcset="/hero-sm.jpg 1280w, /hero.jpg 2400w" sizes="100vw">
+      <img src="/hero.jpg" alt="" width="2400" height="1600" fetchpriority="high">
+    </picture>
+  </div>
   <div class="hero-content">
     <div class="hero-tag">Bessancourt · Val d'Oise · 95</div>
     <h1 class="hero-title"><span style="font-size:0.45em;letter-spacing:4px;color:rgba(255,255,255,0.7);display:block;margin-bottom:4px">ASC</span>MUAY<span class="accent">THAÏ</span><span style="font-size:0.28em;letter-spacing:6px;color:rgba(255,255,255,0.5);display:block;margin-top:8px;font-family:'Barlow Condensed',sans-serif;font-weight:400;text-transform:uppercase">Bessancourt · 95</span></h1>
