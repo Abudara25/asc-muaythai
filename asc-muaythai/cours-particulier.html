@@ -1,32 +1,11 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied'
-    });
-  </script>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-TJLXG2LB');</script>
-  <!-- End Google Tag Manager -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9TTYY8WKL"></script>
-  <script>
-    gtag('js', new Date());
-    gtag('config', 'G-W9TTYY8WKL');
-  </script>
-  <script src="/cookie-consent.js" defer></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js"></script>
+  <script src="/cookie-consent.js" defer></script>
+<script src="/nav.js" defer></script>
   <title>Cours Particuliers — ASC Muay Thaï Bessancourt</title>
   <meta name="description" content="Cours particuliers de Muay Thaï à Bessancourt (95) avec l'ASC Muay Thaï. Tous niveaux, sans engagement, sur rendez-vous. Tarif personnalisé."/>
   <meta name="robots" content="index, follow"/>
@@ -43,10 +22,12 @@
   <meta name="twitter:description" content="Cours particuliers de Muay Thaï à Bessancourt. Tous niveaux, sans engagement, tarif personnalisé."/>
   <meta name="twitter:image" content="https://www.asc-muaythai.fr/logo.png"/>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Cours particuliers de Muay Thaï","provider":{"@type":"SportsOrganization","name":"ASC Muay Thaï Bessancourt","url":"https://www.asc-muaythai.fr"},"areaServed":{"@type":"Place","name":"Bessancourt, Val d'Oise (95)"},"description":"Cours particuliers de Muay Thaï à Bessancourt, tous niveaux, sans engagement, sur rendez-vous.","url":"https://www.asc-muaythai.fr/cours-particulier"}</script>
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.asc-muaythai.fr/"},{"@type":"ListItem","position":2,"name":"Cours particuliers","item":"https://www.asc-muaythai.fr/cours-particulier"}]}</script>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/fonts.css"/>
+<link rel="stylesheet" href="/styles.css"/>
   <style>
     :root {
       --red: #ee0000;
@@ -219,6 +200,10 @@
     .success-back { color: var(--red); font-size: 13px; letter-spacing: 1px; text-decoration: none; }
     .success-back:hover { text-decoration: underline; }
 
+    /* Safari iOS zoome automatiquement sur tout champ sous 16px. */
+    @media (max-width: 768px) {
+      .form-group input, .form-group select, .form-group textarea { font-size: 16px; }
+    }
     @media(max-width: 640px) {
       nav { padding: 0 20px; }
       .page-hero { padding: 48px 24px 32px; }
@@ -230,6 +215,7 @@
   <script src="/site-content.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -239,6 +225,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="/" class="nav-logo"><img src="/logo.png" alt="Logo ASC Muay Thaï" width="100" height="100" style="object-fit:contain"><div><div class="nav-logo-text">ASC <span>Muay Tha&iuml;</span></div><div class="nav-logo-sub">Bessancourt &middot; 95550</div></div></a>
   <a href="/" class="nav-back">← Retour au site</a>
 </nav>
+
+<main id="contenu">
 
 <div class="page-hero">
   <div class="page-tag">Entraînement personnalisé</div>
@@ -375,6 +363,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
 </div>
+
+</main>
 
 <footer>
   ASC Muay Thaï · <span id="footer-adresse">Complexe Marboulus, 21 Chemin de l'Isle, 95550 Bessancourt</span> · <a href="/confidentialite" style="text-decoration:underline">Mentions légales & confidentialité</a><br>

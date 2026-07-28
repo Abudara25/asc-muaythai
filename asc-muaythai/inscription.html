@@ -1,32 +1,11 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied'
-    });
-  </script>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-TJLXG2LB');</script>
-  <!-- End Google Tag Manager -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9TTYY8WKL"></script>
-  <script>
-    gtag('js', new Date());
-    gtag('config', 'G-W9TTYY8WKL');
-  </script>
-  <script src="/cookie-consent.js" defer></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js"></script>
+  <script src="/cookie-consent.js" defer></script>
+<script src="/nav.js" defer></script>
   <title>Inscription — ASC Muay Thaï Bessancourt</title>
   <meta name="description" content="Inscrivez-vous à l'ASC Muay Thaï de Bessancourt (95). Cotisations à partir de 250€, Pass'Sport accepté. Enfants, ados et adultes."/>
   <meta name="robots" content="index, follow"/>
@@ -43,11 +22,15 @@
   <meta name="twitter:description" content="Inscrivez-vous à l'ASC Muay Thaï de Bessancourt (95). Cotisations à partir de 250€, Pass'Sport accepté."/>
   <meta name="twitter:image" content="https://www.asc-muaythai.fr/logo.png"/>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Inscription — ASC Muay Thaï Bessancourt","description":"Inscriptions à l'ASC Muay Thaï de Bessancourt. Cotisations à partir de 250€, Pass'Sport accepté.","url":"https://www.asc-muaythai.fr/inscription","about":{"@type":"SportsOrganization","name":"ASC Muay Thaï Bessancourt","url":"https://www.asc-muaythai.fr","sport":"Muay Thaï","address":{"@type":"PostalAddress","addressLocality":"Bessancourt","addressRegion":"Val d'Oise","postalCode":"95550","addressCountry":"FR"}}}</script>
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.asc-muaythai.fr/"},{"@type":"ListItem","position":2,"name":"Inscription","item":"https://www.asc-muaythai.fr/inscription"}]}</script>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="/fonts.css"/>
+<link rel="stylesheet" href="/styles.css"/>
+  <!-- jsPDF auto-hébergé (v2.5.1) : pas de CDN tiers sur une page qui traite
+       des données personnelles. Différé : utilisé seulement après soumission. -->
+  <script src="/vendor/jspdf.umd.min.js" defer></script>
   <style>
     :root {
       --red: #ee0000;
@@ -168,11 +151,14 @@
       .inscription-layout { grid-template-columns: 1fr; gap: 32px; padding: 32px 16px 60px; }
       .sidebar { position: static; }
       .form-row { grid-template-columns: 1fr; }
+      /* Safari iOS zoome automatiquement sur tout champ sous 16px. */
+      .form-group input, .form-group select, .form-group textarea { font-size: 16px; }
     }
   </style>
   <script src="/site-content.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -182,6 +168,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="/" class="nav-logo"><img src="/logo.png" alt="Logo ASC Muay Thaï" width="100" height="100" style="object-fit:contain"><div><div class="nav-logo-text">ASC <span>Muay Tha&iuml;</span></div><div class="nav-logo-sub">Bessancourt &middot; 95550</div></div></a>
   <a href="/" class="nav-back">← Retour au site</a>
 </nav>
+
+<main id="contenu">
 
 <div class="page-hero">
   <div class="page-tag">Saison 2026/2027</div>
@@ -378,6 +366,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   </div>
 </div>
+
+</main>
 
 <footer>
   ASC Muay Thaï · <span id="footer-adresse">Complexe Marboulus, 21 Chemin de l'Isle, 95550 Bessancourt</span> · Saison <span id="footer-saison"></span> · <a href="/confidentialite" style="color:inherit;text-decoration:underline">Mentions légales & confidentialité</a><br>

@@ -1,0 +1,48 @@
+/* Styles communs à toutes les pages.
+   Chargé AVANT le <style> de chaque page : les règles spécifiques
+   d'une page restent prioritaires à spécificité égale. */
+
+/* Lien d'évitement : masqué hors focus, visible dès la tabulation. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1001;
+  background: #e00;
+  color: #fff;
+  padding: 14px 22px;
+  min-height: 44px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* Indicateur de focus visible au clavier (aucun effet à la souris). */
+:focus-visible {
+  outline: 2px solid #e00;
+  outline-offset: 2px;
+}
+
+/* Le bouton du menu mobile ne mesure que 32x24 dans les pages, sous le minimum
+   tactile de 44px. On agrandit via min-width/min-height, propriétés que les
+   pages ne déclarent pas : leur `padding` inline gagnerait sur cette feuille. */
+.hamburger {
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* iOS Safari zoome sur tout champ dont la police est < 16px. */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

@@ -1,36 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- Préchargement de l'image LCP du hero (doit rester aligné sur le <picture> de .hero-bg) -->
-<link rel="preload" as="image" type="image/webp" imagesrcset="/hero-sm.webp 1280w, /hero.webp 2400w" imagesizes="100vw" fetchpriority="high">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Google tag (gtag.js) -->
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('consent', 'default', {
-    'ad_storage': 'denied',
-    'ad_user_data': 'denied',
-    'ad_personalization': 'denied',
-    'analytics_storage': 'denied'
-  });
-</script>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-TJLXG2LB');</script>
-<!-- End Google Tag Manager -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-W9TTYY8WKL"></script>
-<script>
-  gtag('js', new Date());
-  gtag('config', 'G-W9TTYY8WKL');
-</script>
-<script src="/cookie-consent.js" defer></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<!-- Préchargement de l'image LCP du hero (doit rester aligné sur le <picture> de .hero-bg) -->
+<link rel="preload" as="image" type="image/webp" imagesrcset="/hero-sm.webp 1280w, /hero.webp 2400w" imagesizes="100vw" fetchpriority="high">
+<script src="/analytics.js"></script>
+<script src="/cookie-consent.js" defer></script>
+<script src="/nav.js" defer></script>
 <title>Muay Thaï à Bessancourt (95, Val d'Oise) — Club ASC</title>
 <meta name="description" content="Cours de Muay Thaï (boxe thai) à Bessancourt, Val d'Oise (95) — enfants, ados, hommes et femmes. Entraîneur diplômé, loisir et compétition. Pass'Sport accepté."/>
 <meta name="robots" content="index, follow"/>
@@ -46,6 +23,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="twitter:title" content="Muay Thaï à Bessancourt (95, Val d'Oise) — Club ASC"/>
 <meta name="twitter:description" content="Cours de Muay Thaï (boxe thai) à Bessancourt, Val d'Oise (95) — enfants, ados, hommes et femmes."/>
 <meta name="twitter:image" content="https://www.asc-muaythai.fr/logo.png"/>
+<!-- Fiche club. Les horaires ci-dessous doivent rester alignés sur site-content.js
+     (source de vérité, éditable depuis /admin) : ils sont dupliqués ici car
+     Google ne lit pas le contenu injecté en JavaScript. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -66,14 +46,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   },
   "sport": "Muay Thaï",
   "areaServed": "Bessancourt, Val-d'Oise, Île-de-France",
+  "hasMap": "https://www.google.com/maps/search/?api=1&query=Complexe+Marboulus%2C+21+Chemin+de+l%27Isle%2C+95550+Bessancourt",
+  "priceRange": "250€ - 290€ / an",
   "sameAs": [
-    "https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai"
+    "https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai",
+    "https://www.instagram.com/ascmuaythai/"
+  ],
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Wednesday", "Thursday"], "opens": "18:00", "closes": "20:30" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "20:30", "closes": "22:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "10:30", "closes": "12:00" }
   ]
 }
 </script>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/fonts.css"/>
+<link rel="stylesheet" href="/styles.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -492,6 +482,10 @@ footer{
 .mobile-menu.open{display:flex}
 .mobile-menu a{color:#fff;text-decoration:none;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;padding:16px 24px;border-bottom:1px solid var(--border-dark);transition:.2s}
 .mobile-menu a:hover{color:var(--red);background:rgba(255,255,255,.03)}
+/* Le menu passe en padding:0 ici et chaque entrée reprend la gouttière à son
+   compte ; sans cette ligne les accordéons « Le Club » / « Rejoindre » restent
+   collés au bord gauche alors que les liens simples sont à 24px. */
+.mobile-menu .mob-group-toggle{padding-left:24px;padding-right:24px}
 .mobile-menu .mob-cta{background:var(--red);color:#fff;text-align:center}
 .mobile-menu .mob-cta:hover{background:var(--red-dark)}
 
@@ -622,12 +616,11 @@ footer{
 <script src="/site-content.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-
-<!--
 
 <!-- NAV NOIR -->
 <nav>
@@ -661,11 +654,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <a class="nav-btn" href="/inscription">S'inscrire</a>
-  <button class="hamburger" onclick="this.classList.toggle('open');document.getElementById('mobileMenu').classList.toggle('open')" aria-label="Menu"><span></span><span></span><span></span></button>
+  <button class="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobile()"><span></span><span></span><span></span></button>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <div class="mob-group">
-    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Le Club</button>
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)" aria-expanded="false">Le Club</button>
     <div class="mob-sub">
       <a href="#disciplines" onclick="closeMobile()">Disciplines</a>
       <a href="#palmares" onclick="closeMobile()">Palmarès</a>
@@ -673,7 +666,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
   <div class="mob-group">
-    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Rejoindre</button>
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)" aria-expanded="false">Rejoindre</button>
     <div class="mob-sub">
       <a href="#horaires" onclick="closeMobile()">Horaires</a>
       <a href="#tarifs" onclick="closeMobile()">Tarifs</a>
@@ -686,13 +679,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#contact" onclick="closeMobile()">Contact</a>
   <a href="/inscription" onclick="closeMobile()" class="mob-cta">S'inscrire</a>
 </div>
-<script>
-function toggleMobGroup(btn){btn.parentElement.classList.toggle('open')}
-function closeMobile(){
-  document.getElementById('mobileMenu').classList.remove('open');
-  document.querySelector('.hamburger').classList.remove('open');
-}
-</script>
+
+<main id="contenu">
 
 <!-- HERO NOIR -->
 <section class="hero" id="accueil">
@@ -853,6 +841,8 @@ function closeMobile(){
 </section>
 
 <!-- FOOTER NOIR -->
+</main>
+
 <footer>
   <div class="f-logo">ASC <span>Muay Thaï</span> · Bessancourt (95)</div>
   <div class="f-copy" style="text-align:right">
