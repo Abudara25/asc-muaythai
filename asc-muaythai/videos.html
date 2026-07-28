@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script src="/analytics.js"></script>
+<script src="/cookie-consent.js" defer></script>
+<script src="/nav.js" defer></script>
 <title>Vidéos — ASC Muay Thaï Bessancourt (95)</title>
 <meta name="description" content="Vidéos du club ASC Muay Thaï de Bessancourt — combats, entraînements et moments forts."/>
 <meta name="robots" content="index, follow"/>
@@ -18,9 +21,13 @@
 <meta name="twitter:title" content="Vidéos — ASC Muay Thaï Bessancourt"/>
 <meta name="twitter:description" content="Vidéos du club ASC Muay Thaï de Bessancourt — combats, entraînements et moments forts."/>
 <meta name="twitter:image" content="https://www.asc-muaythai.fr/logo.png"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Vidéos — ASC Muay Thaï Bessancourt","description":"Vidéos du club ASC Muay Thaï de Bessancourt — combats, entraînements et moments forts.","url":"https://www.asc-muaythai.fr/videos","isPartOf":{"@type":"WebSite","name":"ASC Muay Thaï Bessancourt","url":"https://www.asc-muaythai.fr"},"publisher":{"@type":"SportsOrganization","name":"ASC Muay Thaï Bessancourt","url":"https://www.asc-muaythai.fr","sport":"Muay Thaï"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.asc-muaythai.fr/"},{"@type":"ListItem","position":2,"name":"Vidéos","item":"https://www.asc-muaythai.fr/videos"}]}</script>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/fonts.css"/>
+<link rel="stylesheet" href="/styles.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -123,6 +130,11 @@ footer{background:var(--darker);border-top:2px solid var(--red);padding:24px 80p
 </style>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <nav>
   <a class="logo" href="/">
@@ -150,14 +162,14 @@ footer{background:var(--darker);border-top:2px solid var(--red);padding:24px 80p
     <li><a href="/#contact">Contact</a></li>
   </ul>
   <a href="/inscription" class="nav-btn">S'inscrire</a>
-  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMobile()">
+  <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobile()">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
   <div class="mob-group">
-    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Le Club</button>
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)" aria-expanded="false">Le Club</button>
     <div class="mob-sub">
       <a href="/#disciplines" onclick="closeMobile()">Disciplines</a>
       <a href="/#palmares" onclick="closeMobile()">Palmarès</a>
@@ -165,7 +177,7 @@ footer{background:var(--darker);border-top:2px solid var(--red);padding:24px 80p
     </div>
   </div>
   <div class="mob-group">
-    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Rejoindre</button>
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)" aria-expanded="false">Rejoindre</button>
     <div class="mob-sub">
       <a href="/#horaires" onclick="closeMobile()">Horaires</a>
       <a href="/#tarifs" onclick="closeMobile()">Tarifs</a>
@@ -179,11 +191,8 @@ footer{background:var(--darker);border-top:2px solid var(--red);padding:24px 80p
   <a href="/inscription" onclick="closeMobile()" class="mob-cta">S'inscrire</a>
 </div>
 
-<script>
-function toggleMobGroup(btn){btn.parentElement.classList.toggle('open')}
-function toggleMobile(){document.getElementById('mobileMenu').classList.toggle('open')}
-function closeMobile(){document.getElementById('mobileMenu').classList.remove('open')}
-</script>
+<main id="contenu">
+
 
 <!-- PAGE HEADER -->
 <div class="page-header">
@@ -210,6 +219,8 @@ function closeMobile(){document.getElementById('mobileMenu').classList.remove('o
 </div>
 
 <!-- FOOTER -->
+</main>
+
 <footer>
   <div class="f-logo">ASC <span>Muay Thaï</span> · Bessancourt (95)</div>
   <div class="f-copy">

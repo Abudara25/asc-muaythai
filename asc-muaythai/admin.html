@@ -1,37 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied'
-    });
-  </script>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-TJLXG2LB');</script>
-  <!-- End Google Tag Manager -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9TTYY8WKL"></script>
-  <script>
-    gtag('js', new Date());
-    gtag('config', 'G-W9TTYY8WKL');
-  </script>
-  <script src="/cookie-consent.js" defer></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js"></script>
+  <script src="/cookie-consent.js" defer></script>
   <title>Administration — ASC Muay Thaï</title>
   <meta name="robots" content="noindex, nofollow"/>
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+<link rel="stylesheet" href="/fonts.css"/>
+<link rel="stylesheet" href="/styles.css"/>
   <style>
     :root {
       --red: #ee0000;
@@ -426,6 +405,55 @@ const GALERIE_CATS = [
   { key: 'competition', label: 'Compétitions' },
 ];
 
+// ── Envoi d'images ────────────────────────────────────────────────────────
+// Les fonctions serverless Vercel refusent les requêtes de plus de 4,5 Mo, or
+// une photo de smartphone les dépasse souvent. On réduit donc l'image dans le
+// navigateur avant l'envoi ; le serveur refait ensuite le redimensionnement,
+// qui fait autorité (un navigateur ne peut pas être un contrôle de sécurité).
+const CLIENT_MAX_DIMENSION = 2000;
+
+function shrinkImage(file) {
+  return new Promise((resolve) => {
+    // En cas de pépin on renvoie le fichier d'origine : le serveur sait le traiter.
+    const fallback = () => resolve(file);
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return fallback();
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const ratio = Math.min(1, CLIENT_MAX_DIMENSION / Math.max(img.width, img.height));
+      // Une petite image déjà légère n'a rien à gagner à être ré-encodée.
+      if (ratio === 1 && file.size < 2 * 1024 * 1024) return fallback();
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => resolve(blob && blob.size < file.size
+          ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })
+          : file),
+        'image/jpeg',
+        0.85
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); fallback(); };
+    img.src = url;
+  });
+}
+
+// preset : 'photo' (galerie, palmarès, actualités) ou 'logo' (partenaires).
+async function uploadImage(file, preset = 'photo') {
+  const form = new FormData();
+  form.append('photo', await shrinkImage(file));
+  form.append('preset', preset);
+  const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
+  return data.url;
+}
+
 // ─── AUTHENTIFICATION ─────────────────────────────────────────────────────────
 async function checkSession() {
   const res = await fetch('/api/admin/session');
@@ -657,12 +685,7 @@ document.getElementById('photo-input').addEventListener('change', async (e) => {
 
   for (const file of files) {
     try {
-      const form = new FormData();
-      form.append('photo', file);
-      const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
-      photos.push(data.url);
+      photos.push(await uploadImage(file, 'photo'));
       renderPhotos();
     } catch (err) {
       errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
@@ -753,12 +776,8 @@ GALERIE_CATS.forEach(({ key }) => {
 
     for (const file of files) {
       try {
-        const form = new FormData();
-        form.append('photo', file);
-        const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
-        galeriePhotos[key].push({ url: data.url, alt: '', large: false });
+        const url = await uploadImage(file, 'photo');
+        galeriePhotos[key].push({ url, alt: '', large: false });
         renderGalerieSection(key);
       } catch (err) {
         errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
@@ -865,12 +884,8 @@ document.getElementById('partenaires-input').addEventListener('change', async (e
   e.target.disabled = true;
 
   try {
-    const form = new FormData();
-    form.append('photo', file);
-    const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Échec de l'envoi");
-    partenaires.push({ logo: data.url, nom: '', activite: '', description: '', telephone: '', email: '', adresse: '', url: '' });
+    const logo = await uploadImage(file, 'logo');
+    partenaires.push({ logo, nom: '', activite: '', description: '', telephone: '', email: '', adresse: '', url: '' });
     renderPartenairesAdmin();
   } catch (err) {
     errBox.textContent = `⚠️ ${file.name} : ${err.message}`;
@@ -1150,16 +1165,12 @@ document.getElementById('art-image-file').addEventListener('change', async (e) =
   const errEl = document.getElementById('art-image-error');
   errEl.className = 'status-msg';
   errEl.textContent = 'Upload en cours…';
-  const form = new FormData();
-  form.append('photo', file);
   try {
-    const r = await fetch('/api/admin/upload-photo', { method: 'POST', body: form });
-    if (!r.ok) { errEl.className = 'status-msg err'; errEl.textContent = 'Erreur lors de l\'upload'; return; }
-    const { url } = await r.json();
+    const url = await uploadImage(file, 'photo');
     document.getElementById('art-image-url').value = url;
     errEl.textContent = '✓ Image prête';
     errEl.className = 'status-msg';
-  } catch { errEl.className = 'status-msg err'; errEl.textContent = 'Erreur lors de l\'upload'; }
+  } catch (err) { errEl.className = 'status-msg err'; errEl.textContent = err.message || 'Erreur lors de l\'upload'; }
   e.target.value = '';
 });
 
@@ -1240,7 +1251,7 @@ async function loadVideos() {
     const sorted = [...videos].sort((a, b) => new Date(b.date) - new Date(a.date));
     el.innerHTML = sorted.map(v => {
       const ytId = esc(getYouTubeId(v.url));
-      const thumb = ytId ? `<img src="https://img.youtube.com/vi/${ytId}/default.jpg" style="width:80px;height:60px;object-fit:cover;border-radius:3px;flex-shrink:0" />` : '';
+      const thumb = ytId ? `<img src="https://img.youtube.com/vi/${ytId}/default.jpg" alt="" width="80" height="60" style="width:80px;height:60px;object-fit:cover;border-radius:3px;flex-shrink:0" />` : '';
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">
         <div style="display:flex;gap:12px;align-items:center;min-width:0">
           ${thumb}

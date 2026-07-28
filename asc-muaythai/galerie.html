@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script src="/analytics.js"></script>
+<script src="/cookie-consent.js" defer></script>
+<script src="/nav.js" defer></script>
 <title>Galerie Photos — ASC Muay Thaï Bessancourt (95)</title>
 <meta name="description" content="Galerie photos du club ASC Muay Thaï de Bessancourt (Val d'Oise). Photos du club, compétitions et palmarès."/>
 <meta name="robots" content="index, follow"/>
@@ -19,9 +22,12 @@
 <meta name="twitter:description" content="Galerie photos du club ASC Muay Thaï de Bessancourt — compétitions, entraînements et palmarès."/>
 <meta name="twitter:image" content="https://www.asc-muaythai.fr/logo.png"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Galerie Photos — ASC Muay Thaï Bessancourt","description":"Photos du club ASC Muay Thaï de Bessancourt : entraînements, compétitions et palmarès.","url":"https://www.asc-muaythai.fr/galerie","isPartOf":{"@type":"WebSite","name":"ASC Muay Thaï Bessancourt","url":"https://www.asc-muaythai.fr"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.asc-muaythai.fr/"},{"@type":"ListItem","position":2,"name":"Galerie photos","item":"https://www.asc-muaythai.fr/galerie"}]}</script>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/fonts.css"/>
+<link rel="stylesheet" href="/styles.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -231,6 +237,11 @@ footer{
 <script src="/site-content.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <!-- NAV -->
 <nav>
@@ -259,14 +270,14 @@ footer{
     <li><a href="/#contact">Contact</a></li>
   </ul>
   <a href="/inscription" class="nav-btn">S'inscrire</a>
-  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMobile()">
+  <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobile()">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
   <div class="mob-group">
-    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Le Club</button>
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)" aria-expanded="false">Le Club</button>
     <div class="mob-sub">
       <a href="/#disciplines" onclick="closeMobile()">Disciplines</a>
       <a href="/#palmares" onclick="closeMobile()">Palmarès</a>
@@ -274,7 +285,7 @@ footer{
     </div>
   </div>
   <div class="mob-group">
-    <button class="mob-group-toggle" onclick="toggleMobGroup(this)">Rejoindre</button>
+    <button class="mob-group-toggle" onclick="toggleMobGroup(this)" aria-expanded="false">Rejoindre</button>
     <div class="mob-sub">
       <a href="/#horaires" onclick="closeMobile()">Horaires</a>
       <a href="/#tarifs" onclick="closeMobile()">Tarifs</a>
@@ -288,11 +299,8 @@ footer{
   <a href="/inscription" onclick="closeMobile()" class="mob-cta">S'inscrire</a>
 </div>
 
-<script>
-function toggleMobGroup(btn){btn.parentElement.classList.toggle('open')}
-function toggleMobile(){document.getElementById('mobileMenu').classList.toggle('open')}
-function closeMobile(){document.getElementById('mobileMenu').classList.remove('open')}
-</script>
+<main id="contenu">
+
 
 <!-- PAGE HEADER -->
 <div class="page-header">
@@ -334,6 +342,8 @@ function closeMobile(){document.getElementById('mobileMenu').classList.remove('o
 </section>
 
 <!-- FOOTER -->
+</main>
+
 <footer>
   <div class="f-logo">ASC <span>Muay Thaï</span> · Bessancourt (95)</div>
   <div class="f-copy">
