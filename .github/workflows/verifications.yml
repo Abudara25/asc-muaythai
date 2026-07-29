@@ -1,0 +1,45 @@
+# Contrôles automatiques du site, à chaque envoi de code.
+#
+# Ils ne modifient rien : ils vérifient et signalent. Chaque contrôle
+# correspond à un bug réellement survenu — le but est d'éviter qu'il se
+# reproduise sans qu'on s'en aperçoive.
+#
+# En cas d'échec, GitHub envoie un mail et marque la ligne en rouge dans
+# l'onglet « Actions » du dépôt, avec le détail de ce qui ne va pas.
+
+name: Vérifications
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pages:
+    name: Contenu et indexation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Aucune dépendance à installer : ce contrôle n'utilise que Node.
+      - run: node scripts/check-pages.mjs
+        working-directory: asc-muaythai
+
+  rendu:
+    name: Rendu mobile et tablette
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # --no-save : on n'ajoute pas playwright aux dépendances du site, il ne
+      # sert qu'ici. Le navigateur est mis en cache par le runner.
+      - run: npm install --no-save playwright
+        working-directory: asc-muaythai
+      - run: npx playwright install --with-deps chromium
+        working-directory: asc-muaythai
+      - run: node scripts/check-responsive.mjs
+        working-directory: asc-muaythai
