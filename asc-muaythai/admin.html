@@ -79,6 +79,11 @@
       color: #fff; padding: 9px 12px; font-family: inherit; font-size: 14px; border-radius: 3px; outline: none;
     }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); }
+    /* Safari iOS zoome sur tout champ sous 16px — pénible quand on édite le
+       contenu du site depuis un téléphone. */
+    @media (max-width: 768px) {
+      .field input, .field select, .field textarea { font-size: 16px; }
+    }
     .field select option { background: var(--dark); }
     .field textarea { min-height: 70px; resize: vertical; }
     .row-grid { display: grid; gap: 10px; }
@@ -133,6 +138,7 @@
   </style>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJLXG2LB"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -142,6 +148,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="/" class="nav-logo">ASC <span>Muay Thaï</span> · Admin</a>
   <button class="nav-link" id="logout-btn" style="display:none">Se déconnecter</button>
 </nav>
+
+<main id="contenu">
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -322,7 +330,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="field"><label>Date *</label><input type="date" id="art-date" /></div>
       </div>
       <div class="field"><label>Extrait <span style="color:#666;font-weight:normal">(affiché dans la liste)</span></label><input type="text" id="art-extrait" placeholder="2-3 phrases résumant l'article" /></div>
-      <div class="field"><label>Contenu complet</label><textarea id="art-contenu" rows="6" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:#fff;padding:10px 12px;font-family:inherit;font-size:14px;resize:vertical;line-height:1.6"></textarea></div>
+      <div class="field"><label>Contenu complet</label><textarea id="art-contenu" rows="6" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:#fff;padding:10px 12px;font-family:inherit;resize:vertical;line-height:1.6"></textarea></div>
       <div class="field">
         <label>Image <span style="color:#666;font-weight:normal">(optionnel)</span></label>
         <div style="display:flex;gap:10px;align-items:center">
@@ -377,6 +385,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </div>
+
+</main>
 
 <script src="/site-content.js"></script>
 <script>
