@@ -38,6 +38,59 @@
   justify-content: center;
 }
 
+/* Fil d'Ariane. Doit rester aligné sur le BreadcrumbList JSON-LD de chaque
+   page : Google compare le balisage au contenu réellement affiché. */
+.breadcrumb {
+  margin-bottom: 28px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .4);
+}
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.breadcrumb li + li::before {
+  content: '›';
+  opacity: .6;
+}
+.breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+  transition: .2s;
+}
+.breadcrumb a:hover {
+  color: #e00;
+}
+.breadcrumb [aria-current='page'] {
+  color: rgba(255, 255, 255, .75);
+}
+/* Au doigt, le lien ne fait que 14px de haut. Le padding agrandit la zone
+   tactile à 44px et la marge négative annule son effet sur la mise en page. */
+@media (max-width: 768px) {
+  .breadcrumb a {
+    display: inline-block;
+    padding-block: 15px;
+    margin-block: -15px;
+  }
+}
+/* Les pages à en-tête centré (.page-hero) centrent aussi leur fil d'Ariane. */
+.page-hero .breadcrumb ol {
+  justify-content: center;
+}
+
 /* iOS Safari zoome sur tout champ dont la police est < 16px. */
 @media (max-width: 768px) {
   input,

@@ -61,8 +61,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:110px;display:flex;al
 
 /* ── PAGE HEADER ── */
 .page-header{background:var(--darker);padding:160px 80px 72px;border-bottom:2px solid var(--red)}
-.back-link{display:inline-flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;margin-bottom:28px;transition:.2s}
-.back-link:hover{color:var(--red)}
 .s-tag{display:flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--red);margin-bottom:10px;font-weight:500}
 .s-tag::before{content:'';width:20px;height:1px;background:var(--red)}
 .page-header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);color:#fff;letter-spacing:3px;line-height:1;margin-bottom:16px}
@@ -148,7 +146,9 @@ footer{background:var(--darker);border-top:2px solid var(--red);padding:24px 80p
   nav{padding:0 24px}
   .nav-links,.nav-btn{display:none}
   .hamburger{display:flex}
-  .page-header{padding:96px 24px 56px}
+  /* 140px et non 96 : la nav est fixe et haute de 110px, en dessous
+     le haut de l'en-tête passe sous la barre. */
+  .page-header{padding:140px 24px 56px}
   .p-section{padding:56px 24px}
   .aider-grid{grid-template-columns:1fr}
   .pourquoi-num{font-size:40px;width:48px}
@@ -233,10 +233,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- PAGE HEADER -->
 <div class="page-header">
-  <a href="/" class="back-link">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    Retour à l'accueil
-  </a>
+  <div class="breadcrumb" role="navigation" aria-label="Fil d'Ariane">
+    <ol>
+      <li><a href="/">Accueil</a></li>
+      <li><span aria-current="page">Devenir partenaire</span></li>
+    </ol>
+  </div>
   <div class="s-tag">Appel au mécénat · Saison 2026/2027</div>
   <h1>Devenons Partenaires</h1>
   <p>Soutenez l'ASC Muay Thaï et ses combattants — du club de Bessancourt à la compétition internationale.</p>

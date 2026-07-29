@@ -114,16 +114,6 @@ nav{
   color:#fff;letter-spacing:3px;line-height:1;margin-bottom:16px;
 }
 .page-header p{font-size:15px;color:rgba(255,255,255,.5);max-width:500px;line-height:1.6}
-.back-link{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;
-  text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;
-  margin-bottom:28px;transition:.2s;
-}
-.back-link:hover{color:var(--red)}
-.back-link svg{transition:.2s}
-.back-link:hover svg{transform:translateX(-3px)}
-
 /* ── GALERIE SECTIONS ── */
 .galerie-section{padding:80px 80px}
 .galerie-section.dark{background:var(--darker)}
@@ -221,7 +211,9 @@ footer{
   nav{padding:0 24px}
   .nav-links,.nav-btn{display:none}
   .hamburger{display:flex}
-  .page-header{padding:96px 24px 56px}
+  /* 140px et non 96 : la nav est fixe et haute de 110px, en dessous
+     le haut de l'en-tête passe sous la barre. */
+  .page-header{padding:140px 24px 56px}
   .galerie-section{padding:56px 24px}
   .gallery-grid{grid-template-columns:repeat(2,1fr)}
   .gallery-item.wide{grid-column:span 2}
@@ -304,10 +296,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- PAGE HEADER -->
 <div class="page-header">
-  <a href="/" class="back-link">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    Retour à l'accueil
-  </a>
+  <div class="breadcrumb" role="navigation" aria-label="Fil d'Ariane">
+    <ol>
+      <li><a href="/">Accueil</a></li>
+      <li><span aria-current="page">Galerie photos</span></li>
+    </ol>
+  </div>
   <div class="s-tag">ASC Muay Thaï · Bessancourt</div>
   <h1>Galerie</h1>
   <p>Photos du club, compétitions et moments forts de la saison.</p>
