@@ -23,9 +23,11 @@
 <meta name="twitter:title" content="Muay Thaï à Bessancourt (95, Val d'Oise) — Club ASC"/>
 <meta name="twitter:description" content="Cours de Muay Thaï (boxe thai) à Bessancourt, Val d'Oise (95) — enfants, ados, hommes et femmes."/>
 <meta name="twitter:image" content="https://www.asc-muaythai.fr/logo.png"/>
-<!-- Fiche club. Les horaires ci-dessous doivent rester alignés sur site-content.js
-     (source de vérité, éditable depuis /admin) : ils sont dupliqués ici car
-     Google ne lit pas le contenu injecté en JavaScript. -->
+<!-- Fiche club. Les horaires sont dupliqués ici parce que Google ne lit pas le
+     contenu injecté en JavaScript. Ne pas les modifier à la main : après un
+     changement d'horaire dans /admin, lancer
+       node scripts/sync-horaires-jsonld.mjs
+     qui les recopie depuis le contenu réellement publié. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -58,9 +60,28 @@
     "https://www.instagram.com/ascmuaythai/"
   ],
   "openingHoursSpecification": [
-    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Wednesday", "Thursday"], "opens": "18:00", "closes": "20:30" },
-    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "20:30", "closes": "22:00" },
-    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "10:30", "closes": "12:00" }
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Wednesday",
+        "Thursday"
+      ],
+      "opens": "18:00",
+      "closes": "20:30"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Friday",
+      "opens": "20:30",
+      "closes": "22:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "10:30",
+      "closes": "12:00"
+    }
   ]
 }
 </script>
