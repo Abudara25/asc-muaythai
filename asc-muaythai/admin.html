@@ -21,16 +21,16 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; }
+    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; font-size: 16px; }
 
     nav {
       position: sticky; top: 0; z-index: 50;
       background: rgba(0,0,0,0.95); border-bottom: 1px solid rgba(255,255,255,0.08);
       padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #fff; letter-spacing: 3px; text-decoration: none; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; letter-spacing: 3px; text-decoration: none; }
     .nav-logo span { color: var(--red); }
-    .nav-link { color: #888; font-size: 13px; letter-spacing: 1px; text-decoration: none; transition: color .2s; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .nav-link { color: #888; font-size: 14.5px; letter-spacing: 1px; text-decoration: none; transition: color .2s; cursor: pointer; background: none; border: none; font-family: inherit; }
     .nav-link:hover { color: var(--red); }
 
     h1 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
@@ -39,27 +39,27 @@
     #login-screen { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 24px; }
     #login-form { width: 100%; max-width: 360px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 32px; }
     #login-form h1 { font-size: 28px; color: #fff; margin-bottom: 6px; text-align: center; }
-    #login-form p.sub { color: #888; font-size: 13px; text-align: center; margin-bottom: 24px; }
+    #login-form p.sub { color: #888; font-size: 14.5px; text-align: center; margin-bottom: 24px; }
 
     /* LAYOUT */
     .wrap { max-width: 880px; margin: 0 auto; padding: 36px 24px 80px; }
     .admin-header { margin-bottom: 8px; }
     .admin-header h1 { font-size: 32px; color: #fff; }
-    .admin-header p { font-size: 13px; color: #888; margin-top: 4px; }
+    .admin-header p { font-size: 14.5px; color: #888; margin-top: 4px; }
 
     .admin-layout { max-width: 1180px; margin: 0 auto; padding: 32px 24px 60px; }
-    .admin-body { display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 32px; align-items: start; margin-top: 28px; }
+    .admin-body { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 32px; align-items: start; margin-top: 28px; }
 
     .admin-sidebar { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 2px; }
-    .side-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 4px; color: rgba(255,255,255,.55); text-decoration: none; font-size: 13px; letter-spacing: .3px; transition: .15s; border-left: 2px solid transparent; }
-    .side-link svg { flex-shrink: 0; opacity: .85; }
+    .side-link { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 4px; color: rgba(255,255,255,.55); text-decoration: none; font-size: 15px; letter-spacing: .3px; transition: .15s; border-left: 2px solid transparent; }
+    .side-link svg { flex-shrink: 0; opacity: .85; width: 17px; height: 17px; }
     .side-link:hover { color: #fff; background: rgba(255,255,255,0.04); }
     .side-link.active { color: #fff; background: rgba(238,0,0,0.1); border-left-color: var(--red); }
 
     .admin-main { min-width: 0; }
     .panel { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 26px; margin-bottom: 26px; scroll-margin-top: 130px; }
-    .panel h2 { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--red); border-bottom: 1px solid rgba(238,0,0,0.3); padding-bottom: 8px; margin-bottom: 18px; }
-    .panel-hint { font-size: 12.5px; color: #999; line-height: 1.6; background: rgba(255,255,255,.03); border-left: 2px solid rgba(238,0,0,.4); padding: 10px 14px; border-radius: 0 3px 3px 0; margin: -6px 0 18px; }
+    .panel h2 { font-family: 'Bebas Neue', sans-serif; font-size: 23px; letter-spacing: 2px; color: var(--red); border-bottom: 1px solid rgba(238,0,0,0.3); padding-bottom: 8px; margin-bottom: 18px; }
+    .panel-hint { font-size: 14.5px; color: #aaa; line-height: 1.6; background: rgba(255,255,255,.03); border-left: 2px solid rgba(238,0,0,.4); padding: 12px 16px; border-radius: 0 3px 3px 0; margin: -6px 0 18px; }
 
     .save-bar { position: sticky; bottom: 0; margin-top: 8px; padding: 16px 20px; background: rgba(15,15,15,.95); backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: 8px 8px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .save-bar .status-msg { margin: 0; flex: 1; min-width: 220px; }
@@ -72,18 +72,13 @@
       .panel { scroll-margin-top: 116px; }
     }
 
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 6px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.65); margin-bottom: 7px; }
     .field input, .field select, .field textarea {
       width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
-      color: #fff; padding: 9px 12px; font-family: inherit; font-size: 14px; border-radius: 3px; outline: none;
+      color: #fff; padding: 11px 14px; font-family: inherit; font-size: 16px; border-radius: 3px; outline: none;
     }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); }
-    /* Safari iOS zoome sur tout champ sous 16px — pénible quand on édite le
-       contenu du site depuis un téléphone. */
-    @media (max-width: 768px) {
-      .field input, .field select, .field textarea { font-size: 16px; }
-    }
     .field select option { background: var(--dark); }
     .field textarea { min-height: 70px; resize: vertical; }
     .row-grid { display: grid; gap: 10px; }
@@ -102,19 +97,19 @@
     @media (max-width: 640px) { .horaire-grid, .tarif-grid, .trophee-grid { grid-template-columns: 1fr; } }
 
     .btn-add {
-      background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.25); color: #ccc;
-      padding: 10px 16px; font-family: inherit; font-size: 13px; letter-spacing: 1px; border-radius: 3px; cursor: pointer; width: 100%;
+      background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.25); color: #ddd;
+      padding: 12px 16px; font-family: inherit; font-size: 14.5px; letter-spacing: 1px; border-radius: 3px; cursor: pointer; width: 100%;
     }
     .btn-add:hover { background: rgba(255,255,255,0.1); border-color: var(--red); color: #fff; }
 
     .btn-primary {
-      background: var(--red); color: #fff; border: none; padding: 14px 28px;
-      font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; cursor: pointer; border-radius: 3px;
+      background: var(--red); color: #fff; border: none; padding: 15px 28px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 2px; cursor: pointer; border-radius: 3px;
     }
     .btn-primary:hover { background: var(--red-dark); }
     .btn-primary:disabled { background: #555; cursor: not-allowed; }
 
-    .status-msg { margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 3px; display: none; }
+    .status-msg { margin-top: 12px; font-size: 14.5px; padding: 11px 15px; border-radius: 3px; display: none; }
     .status-msg.ok { display: block; color: #6fdc8c; background: rgba(40,167,69,0.12); border-left: 3px solid #28a745; }
     .status-msg.err { display: block; color: #ff8080; background: rgba(238,0,0,0.1); border-left: 3px solid var(--red); }
     .status-msg:empty { display: none; }
@@ -125,13 +120,20 @@
     .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .photo-item .remove-btn { top: 6px; right: 6px; }
     .upload-zone {
-      border: 1px dashed rgba(255,255,255,0.25); border-radius: 4px; padding: 18px; text-align: center; color: #999; font-size: 13px;
+      border: 1px dashed rgba(255,255,255,0.25); border-radius: 4px; padding: 18px; text-align: center; color: #aaa; font-size: 14.5px;
     }
-    .upload-zone input { display: block; margin: 10px auto 0; color: #ccc; font-size: 13px; }
+    .upload-zone input { display: block; margin: 10px auto 0; color: #ccc; font-size: 14.5px; }
     .club-photo-row img { width: 100%; max-height: 160px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; display: block; }
-    .club-photo-row .check-field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #ccc; cursor: pointer; }
+    .club-photo-row .check-field { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: #ccc; cursor: pointer; }
     .club-photo-row .check-field input { width: auto; }
-    .panel-subtitle { font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .panel-subtitle { font-size: 16px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .upload-doc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .upload-doc-row:last-child { border-bottom: none; }
+    .upload-doc-label { flex: 1 1 200px; font-size: 14.5px; color: #ddd; }
+    .upload-doc-status { font-size: 13.5px; color: #888; flex-basis: 100%; }
+    .upload-doc-status a { color: var(--red); text-decoration: underline; }
+    .upload-doc-status.ok { color: #6fdc8c; }
+    .upload-doc-status.err { color: #ff8080; }
     .partenaire-row img { width: 90px; height: 60px; object-fit: contain; background: #fff; border-radius: 4px; padding: 6px; flex-shrink: 0; }
     .partenaire-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 640px) { .partenaire-contact-grid { grid-template-columns: 1fr; } }
@@ -190,6 +192,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Coordonnées
       </a>
+      <a class="side-link" href="#panel-adherents" data-target="panel-adherents">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Adhérents
+      </a>
       <a class="side-link" href="#panel-horaires" data-target="panel-horaires">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Horaires
@@ -233,6 +239,114 @@
     <div class="field"><label for="c-email">E-mail de contact</label><input type="email" id="c-email" required /></div>
     <div class="field"><label for="c-telephone">Téléphone</label><input type="text" id="c-telephone" required /></div>
     <div class="field"><label for="c-adresse">Adresse du lieu d'entraînement</label><input type="text" id="c-adresse" required /></div>
+  </section>
+
+  <!-- ADHÉRENTS -->
+  <section class="panel" id="panel-adherents">
+    <h2>Adhérents</h2>
+    <p class="panel-hint">
+      Chaque inscription passée par le site apparaît ici automatiquement. Pour HelloAsso, les justificatifs
+      n'apparaissent qu'une fois le paiement confirmé — avant ça, l'adhérent est marqué « en attente de paiement ».
+    </p>
+
+    <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);padding:20px;margin-bottom:24px">
+      <h3 class="panel-subtitle" style="margin-top:0" id="adh-form-title">Ajouter un adhérent</h3>
+      <div class="row-grid" style="grid-template-columns:1fr 1fr">
+        <div class="field"><label>Prénom *</label><input type="text" id="adh-prenom" /></div>
+        <div class="field"><label>Nom *</label><input type="text" id="adh-nom" /></div>
+      </div>
+      <div class="row-grid" style="grid-template-columns:1fr 1fr">
+        <div class="field"><label>Email *</label><input type="email" id="adh-email" /></div>
+        <div class="field"><label>Téléphone</label><input type="text" id="adh-telephone" /></div>
+      </div>
+      <div class="row-grid" style="grid-template-columns:1fr 140px">
+        <div class="field"><label>Section</label>
+          <select id="adh-section">
+            <option value="Enfants (6–12 ans) — 250€">Enfants (6–12 ans)</option>
+            <option value="Ados (13–17 ans) — 290€">Ados (13–17 ans)</option>
+            <option value="Adultes (18+) — 290€">Adultes (18+)</option>
+          </select>
+        </div>
+        <div class="field"><label>Montant (€)</label><input type="number" id="adh-montant" /></div>
+      </div>
+      <div class="row-grid" style="grid-template-columns:1fr 1fr">
+        <div class="field"><label>Règlement</label>
+          <select id="adh-reglement">
+            <option value="HelloAsso">HelloAsso</option>
+            <option value="Virement">Virement</option>
+            <option value="Cheque">Chèque</option>
+            <option value="Especes">Espèces</option>
+          </select>
+        </div>
+        <div class="field"><label>Statut paiement</label>
+          <select id="adh-statut">
+            <option value="paye">Payé</option>
+            <option value="a_percevoir">À percevoir</option>
+            <option value="en_attente_paiement">En attente de paiement</option>
+          </select>
+        </div>
+      </div>
+      <div class="row-grid" style="grid-template-columns:1fr 1fr">
+        <div class="field"><label>Saison</label><input type="text" id="adh-saison" placeholder="ex : 2025/2026" /></div>
+        <div class="field"><label>Date d'inscription</label><input type="date" id="adh-date" /></div>
+      </div>
+      <div class="field"><label>Notes <span style="color:#666;font-weight:normal">(optionnel)</span></label><input type="text" id="adh-notes" placeholder="ex : adhérent de la saison précédente, importé manuellement" /></div>
+
+      <label style="display:block;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:18px 0 8px">Justificatifs</label>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:4px;padding:6px 16px">
+        <div class="upload-doc-row">
+          <div class="upload-doc-label">📄 Certificat médical</div>
+          <label class="btn-add" style="width:auto;display:inline-block;padding:8px 14px">
+            Choisir un fichier
+            <input type="file" id="adh-doc-certificat" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="uploadAdhDoc('certificat', this)">
+          </label>
+          <span class="upload-doc-status" id="adh-doc-status-certificat"></span>
+        </div>
+        <div class="upload-doc-row">
+          <div class="upload-doc-label">🪪 Photo d'identité</div>
+          <label class="btn-add" style="width:auto;display:inline-block;padding:8px 14px">
+            Choisir un fichier
+            <input type="file" id="adh-doc-photo" accept=".jpg,.jpeg,.png" style="display:none" onchange="uploadAdhDoc('photo', this)">
+          </label>
+          <span class="upload-doc-status" id="adh-doc-status-photo"></span>
+        </div>
+        <div class="upload-doc-row">
+          <div class="upload-doc-label">🪪 Pièce d'identité</div>
+          <label class="btn-add" style="width:auto;display:inline-block;padding:8px 14px">
+            Choisir un fichier
+            <input type="file" id="adh-doc-identite" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="uploadAdhDoc('identite', this)">
+          </label>
+          <span class="upload-doc-status" id="adh-doc-status-identite"></span>
+        </div>
+        <div class="upload-doc-row">
+          <div class="upload-doc-label">👨‍👧 Autorisation parentale</div>
+          <label class="btn-add" style="width:auto;display:inline-block;padding:8px 14px">
+            Choisir un fichier
+            <input type="file" id="adh-doc-autorisation" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="uploadAdhDoc('autorisation', this)">
+          </label>
+          <span class="upload-doc-status" id="adh-doc-status-autorisation"></span>
+        </div>
+      </div>
+
+      <input type="hidden" id="adh-editing-id" value="" />
+      <button type="button" class="btn-primary" id="adh-save-btn" style="margin-top:18px">Ajouter l'adhérent</button>
+      <button type="button" class="btn-add" id="adh-cancel-btn" style="display:none">Annuler la modification</button>
+      <div class="status-msg" id="adh-status"></div>
+    </div>
+
+    <div class="row-grid" style="grid-template-columns:1fr 200px;margin-bottom:14px">
+      <div class="field" style="margin-bottom:0"><input type="text" id="adh-search" placeholder="Rechercher un nom, un email…" /></div>
+      <div class="field" style="margin-bottom:0">
+        <select id="adh-filter-statut">
+          <option value="">Tous les statuts</option>
+          <option value="paye">Payé</option>
+          <option value="a_percevoir">À percevoir</option>
+          <option value="en_attente_paiement">En attente de paiement</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="adherents-list"><p style="color:#888;font-size:13px">Chargement…</p></div>
   </section>
 
   <!-- HORAIRES -->
@@ -515,6 +629,7 @@ async function showDashboard() {
   fillPartenaires(content.partenaires || []);
   loadArticles();
   loadVideos();
+  loadAdherents();
   setupSectionNav();
 }
 
@@ -1088,6 +1203,292 @@ if (resetToken) {
 
 checkSession();
 
+// ─── ADHÉRENTS ────────────────────────────────────────────────────────────────
+let _adherents = [];
+
+const ADH_STATUT_LABELS = {
+  paye: '✅ Payé',
+  a_percevoir: '💵 À percevoir',
+  en_attente_paiement: '⏳ En attente de paiement',
+};
+
+async function loadAdherents() {
+  const el = document.getElementById('adherents-list');
+  el.innerHTML = '<p style="color:#888;font-size:13px">Chargement…</p>';
+  try {
+    const r = await fetch('/api/admin/adherents');
+    if (!r.ok) { el.innerHTML = '<p style="color:#888;font-size:13px">Aucun adhérent pour le moment.</p>'; return; }
+    _adherents = await r.json();
+    renderAdherentsList();
+  } catch {
+    el.innerHTML = '<p style="color:#888;font-size:13px">Erreur de chargement.</p>';
+  }
+}
+
+function adhDocLink(url, label) {
+  return url
+    ? `<a href="${esc(url)}" target="_blank" style="color:var(--red);text-decoration:underline;font-size:13.5px">${label}</a>`
+    : `<span style="color:#666;font-size:13.5px">${label}</span>`;
+}
+
+function renderAdherentsList() {
+  const el = document.getElementById('adherents-list');
+  const search = (document.getElementById('adh-search').value || '').trim().toLowerCase();
+  const filterStatut = document.getElementById('adh-filter-statut').value;
+
+  let list = [..._adherents];
+  if (filterStatut) list = list.filter(a => a.statutPaiement === filterStatut);
+  if (search) {
+    list = list.filter(a =>
+      `${a.nom} ${a.prenom} ${a.email}`.toLowerCase().includes(search)
+    );
+  }
+
+  if (!list.length) {
+    el.innerHTML = '<p style="color:#888;font-size:14.5px">Aucun adhérent ne correspond.</p>';
+    return;
+  }
+
+  el.innerHTML = `<p style="color:#999;font-size:14px;margin-bottom:12px">${list.length} adhérent(s)</p>` + list.map(a => `
+    <div style="padding:18px 0;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+      <div style="min-width:220px;flex:1">
+        <div style="font-size:18px;color:#fff;font-weight:600">${esc(a.prenom)} ${esc(a.nom)}</div>
+        <div style="font-size:14.5px;color:#aaa;margin-top:4px">${esc(a.email)}${a.telephone ? ' · ' + esc(a.telephone) : ''}</div>
+        <div style="font-size:14.5px;color:#aaa;margin-top:2px">${esc(a.section)} · ${a.montant != null ? a.montant + '€' : '—'} · ${esc(a.reglement)}</div>
+        <div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap">
+          ${adhDocLink(a.docCertificatUrl, '📄 Certificat médical')}
+          ${adhDocLink(a.docPhotoUrl, '🪪 Photo')}
+          ${adhDocLink(a.docIdentiteUrl, '🪪 Pièce identité')}
+          ${adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale')}
+        </div>
+        ${a.notes ? `<div style="font-size:13.5px;color:#888;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0">
+        <select class="adh-statut-select" data-id="${esc(a.id)}" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:#fff;padding:7px 10px;font-size:14px">
+          <option value="paye" ${a.statutPaiement === 'paye' ? 'selected' : ''}>${ADH_STATUT_LABELS.paye}</option>
+          <option value="a_percevoir" ${a.statutPaiement === 'a_percevoir' ? 'selected' : ''}>${ADH_STATUT_LABELS.a_percevoir}</option>
+          <option value="en_attente_paiement" ${a.statutPaiement === 'en_attente_paiement' ? 'selected' : ''}>${ADH_STATUT_LABELS.en_attente_paiement}</option>
+        </select>
+        <div style="font-size:13px;color:#777">${esc(a.dateInscription || '')}</div>
+        <div style="display:flex;gap:8px">
+          <button type="button" data-id="${esc(a.id)}" class="adh-edit-btn" style="background:none;border:1px solid #555;color:#ddd;padding:7px 14px;cursor:pointer;font-size:14px">Modifier</button>
+          <button type="button" data-id="${esc(a.id)}" data-label="${esc(a.prenom)} ${esc(a.nom)}" class="adh-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:7px 14px;cursor:pointer;font-size:14px">Suppr.</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  el.querySelectorAll('.adh-edit-btn').forEach(btn => btn.addEventListener('click', () => editAdherent(btn.dataset.id)));
+  el.querySelectorAll('.adh-del-btn').forEach(btn => btn.addEventListener('click', () => deleteAdherentRow(btn.dataset.id, btn.dataset.label)));
+  el.querySelectorAll('.adh-statut-select').forEach(sel => sel.addEventListener('change', () => quickUpdateStatut(sel.dataset.id, sel.value)));
+}
+
+document.getElementById('adh-search').addEventListener('input', renderAdherentsList);
+document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsList);
+
+async function quickUpdateStatut(id, statutPaiement) {
+  const adherent = _adherents.find(a => a.id === id);
+  if (!adherent) return;
+  const updated = { ...adherent, statutPaiement, datePaiement: statutPaiement === 'paye' ? (adherent.datePaiement || new Date().toISOString().slice(0, 10)) : adherent.datePaiement };
+  const r = await fetch('/api/admin/adherents', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'save', adherent: updated }),
+  });
+  if (r.ok) {
+    const idx = _adherents.findIndex(a => a.id === id);
+    _adherents[idx] = updated;
+    renderAdherentsList();
+  } else {
+    alert('Erreur lors de la mise à jour du statut');
+    loadAdherents();
+  }
+}
+
+// ─── JUSTIFICATIFS (upload/remplacement depuis la fiche adhérent) ────────────
+const ADH_DOC_LABELS = { certificat: 'Certificat médical', photo: 'Photo d’identité', identite: 'Pièce d’identité', autorisation: 'Autorisation parentale' };
+// La photo d'identité doit être une vraie photo, pas un PDF ; les autres
+// documents (souvent scannés) acceptent aussi le PDF.
+const ADH_DOC_ALLOWED = {
+  certificat: ['application/pdf', 'image/jpeg', 'image/png'],
+  photo: ['image/jpeg', 'image/png'],
+  identite: ['application/pdf', 'image/jpeg', 'image/png'],
+  autorisation: ['application/pdf', 'image/jpeg', 'image/png'],
+};
+const ADH_DOC_MAX_SIZE = 5 * 1024 * 1024;
+let _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null };
+Object.keys(_adhDocUrls).forEach((k) => { const el = document.getElementById('adh-doc-status-' + k); if (el) el.textContent = 'Aucun fichier'; });
+
+function renderAdhDocStatus(docType) {
+  const el = document.getElementById('adh-doc-status-' + docType);
+  const url = _adhDocUrls[docType];
+  el.className = 'upload-doc-status';
+  el.innerHTML = url ? `✅ <a href="${esc(url)}" target="_blank">Fichier actuel</a> — un nouvel envoi le remplacera` : 'Aucun fichier';
+}
+
+async function uploadAdhDoc(docType, inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('adh-doc-status-' + docType);
+
+  const allowed = ADH_DOC_ALLOWED[docType];
+  if (!allowed.includes(file.type)) {
+    statusEl.className = 'upload-doc-status err';
+    statusEl.textContent = allowed.includes('application/pdf')
+      ? '⚠️ Format non supporté (PDF, JPG ou PNG)'
+      : '⚠️ Format non supporté (JPG ou PNG uniquement)';
+    inputEl.value = '';
+    return;
+  }
+  if (file.size > ADH_DOC_MAX_SIZE) {
+    statusEl.className = 'upload-doc-status err';
+    statusEl.textContent = '⚠️ Fichier trop volumineux (5 Mo max)';
+    inputEl.value = '';
+    return;
+  }
+
+  statusEl.className = 'upload-doc-status';
+  statusEl.textContent = '⏳ Envoi en cours…';
+
+  try {
+    const fd = new FormData();
+    fd.append('document', file);
+    fd.append('docType', docType);
+    const res = await fetch('/api/upload-document', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    _adhDocUrls[docType] = data.url;
+    statusEl.className = 'upload-doc-status ok';
+    statusEl.textContent = '✅ ' + file.name + ' (sera enregistré avec la fiche)';
+  } catch (e) {
+    statusEl.className = 'upload-doc-status err';
+    statusEl.textContent = "❌ Échec de l'envoi, réessaie";
+  } finally {
+    inputEl.value = '';
+  }
+}
+
+function editAdherent(id) {
+  const a = _adherents.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('adh-prenom').value = a.prenom || '';
+  document.getElementById('adh-nom').value = a.nom || '';
+  document.getElementById('adh-email').value = a.email || '';
+  document.getElementById('adh-telephone').value = a.telephone || '';
+  document.getElementById('adh-section').value = a.section || 'Enfants (6–12 ans) — 250€';
+  document.getElementById('adh-montant').value = a.montant != null ? a.montant : '';
+  document.getElementById('adh-reglement').value = a.reglement || 'HelloAsso';
+  document.getElementById('adh-statut').value = a.statutPaiement || 'paye';
+  document.getElementById('adh-saison').value = a.saison || '';
+  document.getElementById('adh-date').value = a.dateInscription || '';
+  document.getElementById('adh-notes').value = a.notes || '';
+  document.getElementById('adh-editing-id').value = id;
+  _adhDocUrls = {
+    certificat: a.docCertificatUrl || null,
+    photo: a.docPhotoUrl || null,
+    identite: a.docIdentiteUrl || null,
+    autorisation: a.docAutorisationUrl || null,
+  };
+  Object.keys(_adhDocUrls).forEach(renderAdhDocStatus);
+  document.getElementById('adh-form-title').textContent = 'Modifier un adhérent';
+  document.getElementById('adh-save-btn').textContent = 'Mettre à jour';
+  document.getElementById('adh-cancel-btn').style.display = 'inline-block';
+  document.getElementById('adh-prenom').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetAdherentForm() {
+  ['adh-prenom', 'adh-nom', 'adh-email', 'adh-telephone', 'adh-montant', 'adh-saison', 'adh-date', 'adh-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null };
+  Object.keys(_adhDocUrls).forEach(renderAdhDocStatus);
+  document.getElementById('adh-section').value = 'Enfants (6–12 ans) — 250€';
+  document.getElementById('adh-reglement').value = 'HelloAsso';
+  document.getElementById('adh-statut').value = 'paye';
+  document.getElementById('adh-editing-id').value = '';
+  document.getElementById('adh-form-title').textContent = 'Ajouter un adhérent';
+  document.getElementById('adh-save-btn').textContent = "Ajouter l'adhérent";
+  document.getElementById('adh-cancel-btn').style.display = 'none';
+}
+
+document.getElementById('adh-cancel-btn').addEventListener('click', resetAdherentForm);
+
+async function deleteAdherentRow(id, label) {
+  if (!confirm(`Supprimer l'adhérent "${label}" ?`)) return;
+  const r = await fetch('/api/admin/adherents', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'delete', id }),
+  });
+  if (r.ok) {
+    _adherents = _adherents.filter(a => a.id !== id);
+    renderAdherentsList();
+  } else {
+    alert('Erreur lors de la suppression');
+  }
+}
+
+document.getElementById('adh-save-btn').addEventListener('click', async () => {
+  const prenom = document.getElementById('adh-prenom').value.trim();
+  const nom = document.getElementById('adh-nom').value.trim();
+  const email = document.getElementById('adh-email').value.trim();
+  const statusEl = document.getElementById('adh-status');
+
+  if (!prenom || !nom || !email) {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'Prénom, nom et email sont obligatoires.';
+    return;
+  }
+
+  const editingId = document.getElementById('adh-editing-id').value;
+  const montantRaw = document.getElementById('adh-montant').value;
+  const adherent = {
+    id: editingId || undefined,
+    prenom, nom, email,
+    telephone: document.getElementById('adh-telephone').value.trim(),
+    section: document.getElementById('adh-section').value,
+    montant: montantRaw ? Number(montantRaw) : null,
+    reglement: document.getElementById('adh-reglement').value,
+    statutPaiement: document.getElementById('adh-statut').value,
+    saison: document.getElementById('adh-saison').value.trim(),
+    dateInscription: document.getElementById('adh-date').value,
+    notes: document.getElementById('adh-notes').value.trim(),
+    source: editingId ? (_adherents.find(a => a.id === editingId)?.source || 'manuel') : 'manuel',
+    docCertificatUrl: _adhDocUrls.certificat,
+    docPhotoUrl: _adhDocUrls.photo,
+    docIdentiteUrl: _adhDocUrls.identite,
+    docAutorisationUrl: _adhDocUrls.autorisation,
+  };
+
+  statusEl.className = 'status-msg';
+  statusEl.textContent = editingId ? 'Mise à jour en cours…' : 'Ajout en cours…';
+  document.getElementById('adh-save-btn').disabled = true;
+
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save', adherent }),
+    });
+    if (r.ok) {
+      const data = await r.json();
+      const idx = _adherents.findIndex(a => a.id === data.adherent.id);
+      if (idx >= 0) _adherents[idx] = data.adherent; else _adherents.push(data.adherent);
+      renderAdherentsList();
+      statusEl.textContent = editingId ? '✓ Adhérent mis à jour !' : '✓ Adhérent ajouté !';
+      resetAdherentForm();
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } else {
+      statusEl.className = 'status-msg err';
+      statusEl.textContent = 'Erreur lors de l\'enregistrement.';
+    }
+  } catch {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = 'Erreur réseau.';
+  } finally {
+    document.getElementById('adh-save-btn').disabled = false;
+  }
+});
+
 // ─── ACTUALITÉS ──────────────────────────────────────────────────────────────
 let _articles = [];
 
@@ -1107,19 +1508,19 @@ async function loadArticles() {
 function renderArticlesList() {
   const el = document.getElementById('articles-list');
   if (!_articles.length) {
-    el.innerHTML = '<p style="color:#888;font-size:13px">Aucun article publié pour le moment.</p>';
+    el.innerHTML = '<p style="color:#888;font-size:14.5px">Aucun article publié pour le moment.</p>';
     return;
   }
   const sorted = [..._articles].sort((a, b) => new Date(b.date) - new Date(a.date));
   el.innerHTML = sorted.map(a => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);gap:10px">
       <div style="min-width:0;flex:1">
-        <div style="font-size:15px;color:#fff;font-weight:500">${esc(a.titre)}</div>
-        <div style="font-size:12px;color:#888;margin-top:3px">${esc(a.date)}${a.extrait ? ' · ' + esc(a.extrait.slice(0, 80)) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
+        <div style="font-size:17px;color:#fff;font-weight:600">${esc(a.titre)}</div>
+        <div style="font-size:14px;color:#999;margin-top:4px">${esc(a.date)}${a.extrait ? ' · ' + esc(a.extrait.slice(0, 80)) + (a.extrait.length > 80 ? '…' : '') : ''}</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <button type="button" data-id="${esc(a.id)}" class="art-edit-btn" style="background:none;border:1px solid #555;color:#ccc;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Modifier</button>
-        <button type="button" data-id="${esc(a.id)}" data-titre="${esc(a.titre||'')}" class="art-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px">Supprimer</button>
+        <button type="button" data-id="${esc(a.id)}" class="art-edit-btn" style="background:none;border:1px solid #555;color:#ddd;padding:8px 16px;cursor:pointer;font-size:14px;letter-spacing:1px">Modifier</button>
+        <button type="button" data-id="${esc(a.id)}" data-titre="${esc(a.titre||'')}" class="art-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:8px 16px;cursor:pointer;font-size:14px;letter-spacing:1px">Supprimer</button>
       </div>
     </div>`).join('');
   el.querySelectorAll('.art-edit-btn').forEach(btn => {
@@ -1258,15 +1659,15 @@ async function loadVideos() {
     el.innerHTML = sorted.map(v => {
       const ytId = esc(getYouTubeId(v.url));
       const thumb = ytId ? `<img src="https://img.youtube.com/vi/${ytId}/default.jpg" alt="" width="80" height="60" style="width:80px;height:60px;object-fit:cover;border-radius:3px;flex-shrink:0" />` : '';
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);gap:12px">
         <div style="display:flex;gap:12px;align-items:center;min-width:0">
           ${thumb}
           <div style="min-width:0">
-            <div style="font-size:15px;color:#fff;font-weight:500">${esc(v.titre || v.url)}</div>
-            <div style="font-size:12px;color:#888;margin-top:3px">${esc(v.date)}${v.description ? ' · ' + esc(v.description.slice(0, 80)) : ''}</div>
+            <div style="font-size:17px;color:#fff;font-weight:600">${esc(v.titre || v.url)}</div>
+            <div style="font-size:14px;color:#999;margin-top:4px">${esc(v.date)}${v.description ? ' · ' + esc(v.description.slice(0, 80)) : ''}</div>
           </div>
         </div>
-        <button type="button" data-id="${esc(v.id)}" style="background:none;border:1px solid #444;color:#e00;padding:6px 14px;cursor:pointer;font-size:12px;letter-spacing:1px;flex-shrink:0">Supprimer</button>
+        <button type="button" data-id="${esc(v.id)}" style="background:none;border:1px solid #444;color:#e00;padding:8px 16px;cursor:pointer;font-size:14px;letter-spacing:1px;flex-shrink:0">Supprimer</button>
       </div>`;
     }).join('');
     el.querySelectorAll('button[data-id]').forEach(btn => {

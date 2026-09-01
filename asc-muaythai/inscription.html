@@ -119,6 +119,16 @@
     .check-group { display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.02); padding: 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; }
     .check-label { display: flex; align-items: center; gap: 10px; color: #ccc; font-size: 13px; cursor: pointer; }
     .check-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--red); flex-shrink: 0; }
+    .upload-list { display: flex; flex-direction: column; gap: 14px; background: rgba(255,255,255,0.02); padding: 14px 16px; border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; }
+    .upload-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+    .upload-label { flex: 1 1 240px; color: #ccc; font-size: 13px; line-height: 1.5; }
+    .upload-label .req { color: var(--red); }
+    .upload-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 14px; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1.5px; border-radius: 3px; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+    .upload-btn:hover { background: rgba(255,255,255,0.12); }
+    .upload-btn input[type="file"] { display: none; }
+    .upload-status { font-size: 12px; color: #888; flex-basis: 100%; }
+    .upload-status.ok  { color: #4caf50; }
+    .upload-status.err { color: var(--red); }
     .btn-submit {
       width: 100%; background: var(--red); color: #fff; border: none; padding: 16px;
       font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; cursor: pointer;
@@ -138,6 +148,7 @@
     .success-box p { color: #aaa; line-height: 1.7; margin-bottom: 20px; font-size: 15px; }
     .instr-box { text-align: left; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 16px; margin-bottom: 20px; font-size: 14px; color: #ccc; line-height: 1.7; }
     .btn-helloasso { display: inline-block; background: var(--red); color: #fff; padding: 16px 32px; text-decoration: none; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; border-radius: 3px; margin-bottom: 8px; }
+    .helloasso-widget-wrap { width: 100%; max-width: 100%; overflow: hidden; border-radius: 4px; background: #fff; margin-bottom: 20px; }
     .btn-pdf { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 24px; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; border-radius: 3px; cursor: pointer; text-decoration: none; transition: background .2s; margin-top: 12px; }
     .btn-pdf:hover { background: rgba(255,255,255,0.12); }
     .iban { font-family: monospace; background: rgba(255,255,255,0.06); padding: 8px 12px; display: block; margin: 8px 0; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; word-break: break-all; font-size: 13px; }
@@ -198,7 +209,7 @@
     </div>
     <div class="citem">
       <div class="citem-icon">🎟️</div>
-      <div><div class="citem-l">Pass'Sport</div><div class="citem-v">Accepté — 70€ de réduction<br><span style="font-size:11px;color:#aaa">Ados 14 ans et + uniquement</span></div></div>
+      <div><div class="citem-l">Pass'Sport</div><div class="citem-v">Accepté — 50€ de réduction<br><span style="font-size:11px;color:#aaa">Ados 14 ans et + uniquement</span></div></div>
     </div>
     <div class="tarif-box">
       <p>Cotisations saison 2026/2027</p>
@@ -257,7 +268,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>Section souhaitée *</label>
-          <select id="f-section">
+          <select id="f-section" onchange="updateSectionInfo()">
             <option>Enfants (6–12 ans) — 250€</option>
             <option>Ados (13–17 ans) — 290€</option>
             <option>Adultes (18+) — 290€</option>
@@ -286,22 +297,50 @@
         <div class="check-group">
           <label class="check-label">
             <input id="f-passsport" type="checkbox" onchange="updatePassSportNote()" />
-            <span>J'ai un <strong>Pass'Sport</strong> <span style="color:#888;font-size:12px">(réduction de 70€ — Ados 14 ans et + uniquement)</span></span>
+            <span>J'ai un <strong>Pass'Sport</strong> <span style="color:#888;font-size:12px">(réduction de 50€ — Ados 14 ans et + uniquement)</span></span>
           </label>
         </div>
         <div id="passsport-note" style="display:none;margin-top:8px;padding:10px 14px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:12px;color:#ccc;line-height:1.6">
-          🎟️ Réduction de 70€ appliquée sur ta cotisation. Apporte ton coupon Pass'Sport lors de ta première séance.
+          🎟️ Réduction de 50€ appliquée sur ta cotisation. Apporte ton coupon Pass'Sport lors de ta première séance.
         </div>
       </div>
 
       <div class="form-section-title">4. Documents & Engagements</div>
       <div class="form-group">
-        <label style="margin-bottom:8px">Documents à apporter lors de ta première séance</label>
-        <div style="background:rgba(255,255,255,0.02);padding:12px 16px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px">📄 Certificat médical de non contre-indication à la pratique sportive</div>
-          <div style="display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px">🪪 Photo d'identité</div>
-          <div style="display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px">🪪 Copie de la pièce d'identité</div>
-          <div style="display:flex;align-items:center;gap:10px;color:#888;font-size:13px;font-style:italic">👨‍👧 Autorisation parentale (si mineur)</div>
+        <label style="margin-bottom:8px">Justificatifs à nous envoyer (100% numérique, aucun document papier)</label>
+        <div class="upload-list">
+          <div class="upload-row">
+            <div class="upload-label">📄 Certificat médical de non contre-indication à la pratique sportive <span class="req">*</span></div>
+            <label class="upload-btn">
+              CHOISIR UN FICHIER
+              <input type="file" id="f-doc-certificat" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('certificat', this)">
+            </label>
+            <span class="upload-status" id="status-certificat"></span>
+          </div>
+          <div class="upload-row">
+            <div class="upload-label">🪪 Photo d'identité <span class="req">*</span></div>
+            <label class="upload-btn">
+              CHOISIR UN FICHIER
+              <input type="file" id="f-doc-photo" accept=".jpg,.jpeg,.png" onchange="uploadDoc('photo', this)">
+            </label>
+            <span class="upload-status" id="status-photo"></span>
+          </div>
+          <div class="upload-row">
+            <div class="upload-label">🪪 Copie de la pièce d'identité</div>
+            <label class="upload-btn">
+              CHOISIR UN FICHIER
+              <input type="file" id="f-doc-identite" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('identite', this)">
+            </label>
+            <span class="upload-status" id="status-identite"></span>
+          </div>
+          <div class="upload-row">
+            <div class="upload-label">👨‍👧 Autorisation parentale <span class="req" id="autorisation-req" style="display:none">*</span> <span style="color:#888;font-size:12px">(si mineur)</span> — <a href="/autorisation-parentale.pdf" target="_blank" style="color:var(--red);text-decoration:underline">télécharger le modèle</a></div>
+            <label class="upload-btn">
+              CHOISIR UN FICHIER
+              <input type="file" id="f-doc-autorisation" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('autorisation', this)">
+            </label>
+            <span class="upload-status" id="status-autorisation"></span>
+          </div>
         </div>
       </div>
       <div class="form-group" style="margin-top:18px">
@@ -338,17 +377,17 @@
     <div id="step-helloasso" class="success-box">
       <div class="success-icon">✅</div>
       <h3 id="ha-name"></h3>
-      <p>Ta demande a été enregistrée ! Un email de confirmation t'a été envoyé.<br>Finalise ton inscription en réglant ta cotisation ci-dessous.</p>
-      <a id="ha-link" href="https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai" target="_blank" class="btn-helloasso">
-        Régler ma cotisation → <span id="ha-montant"></span>€
-      </a>
-      <div id="ha-passsport-note" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:13px;color:#ccc;line-height:1.6">
-        🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> lors de ta première séance pour bénéficier de la réduction de 70€.
+      <p>Ta demande a été enregistrée ! Un email de confirmation t'a été envoyé.<br>Finalise ton inscription en réglant ta cotisation (<strong id="ha-montant"></strong>€) ci-dessous.</p>
+      <div id="ha-passsport-note" style="display:none;margin-bottom:20px;padding:12px 16px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:13px;color:#ccc;line-height:1.6;text-align:left">
+        🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> lors de ta première séance pour bénéficier de la réduction de 50€.
+      </div>
+      <div class="helloasso-widget-wrap">
+        <iframe id="haWidget" title="Paiement de la cotisation en ligne (HelloAsso)" allowtransparency="true" scrolling="auto" data-src="https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai/adhesions/cotisation-annuelle/widget" style="width:100%;height:750px;border:none;display:block" onload="window.addEventListener('message', function(e) { const h = e.data.height; const w = document.getElementById('haWidget'); if (h > parseFloat(w.height || 0)) { w.height = h + 'px'; } })"></iframe>
       </div>
       <div style="margin-top:16px;padding:14px 16px;background:rgba(238,0,0,0.08);border-left:3px solid var(--red);border-radius:3px;font-size:13px;color:#ccc;line-height:1.8">
-        🖨️ <strong>Important :</strong> Télécharge et <strong>imprime ta fiche d'inscription</strong>, signe-la, et apporte-la avec l'ensemble de tes justificatifs lors de ta première séance.
+        📤 <strong>Important :</strong> Ta fiche d'inscription et tes justificatifs ont déjà été transmis au club — aucune impression ni signature papier n'est nécessaire. Le formulaire HelloAsso ci-dessus peut te redemander certains documents au moment du paiement : c'est normal, il s'agit de sa propre vérification.
       </div>
-      <button class="btn-pdf" onclick="downloadPDF()" style="margin-top:16px">📄 Télécharger ma fiche PDF</button>
+      <button class="btn-pdf" onclick="downloadPDF()" style="margin-top:16px">📄 Télécharger ma fiche PDF (pour tes archives)</button>
     </div>
 
     <!-- SUCCESS : Autres modes -->
@@ -358,12 +397,12 @@
       <p>Ta demande d'inscription a bien été enregistrée ! Un email de confirmation t'a été envoyé.</p>
       <div class="instr-box" id="sa-instructions"></div>
       <div id="sa-passsport-note" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(255,193,7,0.1);border-left:3px solid #ffc107;border-radius:3px;font-size:13px;color:#ccc;line-height:1.6">
-        🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> lors de ta première séance pour bénéficier de la réduction de 70€.
+        🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> lors de ta première séance pour bénéficier de la réduction de 50€.
       </div>
       <div style="margin-top:16px;padding:14px 16px;background:rgba(238,0,0,0.08);border-left:3px solid var(--red);border-radius:3px;font-size:13px;color:#ccc;line-height:1.8">
-        🖨️ <strong>Important :</strong> Télécharge et <strong>imprime ta fiche d'inscription</strong>, signe-la, et apporte-la avec l'ensemble de tes justificatifs lors de ta première séance.
+        📤 <strong>Important :</strong> Ta fiche d'inscription et tes justificatifs ont déjà été transmis au club — aucune impression ni signature papier n'est nécessaire.
       </div>
-      <button class="btn-pdf" onclick="downloadPDF()" style="margin-top:16px">📄 Télécharger ma fiche PDF</button>
+      <button class="btn-pdf" onclick="downloadPDF()" style="margin-top:16px">📄 Télécharger ma fiche PDF (pour tes archives)</button>
     </div>
 
   </div>
@@ -377,8 +416,6 @@
 </footer>
 
 <script>
-const HELLOASSO_URL = "https://www.helloasso.com/associations/association-sportive-citoyenne-asc-muay-thai";
-
 // Saison automatique : nouvelle saison à partir du 15 juin
 const _now = new Date();
 const _newSeason = _now.getMonth() >= 5;
@@ -438,6 +475,72 @@ function updatePassSportNote() {
   }
 }
 
+// Autorisation parentale obligatoire uniquement pour les sections mineures.
+function updateSectionInfo() {
+  const section = document.getElementById("f-section").value;
+  const isMinor = section.includes("Enfants") || section.includes("Ados");
+  document.getElementById("autorisation-req").style.display = isMinor ? "inline" : "none";
+}
+updateSectionInfo();
+
+// ─── UPLOAD DES JUSTIFICATIFS ───────────────────────────────────────────────
+// Chaque fichier est envoyé à /api/upload-document dès sa sélection ; seule
+// l'URL du blob renvoyée est transmise à /api/inscription (jamais le fichier
+// lui-même dans le JSON de soumission).
+const docUrls = { certificat: null, photo: null, identite: null, autorisation: null };
+// La photo d'identité doit être une vraie photo, pas un PDF ; les autres
+// documents (souvent scannés) acceptent aussi le PDF.
+const DOC_ALLOWED_TYPES = {
+  certificat: ["application/pdf", "image/jpeg", "image/png"],
+  photo: ["image/jpeg", "image/png"],
+  identite: ["application/pdf", "image/jpeg", "image/png"],
+  autorisation: ["application/pdf", "image/jpeg", "image/png"],
+};
+const DOC_MAX_SIZE = 5 * 1024 * 1024;
+
+async function uploadDoc(docType, inputEl) {
+  const file = inputEl.files[0];
+  const statusEl = document.getElementById("status-" + docType);
+  if (!file) return;
+
+  docUrls[docType] = null;
+
+  const allowed = DOC_ALLOWED_TYPES[docType];
+  if (!allowed.includes(file.type)) {
+    statusEl.textContent = allowed.includes("application/pdf")
+      ? "⚠️ Format non supporté (PDF, JPG ou PNG)"
+      : "⚠️ Format non supporté (JPG ou PNG uniquement)";
+    statusEl.className = "upload-status err";
+    inputEl.value = "";
+    return;
+  }
+  if (file.size > DOC_MAX_SIZE) {
+    statusEl.textContent = "⚠️ Fichier trop volumineux (5 Mo max)";
+    statusEl.className = "upload-status err";
+    inputEl.value = "";
+    return;
+  }
+
+  statusEl.textContent = "⏳ Envoi en cours...";
+  statusEl.className = "upload-status";
+
+  try {
+    const fd = new FormData();
+    fd.append("document", file);
+    fd.append("docType", docType);
+    const res = await fetch("/api/upload-document", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur");
+    docUrls[docType] = data.url;
+    statusEl.textContent = "✅ " + file.name;
+    statusEl.className = "upload-status ok";
+  } catch (e) {
+    statusEl.textContent = "❌ Échec de l'envoi, réessaie";
+    statusEl.className = "upload-status err";
+    inputEl.value = "";
+  }
+}
+
 async function submitInscription() {
   const nouveau        = document.getElementById("f-nouveau").value;
   const dejaPratique   = document.getElementById("f-deja-pratique").value;
@@ -478,6 +581,16 @@ async function submitInscription() {
   if (!acceptData) {
     return showError(errDiv, "⚠️ Vous devez accepter l'utilisation de vos données pour traiter votre inscription.");
   }
+  if (!docUrls.certificat) {
+    return showError(errDiv, "⚠️ Merci d'envoyer ton certificat médical.");
+  }
+  if (!docUrls.photo) {
+    return showError(errDiv, "⚠️ Merci d'envoyer ta photo d'identité.");
+  }
+  const isMinor = section.includes("Enfants") || section.includes("Ados");
+  if (isMinor && !docUrls.autorisation) {
+    return showError(errDiv, "⚠️ Merci d'envoyer l'autorisation parentale (obligatoire pour un adhérent mineur).");
+  }
 
   errDiv.style.display = "none";
   btn.textContent = "Envoi en cours...";
@@ -490,7 +603,9 @@ async function submitInscription() {
       body: JSON.stringify({
         nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
         profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message,
-        acceptReglement, acceptDroitImage, acceptData
+        acceptReglement, acceptDroitImage, acceptData,
+        docCertificatUrl: docUrls.certificat, docPhotoUrl: docUrls.photo,
+        docIdentiteUrl: docUrls.identite, docAutorisationUrl: docUrls.autorisation
       })
     });
     const data = await res.json();
@@ -499,7 +614,7 @@ async function submitInscription() {
     gtag("event", "generate_lead", { form_name: "inscription", payment_method: reglement });
 
     // Sauvegarder pour le PDF client
-    lastSubmission = { nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message, acceptDroitImage, montant: data.montant };
+    lastSubmission = { nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message, acceptDroitImage, montant: data.montant, docsSent: { ...docUrls } };
 
     document.getElementById("form-step").style.display = "none";
 
@@ -510,11 +625,16 @@ async function submitInscription() {
       document.getElementById("ha-name").textContent = `Merci ${prenom} !`;
       document.getElementById("ha-montant").textContent = data.montant;
       document.getElementById("ha-passsport-note").style.display = hasPassSport ? "block" : "none";
+      // Ne charge le widget HelloAsso (iframe tierce) qu'à ce moment précis :
+      // sinon il se chargerait pour 100% des visiteurs de la page, y compris
+      // ceux qui paient par chèque/espèces et ne voient jamais cette étape.
+      const widget = document.getElementById("haWidget");
+      if (!widget.src) widget.src = widget.dataset.src;
       document.getElementById("step-helloasso").style.display = "block";
     } else {
       document.getElementById("sa-name").textContent = `Merci ${prenom} !`;
       const passSportWarning = hasPassSport
-        ? `<br><div style="margin-top:10px;padding:10px 12px;background:rgba(255,193,7,0.12);border-left:3px solid #ffc107;border-radius:3px;font-size:12px;line-height:1.6;color:#ccc">⚠️ <strong>Attention Pass'Sport :</strong> La réduction de 70€ est soumise à validation de ton coupon par le club. Si le coupon n'est pas accepté, un complément de <strong>70€</strong> te sera demandé.</div>`
+        ? `<br><div style="margin-top:10px;padding:10px 12px;background:rgba(255,193,7,0.12);border-left:3px solid #ffc107;border-radius:3px;font-size:12px;line-height:1.6;color:#ccc">⚠️ <strong>Attention Pass'Sport :</strong> La réduction de 50€ est soumise à validation de ton coupon par le club. Si le coupon n'est pas accepté, un complément de <strong>50€</strong> te sera demandé.</div>`
         : "";
       // Le montant et le nom sont insérés après coup via textContent (jamais
       // interprétés comme du HTML), seul le gabarit statique passe par innerHTML.
@@ -667,11 +787,12 @@ async function downloadPDF() {
   row("Groupe WhatsApp", d.whatsapp);
 
   // ── 3. DOCUMENTS ────────────────────────────────────────────────
-  sectionTitle("3. Documents à apporter (première séance)");
-  row("Certificat médical",     "À apporter");
-  row("Photo d'identité",       "À apporter");
-  row("Pièce d'identité",       "À apporter");
-  row("Autorisation parentale", "À apporter si mineur");
+  const docs = d.docsSent || {};
+  sectionTitle("3. Justificatifs envoyés en ligne");
+  row("Certificat médical",     docs.certificat   ? "Envoyé en ligne ✓" : "Non fourni");
+  row("Photo d'identité",       docs.photo        ? "Envoyé en ligne ✓" : "Non fourni");
+  row("Pièce d'identité",       docs.identite     ? "Envoyé en ligne ✓" : "Non fourni");
+  row("Autorisation parentale", docs.autorisation ? "Envoyé en ligne ✓" : "Non fourni / non applicable");
   row("Règlement intérieur",    "Lu et approuvé ✓");
   row("Droit à l'image",        d.acceptDroitImage ? "Accepté ✓" : "Refusé");
 
@@ -679,7 +800,7 @@ async function downloadPDF() {
   sectionTitle("4. Section & Cotisation");
   row("Section demandée",  d.section);
   row("Mode de règlement", reglementLabels[d.reglement] || d.reglement);
-  row("Pass'Sport",        d.hasPassSport ? "Oui — réduction 70€" : "Non");
+  row("Pass'Sport",        d.hasPassSport ? "Oui — réduction 50€" : "Non");
 
   // Montant mis en valeur
   y += 2;

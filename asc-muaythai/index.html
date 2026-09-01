@@ -360,7 +360,7 @@ section{padding:96px 80px}
 
 /* ── HORAIRES — NOIR ── */
 #horaires{background:var(--darker)}
-.hor-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border-dark)}
+.hor-grid{display:grid;grid-template-columns:repeat(var(--hor-cols, 6),1fr);gap:1px;background:var(--border-dark)}
 .hor-card{background:var(--card);padding:36px 28px}
 .hor-day{
   font-family:'Bebas Neue',sans-serif;font-size:30px;
@@ -809,11 +809,11 @@ footer{
 
 <!-- TARIFS BLANC -->
 <section id="tarifs">
-  <div class="s-tag">Cotisations 2025/2026</div>
+  <div class="s-tag">Cotisations 2026/2027</div>
   <h2 class="s-title-dark">Tarifs</h2>
   <div class="tarif-grid" id="tarif-grid"></div>
   <p style="margin-top:20px;font-size:12px;color:var(--muted-light);font-style:italic">
-    * Certificat médical obligatoire. Pass'Sport : 70€ de réduction pour les Ados à partir de 14 ans.
+    * Certificat médical obligatoire. Pass'Sport : 50€ de réduction pour les Ados à partir de 14 ans.
   </p>
   <div class="cp-band">
     <div class="cp-band-left">
@@ -1046,6 +1046,8 @@ function renderContact(contact) {
   tel.textContent = contact.telephone;
 }
 
+const JOUR_ORDRE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
 function renderHoraires(horaires) {
   const jours = [];
   const parJour = new Map();
@@ -1053,6 +1055,19 @@ function renderHoraires(horaires) {
     if (!parJour.has(h.jour)) { jours.push(h.jour); parJour.set(h.jour, []); }
     parJour.get(h.jour).push(h);
   });
+  // Toujours dans l'ordre de la semaine, quel que soit l'ordre d'ajout des
+  // créneaux dans /admin (les jours hors liste passent en dernier, triés alphabétiquement).
+  jours.sort((a, b) => {
+    const ia = JOUR_ORDRE.indexOf(a), ib = JOUR_ORDRE.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+  // Toutes les colonnes sur une seule ligne en desktop, quel que soit le
+  // nombre de jours actifs (le média-query mobile reste prioritaire et force
+  // 1 colonne, car il fixe grid-template-columns directement, pas via cette variable).
+  document.getElementById('hor-grid').style.setProperty('--hor-cols', jours.length);
   document.getElementById('hor-grid').innerHTML = jours.map((jour) => `
     <div class="hor-card">
       <div class="hor-day">${esc(jour)}</div>

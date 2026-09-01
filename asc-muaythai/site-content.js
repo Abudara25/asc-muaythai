@@ -32,7 +32,7 @@ window.SITE_CONTENT_DEFAULTS = {
     {
       section: 'Ados 13–17 ans',
       prix: 290,
-      avantages: ['3 cours / semaine inclus', 'Accès aux compétitions', "Pass'Sport (14 ans+) : tarif réduit à 220€", 'Paiement en 3 fois sans frais'],
+      avantages: ['3 cours / semaine inclus', 'Accès aux compétitions', "Pass'Sport (14 ans+) : tarif réduit à 240€", 'Paiement en 3 fois sans frais'],
     },
     {
       section: 'Adultes 18 ans +',

@@ -163,7 +163,7 @@ async function genererPDF() {
   sectionTitle("4. Section & Cotisation");
   row("Section demandée",  d.section);
   row("Mode de règlement", reglementLabels[d.reglement] || d.reglement);
-  row("Pass'Sport",        d.hasPassSport ? "Oui — réduction 70€" : "Non");
+  row("Pass'Sport",        d.hasPassSport ? "Oui — réduction 50€" : "Non");
 
   y += 2;
   doc.setFillColor(255, 245, 245);
