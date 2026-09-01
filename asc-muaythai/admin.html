@@ -1206,10 +1206,13 @@ checkSession();
 // ─── ADHÉRENTS ────────────────────────────────────────────────────────────────
 let _adherents = [];
 
+// Sans emoji : Chrome/Windows ne peint pas le texte des options non
+// sélectionnées d'un <select> natif quand elles commencent par certains
+// emoji (✅, ⏳ notamment) — seule l'option surlignée s'affiche en entier.
 const ADH_STATUT_LABELS = {
-  paye: '✅ Payé',
-  a_percevoir: '💵 À percevoir',
-  en_attente_paiement: '⏳ En attente de paiement',
+  paye: 'Payé',
+  a_percevoir: 'À percevoir',
+  en_attente_paiement: 'En attente de paiement',
 };
 
 async function loadAdherents() {
