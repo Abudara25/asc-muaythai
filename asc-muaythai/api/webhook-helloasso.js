@@ -1,6 +1,7 @@
 // api/webhook-helloasso.js
 // Reçoit les webhooks HelloAsso après paiement confirmé → email de confirmation Brevo
 import { timingSafeEqual } from 'crypto';
+import { getAdherents, saveAdherents } from './admin/_adherents.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const CLUB_EMAIL = "ascmuaythai95@gmail.com";
@@ -71,7 +72,36 @@ export default async function handler(req, res) {
     const emailDisplay = escapeHtml(email);
     const montant = (order?.amount || 0) / 100; // HelloAsso envoie en centimes
 
-    // Email de confirmation de paiement au club
+    // Retrouve la pré-inscription correspondante (même email, paiement
+    // HelloAsso encore en attente) pour récupérer ses justificatifs et
+    // passer son statut à "payé". Si rien ne correspond (paiement fait
+    // directement sur HelloAsso, sans passer par /inscription), on envoie
+    // quand même la confirmation, juste sans les liens vers des documents.
+    let matched = null;
+    if (email) {
+      try {
+        const list = await getAdherents();
+        const idx = list.findIndex(
+          (a) => a.email && a.email.toLowerCase() === email.toLowerCase() &&
+                 a.reglement === "HelloAsso" && a.statutPaiement === "en_attente_paiement"
+        );
+        if (idx >= 0) {
+          list[idx].statutPaiement = "paye";
+          list[idx].datePaiement = new Date().toISOString().slice(0, 10);
+          matched = list[idx];
+          await saveAdherents(list);
+        }
+      } catch (e) {
+        console.error("Mise à jour adhérent (webhook) ERREUR:", e.message);
+      }
+    }
+
+    const docRow = (label, url) => `
+              <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>${label}</strong></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${url ? `📄 <a href="${url}" style="color:#ee0000">Voir le document</a>` : "❌ Non fourni"}</td></tr>`;
+
+    // Email de confirmation de paiement au club — inclut les justificatifs
+    // (retenus jusqu'ici) dès qu'une pré-inscription correspondante est trouvée.
     await sendEmail({
       to: [{ email: CLUB_EMAIL, name: "ASC Muay Thaï" }],
       subject: `✅ Paiement reçu — ${prenom} ${nom} (${montant}€)`,
@@ -90,9 +120,14 @@ export default async function handler(req, res) {
                   <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${prenom} ${nom}</td></tr>
               <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Email</strong></td>
                   <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${emailDisplay || "Non renseigné"}</td></tr>
-              <tr><td style="padding:10px 0;color:#555;font-size:13px"><strong>Montant</strong></td>
-                  <td style="padding:10px 0;font-size:18px;color:#28a745;font-weight:bold">${montant}€</td></tr>
+              <tr><td style="padding:10px 0;${matched ? 'border-bottom:1px solid #e0e0e0;' : ''}color:#555;font-size:13px"><strong>Montant</strong></td>
+                  <td style="padding:10px 0;${matched ? 'border-bottom:1px solid #e0e0e0;' : ''}font-size:18px;color:#28a745;font-weight:bold">${montant}€</td></tr>${matched ? `
+              ${docRow("Certificat médical", matched.docCertificatUrl)}
+              ${docRow("Photo d'identité", matched.docPhotoUrl)}
+              ${docRow("Pièce d'identité", matched.docIdentiteUrl)}
+              ${docRow("Autorisation parentale", matched.docAutorisationUrl)}` : ''}
             </table>
+            ${!matched ? `<p style="margin-top:16px;font-size:12px;color:#888">Aucune pré-inscription correspondante trouvée sur le site — paiement probablement effectué directement sur HelloAsso.</p>` : ''}
           </div>
           <div style="padding:16px;text-align:center;background:#111;color:#555;font-size:11px">
             ASC Muay Thaï — Webhook HelloAsso automatique

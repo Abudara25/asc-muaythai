@@ -21,9 +21,8 @@ import { put } from '@vercel/blob';
 import { secretPathname } from './_auth.js';
 
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
-const PATHNAME = secretPathname('login-attempts');
-const WINDOW_MS = 15 * 60 * 1000;
-const MAX_ATTEMPTS = 5;
+const DEFAULT_WINDOW_MS = 15 * 60 * 1000;
+const DEFAULT_MAX_ATTEMPTS = 5;
 
 function getClientIp(req) {
   const xff = req.headers['x-forwarded-for'];
@@ -34,9 +33,9 @@ function getClientIp(req) {
   return req.socket?.remoteAddress || 'unknown';
 }
 
-async function readAttempts() {
+async function readAttempts(pathname) {
   try {
-    const res = await fetch(`${BLOB_BASE}/${PATHNAME}?t=${Date.now()}`, { cache: 'no-store' });
+    const res = await fetch(`${BLOB_BASE}/${pathname}?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) return new Map();
     const entries = await res.json();
     return Array.isArray(entries) ? new Map(entries) : new Map();
@@ -52,8 +51,8 @@ function purgeExpired(attempts, now) {
   return attempts;
 }
 
-async function writeAttempts(attempts) {
-  await put(PATHNAME, JSON.stringify([...attempts]), {
+async function writeAttempts(pathname, attempts) {
+  await put(pathname, JSON.stringify([...attempts]), {
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
@@ -64,33 +63,38 @@ async function writeAttempts(attempts) {
 
 // À appeler une seule fois en tête du handler. Renvoie un état à réutiliser
 // pour isLocked/recordFailedLogin/clearLoginAttempts sur la même requête.
-export async function loadRateLimitState(req) {
+// `namespace` isole le compteur par usage (ex. "login-attempts",
+// "upload-document") : chacun a son propre blob, ses propres seuils.
+export async function loadRateLimitState(req, namespace = 'login-attempts') {
+  const pathname = secretPathname(namespace);
   const ip = getClientIp(req);
   const now = Date.now();
-  const attempts = purgeExpired(await readAttempts(), now);
-  return { ip, now, attempts };
+  const attempts = purgeExpired(await readAttempts(pathname), now);
+  return { ip, now, attempts, pathname };
 }
 
 // Renvoie le nombre de minutes d'attente restantes si l'IP est verrouillée, sinon null.
-export function isLocked({ ip, now, attempts }) {
+export function isLocked({ ip, now, attempts }, maxAttempts = DEFAULT_MAX_ATTEMPTS) {
   const entry = attempts.get(ip);
-  if (entry && entry.count >= MAX_ATTEMPTS) {
+  if (entry && entry.count >= maxAttempts) {
     return Math.max(1, Math.ceil((entry.resetAt - now) / 60000));
   }
   return null;
 }
 
-export async function recordFailedLogin({ ip, now, attempts }) {
+// Nom historique (utilisé par login.js) : incrémente simplement le compteur
+// de tentatives pour l'IP, quel que soit le namespace/usage.
+export async function recordFailedLogin({ ip, now, attempts, pathname }, windowMs = DEFAULT_WINDOW_MS) {
   const entry = attempts.get(ip);
   if (entry) entry.count += 1;
-  else attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+  else attempts.set(ip, { count: 1, resetAt: now + windowMs });
 
-  await writeAttempts(attempts);
+  await writeAttempts(pathname, attempts);
 }
 
-export async function clearLoginAttempts({ ip, attempts }) {
+export async function clearLoginAttempts({ ip, attempts, pathname }) {
   if (attempts.has(ip)) {
     attempts.delete(ip);
-    await writeAttempts(attempts);
+    await writeAttempts(pathname, attempts);
   }
 }

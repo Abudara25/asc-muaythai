@@ -1,5 +1,6 @@
 // api/inscription.js
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { getAdherents, saveAdherents, withDefaults } from './admin/_adherents.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SITE_ORIGIN = "https://www.asc-muaythai.fr";
@@ -9,6 +10,13 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
+}
+
+// url a déjà été validé (préfixe Blob attendu) avant d'atteindre les templates d'email.
+function docLinkHtml(url, label) {
+  return url
+    ? `📄 <a href="${url}" style="color:#ee0000">${label}</a>`
+    : `❌ Non fourni`;
 }
 
 // Saison automatique : nouvelle saison à partir du 15 juin
@@ -31,7 +39,8 @@ export default async function handler(req, res) {
   let {
     nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
     profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport: rawPassSport, message,
-    acceptReglement, acceptDroitImage
+    acceptReglement, acceptDroitImage,
+    docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl
   } = req.body;
 
   if (!prenom || !nom || !email || !telephone || !naissanceDate || !naissanceLieu || !adresse || !ville) {
@@ -39,6 +48,24 @@ export default async function handler(req, res) {
   }
   if (typeof email !== "string" || !EMAIL_RE.test(email)) {
     return res.status(400).json({ error: "Adresse e-mail invalide" });
+  }
+
+  // Les URLs de justificatifs doivent provenir de notre propre stockage Blob :
+  // on rejette silencieusement toute valeur qui n'en vient pas plutôt que de
+  // l'insérer telle quelle comme lien cliquable dans l'email envoyé au club.
+  const BLOB_DOC_PREFIX = "https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/justificatifs/";
+  const validDocUrl = (u) => (typeof u === "string" && u.startsWith(BLOB_DOC_PREFIX)) ? u : null;
+  docCertificatUrl = validDocUrl(docCertificatUrl);
+  docPhotoUrl = validDocUrl(docPhotoUrl);
+  docIdentiteUrl = validDocUrl(docIdentiteUrl);
+  docAutorisationUrl = validDocUrl(docAutorisationUrl);
+
+  if (!docCertificatUrl || !docPhotoUrl) {
+    return res.status(400).json({ error: "Certificat médical et photo d'identité manquants" });
+  }
+  const isMinorSection = typeof section === "string" && (section.includes("Enfants") || section.includes("Ados"));
+  if (isMinorSection && !docAutorisationUrl) {
+    return res.status(400).json({ error: "Autorisation parentale manquante (adhérent mineur)" });
   }
 
   // Échappement pour l'insertion dans les e-mails HTML (le contenu vient du visiteur)
@@ -63,11 +90,11 @@ export default async function handler(req, res) {
   if (section && section.includes("Enfants")) baseTarif = 250;
 
   const hasPassSport = rawPassSport === true && section.includes("Ados");
-  const montant = baseTarif - (hasPassSport ? 70 : 0);
+  const montant = baseTarif - (hasPassSport ? 50 : 0);
 
   const reglementLabels = {
     "HelloAsso": "Paiement en ligne (HelloAsso)",
-    "PassSport": "Pass'Sport (Réduction 70€ appliquée)",
+    "PassSport": "Pass'Sport (Réduction 50€ appliquée)",
     "Virement": "Virement bancaire",
     "Cheque": "Chèque bancaire (3x possible)",
     "Especes": "Espèces"
@@ -75,19 +102,51 @@ export default async function handler(req, res) {
   const reglementText = reglementLabels[reglement] || reglement;
 
 
+  // Tant que le paiement HelloAsso n'est pas confirmé (webhook), on ne
+  // transmet pas les justificatifs au club : seul un avis léger part tout de
+  // suite, l'email complet (avec les liens) part depuis webhook-helloasso.js
+  // une fois le paiement effectif. Chèque/espèces n'ont pas d'équivalent
+  // automatisable : on envoie tout de suite, comme aujourd'hui.
+  const isHelloAsso = reglement === "HelloAsso";
+
   try {
+    // 0. Enregistrer l'adhérent (visible/actualisable depuis /admin quel que
+    // soit l'état du paiement).
+    try {
+      const list = await getAdherents();
+      const adherent = withDefaults({
+        nom, prenom, email, telephone, section, montant, reglement, hasPassSport,
+        statutPaiement: isHelloAsso ? "en_attente_paiement" : "a_percevoir",
+        docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl,
+        saison: SAISON,
+        source: "formulaire",
+      });
+      list.push(adherent);
+      await saveAdherents(list);
+    } catch (e) {
+      console.error("Enregistrement adhérent ERREUR:", e.message);
+    }
+
     // 1. Email au CLUB
-    await sendEmail({
-      to: [{ email: CLUB_EMAIL, name: "ASC Muay Thaï" }],
-      subject: `🥊 Dossier d'inscription — ${prenom} ${nom.toUpperCase()}`,
-      html: buildClubEmail({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email: emailDisplay, whatsapp, section, reglementText, montant, nouveau, dejaPratique, acceptDroitImage, message })
-    });
+    if (isHelloAsso) {
+      await sendEmail({
+        to: [{ email: CLUB_EMAIL, name: "ASC Muay Thaï" }],
+        subject: `⏳ Pré-inscription en attente de paiement — ${prenom} ${nom.toUpperCase()}`,
+        html: buildClubEmailLight({ prenom, nom, section, reglementText, montant })
+      });
+    } else {
+      await sendEmail({
+        to: [{ email: CLUB_EMAIL, name: "ASC Muay Thaï" }],
+        subject: `🥊 Dossier d'inscription — ${prenom} ${nom.toUpperCase()}`,
+        html: buildClubEmail({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email: emailDisplay, whatsapp, section, reglementText, montant, nouveau, dejaPratique, acceptDroitImage, message, docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl })
+      });
+    }
 
     // 2. Email à L'ADHÉRENT
     const instructionsHtml = buildPaymentInstructions(reglement, montant, prenom, nom, hasPassSport);
     let pdfAttachment = null;
     try {
-      const pdfBase64 = await generateMemberPDF({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email, whatsapp, section, reglement, montant, hasPassSport, acceptDroitImage, message, reglementText });
+      const pdfBase64 = await generateMemberPDF({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email, whatsapp, section, reglement, montant, hasPassSport, acceptDroitImage, message, reglementText, docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl });
       pdfAttachment = [{ name: `inscription-${prenom}-${nom}-ASC-MuayThai.pdf`, content: pdfBase64 }];
     } catch(e) {
       console.error("PDF generation error:", e.message);
@@ -174,7 +233,7 @@ async function saveBrevoContact({ prenom, nom, email, telephone, section, montan
 }
 
 // ─── PDF ──────────────────────────────────────────────────────────────────────
-async function generateMemberPDF({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email, whatsapp, section, reglement, montant, hasPassSport, acceptDroitImage, message, reglementText }) {
+async function generateMemberPDF({ prenom, nom, sexe, naissanceDate, naissanceLieu, profession, adresse, ville, telephone, email, whatsapp, section, reglement, montant, hasPassSport, acceptDroitImage, message, reglementText, docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl }) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]);
 
@@ -235,11 +294,11 @@ async function generateMemberPDF({ prenom, nom, sexe, naissanceDate, naissanceLi
   row('Groupe WhatsApp', whatsapp);
   y -= 4;
 
-  sec('3. DOCUMENTS A APPORTER (1ere seance)');
-  row('Certificat medical', 'A apporter');
-  row("Photo d'identite", 'A apporter');
-  row("Piece d'identite", 'A apporter');
-  row('Autorisation parentale', 'A apporter si mineur');
+  sec('3. JUSTIFICATIFS ENVOYES EN LIGNE');
+  row('Certificat medical', docCertificatUrl ? 'Envoye en ligne' : 'Non fourni');
+  row("Photo d'identite", docPhotoUrl ? 'Envoye en ligne' : 'Non fourni');
+  row("Piece d'identite", docIdentiteUrl ? 'Envoye en ligne' : 'Non fourni');
+  row('Autorisation parentale', docAutorisationUrl ? 'Envoye en ligne' : 'Non fourni / non applicable');
   row('Reglement interieur', 'Lu et approuve');
   row("Droit a l'image", acceptDroitImage ? 'Accepte' : 'Refuse');
   y -= 4;
@@ -247,7 +306,7 @@ async function generateMemberPDF({ prenom, nom, sexe, naissanceDate, naissanceLi
   sec('4. SECTION & COTISATION');
   row('Section demandee', section);
   row('Mode de reglement', rl[reglement] || reglement);
-  row("Pass'Sport", hasPassSport ? 'Oui - reduction 70 EUR' : 'Non');
+  row("Pass'Sport", hasPassSport ? 'Oui - reduction 50 EUR' : 'Non');
   y -= 6;
 
   // Montant
@@ -321,6 +380,31 @@ async function sendEmail({ to, subject, html, attachment }) {
 }
 
 // ─── EMAIL TEMPLATES ──────────────────────────────────────────────────────────
+// Avis léger envoyé immédiatement pour les inscriptions HelloAsso, avant
+// confirmation du paiement. Ne contient volontairement aucun lien vers les
+// justificatifs : ils partent dans l'email complet une fois le paiement
+// confirmé (voir api/webhook-helloasso.js).
+function buildClubEmailLight({ prenom, nom, section, reglementText, montant }) {
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;">
+      <div style="background:#111;padding:24px;text-align:center">
+        <h1 style="color:#ee0000;font-size:26px;margin:0;letter-spacing:2px">ASC MUAY THAÏ</h1>
+        <p style="color:#888;margin:4px 0 0;font-size:12px;letter-spacing:1px">PRÉ-INSCRIPTION — EN ATTENTE DE PAIEMENT</p>
+      </div>
+      <div style="padding:32px;background:#f9f9f9;border:1px solid #e0e0e0">
+        <div style="padding:16px;background:#fff3cd;border-left:4px solid #ffc107;border-radius:4px;margin-bottom:24px">
+          <strong>⏳ En attente de paiement HelloAsso.</strong> Le dossier complet (avec les justificatifs) te sera envoyé automatiquement dès que le paiement sera confirmé.
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px;width:40%"><strong>Nom complet</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;font-size:14px"><strong>${nom.toUpperCase()} ${prenom}</strong></td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Section</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;font-size:14px">${section}</td></tr>
+          <tr><td style="padding:8px 0;color:#555;font-size:13px"><strong>Montant attendu</strong></td><td style="padding:8px 0;font-size:18px;color:#ee0000;font-weight:bold">${montant}€</td></tr>
+        </table>
+      </div>
+      <div style="padding:16px;text-align:center;background:#111;color:#555;font-size:11px">ASC Muay Thaï — Voir le suivi dans /admin</div>
+    </div>`;
+}
+
 function buildClubEmail(d) {
   return `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;">
@@ -345,12 +429,12 @@ function buildClubEmail(d) {
           <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Email</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;font-size:14px">${d.email}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>WhatsApp</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;font-size:14px">${d.whatsapp}</td></tr>
         </table>
-        <h3 style="color:#ee0000;border-bottom:2px solid #ee0000;padding-bottom:6px;">3. Documents à apporter</h3>
+        <h3 style="color:#ee0000;border-bottom:2px solid #ee0000;padding-bottom:6px;">3. Justificatifs reçus en ligne</h3>
         <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px;width:40%"><strong>Certificat médical</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">📄 À apporter</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Photo d'identité</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">📄 À apporter</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Pièce d'identité</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">📄 À apporter</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Autorisation parentale</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">📄 À apporter si mineur</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px;width:40%"><strong>Certificat médical</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">${docLinkHtml(d.docCertificatUrl, "Voir le document")}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Photo d'identité</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">${docLinkHtml(d.docPhotoUrl, "Voir le document")}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Pièce d'identité</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">${docLinkHtml(d.docIdentiteUrl, "Voir le document")}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Autorisation parentale</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">${docLinkHtml(d.docAutorisationUrl, "Voir le document")}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px"><strong>Droit à l'image</strong></td><td style="padding:8px 0;border-bottom:1px solid #e0e0e0">${d.acceptDroitImage ? "✅ Accepté" : "❌ Refusé"}</td></tr>
         </table>
         <h3 style="color:#ee0000;border-bottom:2px solid #ee0000;padding-bottom:6px;">4. Section & Cotisation</h3>
@@ -369,7 +453,7 @@ function buildMemberEmail({ prenom, nom, section, reglementText, montant, instru
   const paymentReminder = {
     Cheque: `💳 N'oublie pas d'apporter ton/tes chèque(s) de <strong>${montant}€</strong> (ordre : <strong>ASC MUAY THAI</strong>, jusqu'à 3 chèques acceptés).`,
     Especes: `💵 N'oublie pas d'apporter <strong>${montant}€</strong> en espèces exactes.`,
-    PassSport: `🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> pour bénéficier de la réduction de 70€.`
+    PassSport: `🎟️ N'oublie pas d'apporter ton <strong>coupon Pass'Sport</strong> pour bénéficier de la réduction de 50€.`
   }[reglement] || null;
   return `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;">
@@ -389,9 +473,7 @@ function buildMemberEmail({ prenom, nom, section, reglementText, montant, instru
         </div>
         ${instructionsHtml}
         <div style="padding:16px;background:#f1f3f5;border-radius:4px;margin-bottom:20px;font-size:13px;color:#666;">
-          <strong>📋 Prochaine étape :</strong> Ton inscription en ligne est bien enregistrée. Lors de ta première séance, apporte :<br><br>
-          🖨️ Ta <strong>fiche d'inscription imprimée et signée</strong> (PDF joint à cet email — imprime-la, signe-la et apporte-la)<br>
-          📄 Tes justificatifs : certificat médical, photo d'identité, pièce d'identité${paymentReminder ? `<br>${paymentReminder}` : ""}
+          <strong>📋 Dossier complet :</strong> ton inscription et tes justificatifs (certificat médical, photo d'identité, pièce d'identité...) ont bien été reçus en ligne. Aucune impression ni signature papier n'est nécessaire — la fiche PDF jointe à cet email est juste pour tes archives.${paymentReminder ? `<br><br>${paymentReminder}` : ""}
         </div>
         <p style="color:#555;font-size:13px;line-height:1.6">Des questions ?<br>
           ✉️ <a href="mailto:ascmuaythai95@gmail.com" style="color:#ee0000">ascmuaythai95@gmail.com</a>
@@ -404,7 +486,7 @@ function buildMemberEmail({ prenom, nom, section, reglementText, montant, instru
 function buildPaymentInstructions(reglement, montant, prenom, nom, hasPassSport) {
   const passSportWarning = hasPassSport ? `
     <div style="margin-top:10px;padding:10px 12px;background:#fff3cd;border-left:3px solid #ffc107;border-radius:3px;font-size:12px;line-height:1.6;color:#555">
-      ⚠️ <strong>Attention Pass'Sport :</strong> La réduction de 70€ est soumise à validation de ton coupon par le club. Si le coupon n'est pas accepté, un complément de <strong>70€</strong> te sera demandé.
+      ⚠️ <strong>Attention Pass'Sport :</strong> La réduction de 50€ est soumise à validation de ton coupon par le club. Si le coupon n'est pas accepté, un complément de <strong>50€</strong> te sera demandé.
     </div>` : "";
 
   if (reglement === "HelloAsso") return `
