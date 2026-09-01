@@ -21,7 +21,10 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; font-size: 16px; }
+    /* Sans ça, Chrome dessine les menus déroulants natifs (<select>) avec un
+       thème clair par défaut : le texte blanc du thème sombre de la page
+       devient alors illisible (blanc sur blanc) dans le popup natif. */
+    body { font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; font-size: 16px; color-scheme: dark; }
 
     nav {
       position: sticky; top: 0; z-index: 50;
@@ -334,14 +337,21 @@
       <div class="status-msg" id="adh-status"></div>
     </div>
 
-    <div class="row-grid" style="grid-template-columns:1fr 200px;margin-bottom:14px">
-      <div class="field" style="margin-bottom:0"><input type="text" id="adh-search" placeholder="Rechercher un nom, un email…" /></div>
-      <div class="field" style="margin-bottom:0">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div class="field" style="margin-bottom:0;flex:1;min-width:220px"><input type="text" id="adh-search" placeholder="Rechercher un nom, un email…" /></div>
+      <div class="field" style="margin-bottom:0;flex:0 0 auto;min-width:170px">
         <select id="adh-filter-statut">
           <option value="">Tous les statuts</option>
           <option value="paye">Payé</option>
           <option value="a_percevoir">À percevoir</option>
           <option value="en_attente_paiement">En attente de paiement</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0;flex:0 0 auto;min-width:170px">
+        <select id="adh-sort">
+          <option value="date_desc">Plus récent d'abord</option>
+          <option value="nom_asc">Nom (A → Z)</option>
+          <option value="nom_desc">Nom (Z → A)</option>
         </select>
       </div>
     </div>
@@ -1206,13 +1216,15 @@ checkSession();
 // ─── ADHÉRENTS ────────────────────────────────────────────────────────────────
 let _adherents = [];
 
-// Sans emoji : Chrome/Windows ne peint pas le texte des options non
-// sélectionnées d'un <select> natif quand elles commencent par certains
-// emoji (✅, ⏳ notamment) — seule l'option surlignée s'affiche en entier.
 const ADH_STATUT_LABELS = {
   paye: 'Payé',
   a_percevoir: 'À percevoir',
   en_attente_paiement: 'En attente de paiement',
+};
+const ADH_STATUT_COLORS = {
+  paye: '#1f7a3f',
+  a_percevoir: '#8a5a12',
+  en_attente_paiement: '#555',
 };
 
 async function loadAdherents() {
@@ -1238,9 +1250,14 @@ function renderAdherentsList() {
   const el = document.getElementById('adherents-list');
   const search = (document.getElementById('adh-search').value || '').trim().toLowerCase();
   const filterStatut = document.getElementById('adh-filter-statut').value;
+  const sort = document.getElementById('adh-sort').value;
 
   let list = [..._adherents];
   if (filterStatut) list = list.filter(a => a.statutPaiement === filterStatut);
+  if (sort === 'nom_asc' || sort === 'nom_desc') {
+    list.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, 'fr', { sensitivity: 'base' }));
+    if (sort === 'nom_desc') list.reverse();
+  }
   if (search) {
     list = list.filter(a =>
       `${a.nom} ${a.prenom} ${a.email}`.toLowerCase().includes(search)
@@ -1267,11 +1284,13 @@ function renderAdherentsList() {
         ${a.notes ? `<div style="font-size:13.5px;color:#888;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0">
-        <select class="adh-statut-select" data-id="${esc(a.id)}" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:#fff;padding:7px 10px;font-size:14px">
-          <option value="paye" ${a.statutPaiement === 'paye' ? 'selected' : ''}>${ADH_STATUT_LABELS.paye}</option>
-          <option value="a_percevoir" ${a.statutPaiement === 'a_percevoir' ? 'selected' : ''}>${ADH_STATUT_LABELS.a_percevoir}</option>
-          <option value="en_attente_paiement" ${a.statutPaiement === 'en_attente_paiement' ? 'selected' : ''}>${ADH_STATUT_LABELS.en_attente_paiement}</option>
-        </select>
+        <div class="adh-statut-pills" data-id="${esc(a.id)}" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          ${['paye', 'a_percevoir', 'en_attente_paiement'].map((v) => {
+            const active = a.statutPaiement === v;
+            const color = ADH_STATUT_COLORS[v];
+            return `<button type="button" class="adh-statut-pill" data-value="${v}" style="border:1px solid ${active ? color : 'var(--border)'};background:${active ? color : 'rgba(255,255,255,.04)'};color:${active ? '#fff' : '#999'};padding:6px 10px;font-size:12.5px;border-radius:3px;cursor:pointer;white-space:nowrap">${ADH_STATUT_LABELS[v]}</button>`;
+          }).join('')}
+        </div>
         <div style="font-size:13px;color:#777">${esc(a.dateInscription || '')}</div>
         <div style="display:flex;gap:8px">
           <button type="button" data-id="${esc(a.id)}" class="adh-edit-btn" style="background:none;border:1px solid #555;color:#ddd;padding:7px 14px;cursor:pointer;font-size:14px">Modifier</button>
@@ -1282,11 +1301,16 @@ function renderAdherentsList() {
 
   el.querySelectorAll('.adh-edit-btn').forEach(btn => btn.addEventListener('click', () => editAdherent(btn.dataset.id)));
   el.querySelectorAll('.adh-del-btn').forEach(btn => btn.addEventListener('click', () => deleteAdherentRow(btn.dataset.id, btn.dataset.label)));
-  el.querySelectorAll('.adh-statut-select').forEach(sel => sel.addEventListener('change', () => quickUpdateStatut(sel.dataset.id, sel.value)));
+  el.querySelectorAll('.adh-statut-pills').forEach(wrap => {
+    wrap.querySelectorAll('.adh-statut-pill').forEach(btn => {
+      btn.addEventListener('click', () => quickUpdateStatut(wrap.dataset.id, btn.dataset.value));
+    });
+  });
 }
 
 document.getElementById('adh-search').addEventListener('input', renderAdherentsList);
 document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsList);
+document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
 
 async function quickUpdateStatut(id, statutPaiement) {
   const adherent = _adherents.find(a => a.id === id);
