@@ -1,7 +1,12 @@
-// Gère mot de passe oublié (pas de token dans le body) et réinitialisation (token présent)
+// Gère mot de passe oublié (pas de token), réinitialisation (token présent)
+// et changement de mot de passe depuis la session admin (?action=change dans
+// le rewrite de vercel.json pour /api/admin/change-password). Regroupés dans
+// un seul fichier : le forfait Vercel Hobby plafonne à 12 fonctions
+// serverless par déploiement.
 import { put, del } from '@vercel/blob';
 import { randomBytes, timingSafeEqual } from 'crypto';
-import { storePassword, secretPathname } from './_auth.js';
+import { storePassword, checkPassword, requireAuth, secretPathname } from './_auth.js';
+import { loadRateLimitState, isLocked, recordFailedLogin, clearLoginAttempts } from './_rateLimit.js';
 
 const TOKEN_PATHNAME = secretPathname('reset-token');
 const BLOB_BASE = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com';
@@ -11,6 +16,30 @@ const COOLDOWN_MS = 5 * 60 * 1000;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
+
+  // Changement de mot de passe depuis une session admin déjà ouverte
+  // (distinct du "mot de passe oublié" ci-dessous, qui ne requiert aucune session).
+  if (req.query.action === 'change') {
+    if (!requireAuth(req, res)) return;
+
+    const rateLimit = await loadRateLimitState(req);
+    const waitMin = isLocked(rateLimit);
+    if (waitMin) return res.status(429).json({ error: `Trop de tentatives. Réessaie dans ${waitMin} min.` });
+
+    const { currentPassword, newPassword: nextPassword } = req.body || {};
+    if (!await checkPassword(currentPassword)) {
+      await recordFailedLogin(rateLimit);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return res.status(401).json({ error: 'Mot de passe actuel incorrect' });
+    }
+    if (typeof nextPassword !== 'string' || nextPassword.length < 8) {
+      return res.status(400).json({ error: 'Le nouveau mot de passe doit faire au moins 8 caractères' });
+    }
+
+    await clearLoginAttempts(rateLimit);
+    await storePassword(nextPassword);
+    return res.status(200).json({ success: true });
+  }
 
   const { token, newPassword } = req.body || {};
 
