@@ -11,6 +11,7 @@
     { "source": "/api/admin/session", "destination": "/api/admin/login" },
     { "source": "/api/admin/adherents", "destination": "/api/admin/save-content?type=adherents" },
     { "source": "/inscription", "destination": "/inscription.html" },
+    { "source": "/completer-dossier", "destination": "/completer-dossier.html" },
     { "source": "/cours-particulier", "destination": "/cours-particulier.html" },
     { "source": "/confidentialite", "destination": "/confidentialite.html" },
     { "source": "/admin", "destination": "/admin.html" },

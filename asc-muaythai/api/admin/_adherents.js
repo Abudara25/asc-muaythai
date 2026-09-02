@@ -67,10 +67,37 @@ export function withDefaults(a) {
     docPhotoUrl: a.docPhotoUrl || '',
     docIdentiteUrl: a.docIdentiteUrl || '',
     docAutorisationUrl: a.docAutorisationUrl || '',
+    docsToken: a.docsToken || '',
     saison: a.saison || '',
     dateInscription: a.dateInscription || new Date().toISOString().slice(0, 10),
     datePaiement: a.datePaiement || '',
     source: a.source || 'formulaire',
     notes: a.notes || '',
   };
+}
+
+// Un mineur (section Enfants/Ados) doit fournir l'autorisation parentale ; un
+// adulte non. La pièce d'identité n'est jamais rendue obligatoire côté
+// formulaire d'inscription, donc c'est le document qui manque le plus souvent.
+export const DOC_TYPE_FIELD = {
+  certificat: 'docCertificatUrl',
+  photo: 'docPhotoUrl',
+  identite: 'docIdentiteUrl',
+  autorisation: 'docAutorisationUrl',
+};
+export const DOC_TYPE_LABELS = {
+  certificat: 'Certificat médical',
+  photo: "Photo d'identité",
+  identite: "Pièce d'identité",
+  autorisation: 'Autorisation parentale',
+};
+
+export function isMinorAdherent(adherent) {
+  return typeof adherent.section === 'string' && (adherent.section.includes('Enfants') || adherent.section.includes('Ados'));
+}
+
+export function missingDocTypes(adherent) {
+  const types = ['certificat', 'photo', 'identite'];
+  if (isMinorAdherent(adherent)) types.push('autorisation');
+  return types.filter((t) => !adherent[DOC_TYPE_FIELD[t]]);
 }

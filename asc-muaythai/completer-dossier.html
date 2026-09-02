@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js"></script>
+  <script src="/cookie-consent.js" defer></script>
+  <title>Compléter mon dossier — ASC Muay Thaï Bessancourt</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
+  <link rel="stylesheet" href="/fonts.css"/>
+  <style>
+    :root { --red: #ee0000; --red-dark: #cc0000; --dark: #111; --darker: #0a0a0a; --border: rgba(255,255,255,0.12); }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Barlow Condensed', sans-serif; background: var(--darker); color: #ddd; min-height: 100vh; font-size: 16px; }
+    .wrap { max-width: 480px; margin: 0 auto; padding: 48px 20px; }
+    .logo { display: block; text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 3px; color: #fff; text-decoration: none; margin-bottom: 28px; }
+    .logo span { color: var(--red); }
+    .card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 28px; }
+    h1 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: #fff; margin: 0 0 10px; }
+    p { line-height: 1.6; margin: 0 0 16px; color: #ccc; }
+    .doc-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .doc-row:last-child { border-bottom: none; }
+    .doc-label { font-size: 15px; color: #fff; }
+    .upload-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 14px; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1.5px; border-radius: 3px; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+    .upload-btn:hover { background: rgba(255,255,255,0.12); }
+    .upload-btn input[type="file"] { display: none; }
+    .doc-status { font-size: 12.5px; color: #888; flex-basis: 100%; }
+    .doc-status.ok { color: #4caf50; }
+    .doc-status.err { color: var(--red); }
+    .done { text-align: center; padding: 12px 0; }
+    .done .big { font-size: 40px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="/" class="logo">ASC <span>Muay Thaï</span></a>
+    <div class="card" id="card">
+      <p>Chargement…</p>
+    </div>
+  </div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const token = params.get('token');
+const card = document.getElementById('card');
+
+const DOC_LABELS = {
+  certificat: 'Certificat médical',
+  photo: "Photo d'identité",
+  identite: "Pièce d'identité",
+  autorisation: 'Autorisation parentale',
+};
+const DOC_ALLOWED_TYPES = {
+  certificat: ['application/pdf', 'image/jpeg', 'image/png'],
+  photo: ['image/jpeg', 'image/png'],
+  identite: ['application/pdf', 'image/jpeg', 'image/png'],
+  autorisation: ['application/pdf', 'image/jpeg', 'image/png'],
+};
+const DOC_MAX_SIZE = 5 * 1024 * 1024;
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderError(message) {
+  card.innerHTML = `<h1>Lien invalide</h1><p>${esc(message)}</p><p>Contacte le club à <a href="mailto:ascmuaythai95@gmail.com" style="color:var(--red)">ascmuaythai95@gmail.com</a> si besoin.</p>`;
+}
+
+function renderDone(prenom) {
+  card.innerHTML = `<div class="done"><div class="big">🥊</div><h1>Merci ${esc(prenom)} !</h1><p>Ton dossier est complet.</p></div>`;
+}
+
+function renderForm(prenom, missing) {
+  if (!missing.length) { renderDone(prenom); return; }
+  card.innerHTML = `
+    <h1>Bonjour ${esc(prenom)}</h1>
+    <p>Il manque encore le ou les documents suivants à ton dossier d'inscription :</p>
+    ${missing.map((t) => `
+      <div class="doc-row" data-doc="${t}">
+        <span class="doc-label">${DOC_LABELS[t]}</span>
+        <label class="upload-btn">
+          Choisir un fichier
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" data-doc-input="${t}">
+        </label>
+        <span class="doc-status" data-doc-status="${t}"></span>
+      </div>`).join('')}
+  `;
+  card.querySelectorAll('[data-doc-input]').forEach((input) => {
+    input.addEventListener('change', () => uploadDoc(input.dataset.docInput, input, prenom));
+  });
+}
+
+async function uploadDoc(docType, inputEl, prenom) {
+  const file = inputEl.files[0];
+  const statusEl = card.querySelector(`[data-doc-status="${docType}"]`);
+  if (!file) return;
+
+  const allowed = DOC_ALLOWED_TYPES[docType];
+  if (!allowed.includes(file.type)) {
+    statusEl.textContent = allowed.includes('application/pdf') ? '⚠️ Format non supporté (PDF, JPG ou PNG)' : '⚠️ Format non supporté (JPG ou PNG uniquement)';
+    statusEl.className = 'doc-status err';
+    inputEl.value = '';
+    return;
+  }
+  if (file.size > DOC_MAX_SIZE) {
+    statusEl.textContent = '⚠️ Fichier trop volumineux (5 Mo max)';
+    statusEl.className = 'doc-status err';
+    inputEl.value = '';
+    return;
+  }
+
+  statusEl.textContent = '⏳ Envoi en cours…';
+  statusEl.className = 'doc-status';
+
+  try {
+    const fd = new FormData();
+    fd.append('document', file);
+    fd.append('docType', docType);
+    const uploadRes = await fetch('/api/upload-document', { method: 'POST', body: fd });
+    const uploadData = await uploadRes.json();
+    if (!uploadRes.ok) throw new Error(uploadData.error || 'Erreur');
+
+    const linkRes = await fetch('/api/complete-documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, docType, url: uploadData.url }),
+    });
+    const linkData = await linkRes.json();
+    if (!linkRes.ok) throw new Error(linkData.error || 'Erreur');
+
+    statusEl.textContent = '✅ ' + file.name;
+    statusEl.className = 'doc-status ok';
+    setTimeout(() => renderForm(prenom, linkData.missing), 700);
+  } catch (e) {
+    statusEl.textContent = '❌ ' + e.message;
+    statusEl.className = 'doc-status err';
+    inputEl.value = '';
+  }
+}
+
+(async function init() {
+  if (!token) { renderError("Ce lien est incomplet."); return; }
+  try {
+    const res = await fetch('/api/complete-documents?token=' + encodeURIComponent(token));
+    const data = await res.json();
+    if (!res.ok) { renderError(data.error || "Ce lien n'est plus valide."); return; }
+    renderForm(data.prenom, data.missing);
+  } catch {
+    renderError('Erreur de connexion, réessaie dans un instant.');
+  }
+})();
+</script>
+</body>
+</html>

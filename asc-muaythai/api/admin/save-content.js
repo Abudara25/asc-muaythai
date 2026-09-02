@@ -1,9 +1,43 @@
+import crypto from 'crypto';
 import { put, del } from '@vercel/blob';
 import { requireAuth } from './_auth.js';
 import { CONTENT_PATHNAME, isValidContent } from './_content.js';
-import { getAdherents, saveAdherents, isValidAdherent, withDefaults } from './_adherents.js';
+import { getAdherents, saveAdherents, isValidAdherent, withDefaults, missingDocTypes, DOC_TYPE_LABELS } from './_adherents.js';
 
 const ADH_DOC_URL_FIELDS = ['docCertificatUrl', 'docPhotoUrl', 'docIdentiteUrl', 'docAutorisationUrl'];
+
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SITE_ORIGIN = 'https://www.asc-muaythai.fr';
+const SENDER_EMAIL = 'noreply@asc-muaythai.fr';
+const CLUB_EMAIL = 'ascmuaythai95@gmail.com';
+
+async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
+  const link = `${SITE_ORIGIN}/completer-dossier?token=${token}`;
+  const items = missing.map((t) => `<li>${DOC_TYPE_LABELS[t]}</li>`).join('');
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#222">
+      <h2 style="color:#ee0000">ASC Muay Thaï Bessancourt</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>Il manque un ou plusieurs documents à ton dossier d'inscription :</p>
+      <ul>${items}</ul>
+      <p>Tu peux les envoyer directement depuis ce lien :</p>
+      <p><a href="${link}" style="display:inline-block;background:#ee0000;color:#fff;text-decoration:none;padding:12px 20px;border-radius:4px">Compléter mon dossier</a></p>
+      <p style="color:#666;font-size:13px">Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur : ${link}</p>
+      <p>Merci,<br>ASC Muay Thaï Bessancourt</p>
+    </div>`;
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY },
+    body: JSON.stringify({
+      sender: { name: 'ASC Muay Thaï', email: SENDER_EMAIL },
+      replyTo: { email: CLUB_EMAIL, name: 'ASC Muay Thaï' },
+      to: [{ email, name: `${prenom} ${nom}` }],
+      subject: 'Il manque un document à ton dossier — ASC Muay Thaï',
+      htmlContent: html,
+    }),
+  });
+  if (!response.ok) throw new Error(`Brevo email: ${await response.text()}`);
+}
 
 // Purge effective des justificatifs (droit à l'effacement) : supprimer le seul
 // enregistrement JSON ne suffit pas, les fichiers doivent disparaître aussi.
@@ -96,6 +130,29 @@ export default async function handler(req, res) {
       }
       await saveAdherents(list);
       return res.status(200).json({ success: true, adherent });
+    }
+
+    if (action === 'send-doc-link') {
+      const { id } = req.body || {};
+      if (!id) return res.status(400).json({ error: 'id requis' });
+      const list = await getAdherents();
+      const adherent = list.find((a) => a.id === id);
+      if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
+      const missing = missingDocTypes(adherent);
+      if (!missing.length) return res.status(400).json({ error: 'Aucun document manquant pour cet adhérent' });
+      if (!adherent.email) return res.status(400).json({ error: 'Cet adhérent n\'a pas d\'adresse e-mail' });
+
+      const token = crypto.randomBytes(24).toString('hex');
+      adherent.docsToken = token;
+      await saveAdherents(list);
+
+      try {
+        await sendDocReminderEmail({ email: adherent.email, prenom: adherent.prenom, nom: adherent.nom, missing, token });
+      } catch (e) {
+        console.error('Envoi relance documents ERREUR:', e.message);
+        return res.status(502).json({ error: "L'e-mail n'a pas pu être envoyé" });
+      }
+      return res.status(200).json({ success: true, missing });
     }
 
     if (action === 'delete') {

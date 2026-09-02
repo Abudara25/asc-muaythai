@@ -1253,6 +1253,15 @@ function remplirSelectSaisons(selectEl, saisonsSupplementaires) {
   selectEl.innerHTML = saisons.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
 }
 
+const DOC_TYPE_FIELD_CLIENT = { certificat: 'docCertificatUrl', photo: 'docPhotoUrl', identite: 'docIdentiteUrl', autorisation: 'docAutorisationUrl' };
+
+function missingDocTypesClient(a) {
+  const types = ['certificat', 'photo', 'identite'];
+  const isMinor = typeof a.section === 'string' && (a.section.includes('Enfants') || a.section.includes('Ados'));
+  if (isMinor) types.push('autorisation');
+  return types.filter((t) => !a[DOC_TYPE_FIELD_CLIENT[t]]);
+}
+
 const ADH_STATUT_LABELS = {
   paye: 'Payé',
   a_percevoir: 'À percevoir',
@@ -1326,7 +1335,7 @@ function renderAdherentsList() {
     return;
   }
 
-  el.innerHTML = `<p style="color:#666;font-size:14px;margin-bottom:12px">${list.length} adhérent(s)</p>` + list.map(a => `
+  el.innerHTML = `<p style="color:#666;font-size:14px;margin-bottom:12px">${list.length} adhérent(s)</p>` + list.map(a => { const missing = missingDocTypesClient(a); return `
     <div style="padding:18px 0;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:14px;align-items:center">
       <div style="min-width:220px;flex:1">
         <div style="font-size:18px;color:var(--text);font-weight:600">${esc(a.nom)} ${esc(a.prenom)}</div>
@@ -1338,6 +1347,7 @@ function renderAdherentsList() {
           ${adhDocLink(a.docIdentiteUrl, '🪪 Pièce identité')}
           ${adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale')}
         </div>
+        ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + `</div>` : ''}
         ${a.notes ? `<div style="font-size:13.5px;color:#666;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0;max-width:100%;box-sizing:border-box">
@@ -1354,10 +1364,11 @@ function renderAdherentsList() {
           <button type="button" data-id="${esc(a.id)}" data-label="${esc(a.nom)} ${esc(a.prenom)}" class="adh-del-btn" style="background:none;border:1px solid #eecccc;color:#cc0000;padding:7px 14px;cursor:pointer;font-size:14px">Suppr.</button>
         </div>
       </div>
-    </div>`).join('');
+    </div>`; }).join('');
 
   el.querySelectorAll('.adh-edit-btn').forEach(btn => btn.addEventListener('click', () => editAdherent(btn.dataset.id)));
   el.querySelectorAll('.adh-del-btn').forEach(btn => btn.addEventListener('click', () => deleteAdherentRow(btn.dataset.id, btn.dataset.label)));
+  el.querySelectorAll('.adh-relance-btn').forEach(btn => btn.addEventListener('click', () => sendDocReminder(btn.dataset.id, btn)));
   el.querySelectorAll('.adh-statut-pills').forEach(wrap => {
     wrap.querySelectorAll('.adh-statut-pill').forEach(btn => {
       btn.addEventListener('click', () => quickUpdateStatut(wrap.dataset.id, btn.dataset.value));
@@ -1397,6 +1408,35 @@ async function quickUpdateStatut(id, statutPaiement) {
     console.error('quickUpdateStatut', err);
     alert('Erreur réseau : le statut n\'a pas été enregistré. Réessaie.');
     loadAdherents();
+  }
+}
+
+async function sendDocReminder(id, btn) {
+  const adherent = _adherents.find(a => a.id === id);
+  if (!adherent) return;
+  const missing = missingDocTypesClient(adherent);
+  if (!confirm(`Envoyer un e-mail à ${adherent.email} avec un lien pour compléter : ${missing.map(t => ADH_DOC_LABELS[t]).join(', ')} ?`)) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'send-doc-link', id }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) {
+      alert(`Lien envoyé à ${adherent.email}.`);
+    } else {
+      alert(`Erreur lors de l'envoi${data.error ? ' : ' + data.error : ''}`);
+    }
+  } catch (err) {
+    console.error('sendDocReminder', err);
+    alert("Erreur réseau : l'e-mail n'a pas été envoyé. Réessaie.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'envoyer un lien de relance';
   }
 }
 
