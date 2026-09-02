@@ -4,6 +4,7 @@ import { timingSafeEqual } from 'crypto';
 import { getAdherents, saveAdherents } from './admin/_adherents.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = "noreply@asc-muaythai.fr";
 const CLUB_EMAIL = "ascmuaythai95@gmail.com";
 
 // Les comptes association classiques (par opposition aux comptes "Partenaire
@@ -181,7 +182,8 @@ async function sendEmail({ to, subject, html }) {
       "api-key": BREVO_API_KEY,
     },
     body: JSON.stringify({
-      sender: { name: "ASC Muay Thaï", email: "ascmuaythai95@gmail.com" },
+      sender: { name: "ASC Muay Thaï", email: SENDER_EMAIL },
+      replyTo: { email: CLUB_EMAIL, name: "ASC Muay Thaï" },
       to,
       subject,
       htmlContent: html,
