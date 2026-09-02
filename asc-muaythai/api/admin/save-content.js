@@ -11,6 +11,20 @@ const SITE_ORIGIN = 'https://www.asc-muaythai.fr';
 const SENDER_EMAIL = 'noreply@asc-muaythai.fr';
 const CLUB_EMAIL = 'ascmuaythai95@gmail.com';
 
+const CLUB_ADRESSE = "Complexe Marboulus, 21 Chemin de l'Isle, 95550 Bessancourt";
+// Pied de page présent sur les deux templates ci-dessous : un e-mail
+// transactionnel avec juste un titre, un bouton et rien d'autre (pas
+// d'adresse postale, pas d'équivalent texte brut) ressemble à ce que les
+// filtres anti-spam associent à du phishing. Ça n'élimine pas un souci
+// d'authentification de domaine côté Brevo (SPF/DKIM/DMARC), mais ça retire
+// un signal de plus.
+function emailFooterHtml() {
+  return `<p style="color:#999;font-size:11px;margin-top:28px;border-top:1px solid #eee;padding-top:12px">ASC Muay Thaï Bessancourt — ${CLUB_ADRESSE} — <a href="mailto:${CLUB_EMAIL}" style="color:#999">${CLUB_EMAIL}</a></p>`;
+}
+function emailFooterText() {
+  return `\n\n--\nASC Muay Thaï Bessancourt\n${CLUB_ADRESSE}\n${CLUB_EMAIL}`;
+}
+
 async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
   const link = `${SITE_ORIGIN}/completer-dossier?token=${token}`;
   const items = missing.map((t) => `<li>${DOC_TYPE_LABELS[t]}${t === 'autorisation' ? ` (<a href="${SITE_ORIGIN}/autorisation-parentale.pdf">modèle à télécharger</a>)` : ''}</li>`).join('');
@@ -24,7 +38,9 @@ async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
       <p><a href="${link}" style="display:inline-block;background:#ee0000;color:#fff;text-decoration:none;padding:12px 20px;border-radius:4px">Compléter mon dossier</a></p>
       <p style="color:#666;font-size:13px">Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur : ${link}</p>
       <p>Merci,<br>ASC Muay Thaï Bessancourt</p>
+      ${emailFooterHtml()}
     </div>`;
+  const text = `Bonjour ${prenom},\n\nIl manque un ou plusieurs documents à ton dossier d'inscription :\n${missing.map((t) => '- ' + DOC_TYPE_LABELS[t]).join('\n')}\n\nTu peux les envoyer depuis ce lien : ${link}\n\nMerci,\nASC Muay Thaï Bessancourt${emailFooterText()}`;
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY },
@@ -34,6 +50,7 @@ async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
       to: [{ email, name: `${prenom} ${nom}` }],
       subject: 'Il manque un document à ton dossier — ASC Muay Thaï',
       htmlContent: html,
+      textContent: text,
     }),
   });
   if (!response.ok) throw new Error(`Brevo email: ${await response.text()}`);
@@ -49,7 +66,9 @@ async function sendRenewalEmail({ email, prenom, nom, token }) {
       <p><a href="${link}" style="display:inline-block;background:#ee0000;color:#fff;text-decoration:none;padding:12px 20px;border-radius:4px">Réinscrire ${prenom}</a></p>
       <p style="color:#666;font-size:13px">Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur : ${link}</p>
       <p>Merci,<br>ASC Muay Thaï Bessancourt</p>
+      ${emailFooterHtml()}
     </div>`;
+  const text = `Bonjour ${prenom},\n\nLa nouvelle saison démarre ! Pour réinscrire ${prenom}, utilise ce lien : ${link}\nLe formulaire reprend automatiquement ce qu'on a déjà ; il ne reste que le certificat médical à jour et les infos qui ont pu changer.\n\nMerci,\nASC Muay Thaï Bessancourt${emailFooterText()}`;
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY },
@@ -59,6 +78,7 @@ async function sendRenewalEmail({ email, prenom, nom, token }) {
       to: [{ email, name: `${prenom} ${nom}` }],
       subject: 'Réinscription — nouvelle saison à l\'ASC Muay Thaï',
       htmlContent: html,
+      textContent: text,
     }),
   });
   if (!response.ok) throw new Error(`Brevo email: ${await response.text()}`);
