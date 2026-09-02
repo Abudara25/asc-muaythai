@@ -290,7 +290,7 @@
         </div>
       </div>
       <div class="row-grid" style="grid-template-columns:1fr 1fr">
-        <div class="field"><label>Saison</label><input type="text" id="adh-saison" placeholder="ex : 2025/2026" /></div>
+        <div class="field"><label>Saison</label><select id="adh-saison"></select></div>
         <div class="field"><label>Date d'inscription</label><input type="date" id="adh-date" /></div>
       </div>
       <div class="field"><label>Notes <span style="color:#666;font-weight:normal">(optionnel)</span></label><input type="text" id="adh-notes" placeholder="ex : adhérent de la saison précédente, importé manuellement" /></div>
@@ -345,6 +345,11 @@
           <option value="paye">Payé</option>
           <option value="a_percevoir">À percevoir</option>
           <option value="en_attente_paiement">En attente de paiement</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0;flex:0 0 auto;min-width:170px">
+        <select id="adh-filter-saison">
+          <option value="">Toutes les saisons</option>
         </select>
       </div>
       <div class="field" style="margin-bottom:0;flex:0 0 auto;min-width:170px">
@@ -1217,6 +1222,28 @@ checkSession();
 // ─── ADHÉRENTS ────────────────────────────────────────────────────────────────
 let _adherents = [];
 
+// Saison en cours = année scolaire/sportive, considérée comme démarrant en août.
+function saisonActuelle() {
+  const now = new Date();
+  const debut = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+  return `${debut}/${debut + 1}`;
+}
+
+// Saison suivante + 4 précédentes, de la plus récente à la plus ancienne.
+function listeSaisons() {
+  const [debutActuelle] = saisonActuelle().split('/').map(Number);
+  const saisons = [];
+  for (let d = debutActuelle + 1; d >= debutActuelle - 4; d--) saisons.push(`${d}/${d + 1}`);
+  return saisons;
+}
+
+function remplirSelectSaisons(selectEl, saisonsSupplementaires) {
+  const saisons = listeSaisons();
+  (saisonsSupplementaires || []).forEach(s => { if (s && !saisons.includes(s)) saisons.push(s); });
+  saisons.sort().reverse();
+  selectEl.innerHTML = saisons.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+}
+
 const ADH_STATUT_LABELS = {
   paye: 'Payé',
   a_percevoir: 'À percevoir',
@@ -1228,6 +1255,9 @@ const ADH_STATUT_COLORS = {
   en_attente_paiement: '#555',
 };
 
+remplirSelectSaisons(document.getElementById('adh-saison'));
+document.getElementById('adh-saison').value = saisonActuelle();
+
 async function loadAdherents() {
   const el = document.getElementById('adherents-list');
   el.innerHTML = '<p style="color:#888;font-size:13px">Chargement…</p>';
@@ -1235,6 +1265,11 @@ async function loadAdherents() {
     const r = await fetch('/api/admin/adherents');
     if (!r.ok) { el.innerHTML = '<p style="color:#888;font-size:13px">Aucun adhérent pour le moment.</p>'; return; }
     _adherents = await r.json();
+    const filterSaisonEl = document.getElementById('adh-filter-saison');
+    const valeurCourante = filterSaisonEl.value;
+    remplirSelectSaisons(filterSaisonEl, _adherents.map(a => a.saison));
+    filterSaisonEl.insertAdjacentHTML('afterbegin', '<option value="">Toutes les saisons</option>');
+    filterSaisonEl.value = valeurCourante;
     renderAdherentsList();
   } catch {
     el.innerHTML = '<p style="color:#888;font-size:13px">Erreur de chargement.</p>';
@@ -1251,10 +1286,12 @@ function renderAdherentsList() {
   const el = document.getElementById('adherents-list');
   const search = (document.getElementById('adh-search').value || '').trim().toLowerCase();
   const filterStatut = document.getElementById('adh-filter-statut').value;
+  const filterSaison = document.getElementById('adh-filter-saison').value;
   const sort = document.getElementById('adh-sort').value;
 
   let list = [..._adherents];
   if (filterStatut) list = list.filter(a => a.statutPaiement === filterStatut);
+  if (filterSaison) list = list.filter(a => a.saison === filterSaison);
   if (sort === 'nom_asc' || sort === 'nom_desc') {
     list.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, 'fr', { sensitivity: 'base' }));
     if (sort === 'nom_desc') list.reverse();
@@ -1321,6 +1358,7 @@ function renderAdherentsList() {
 
 document.getElementById('adh-search').addEventListener('input', renderAdherentsList);
 document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsList);
+document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
 
 async function quickUpdateStatut(id, statutPaiement) {
@@ -1416,7 +1454,11 @@ function editAdherent(id) {
   document.getElementById('adh-montant').value = a.montant != null ? a.montant : '';
   document.getElementById('adh-reglement').value = a.reglement || 'HelloAsso';
   document.getElementById('adh-statut').value = a.statutPaiement || 'paye';
-  document.getElementById('adh-saison').value = a.saison || '';
+  const saisonSelect = document.getElementById('adh-saison');
+  if (a.saison && ![...saisonSelect.options].some(o => o.value === a.saison)) {
+    saisonSelect.insertAdjacentHTML('beforeend', `<option value="${esc(a.saison)}">${esc(a.saison)}</option>`);
+  }
+  saisonSelect.value = a.saison || saisonActuelle();
   document.getElementById('adh-date').value = a.dateInscription || '';
   document.getElementById('adh-notes').value = a.notes || '';
   document.getElementById('adh-editing-id').value = id;
@@ -1434,11 +1476,13 @@ function editAdherent(id) {
 }
 
 function resetAdherentForm() {
-  ['adh-prenom', 'adh-nom', 'adh-email', 'adh-telephone', 'adh-montant', 'adh-saison', 'adh-date', 'adh-notes'].forEach(id => {
+  ['adh-prenom', 'adh-nom', 'adh-email', 'adh-telephone', 'adh-montant', 'adh-date', 'adh-notes'].forEach(id => {
     document.getElementById(id).value = '';
   });
   _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null };
   Object.keys(_adhDocUrls).forEach(renderAdhDocStatus);
+  remplirSelectSaisons(document.getElementById('adh-saison'));
+  document.getElementById('adh-saison').value = saisonActuelle();
   document.getElementById('adh-section').value = 'Enfants (6–12 ans) — 250€';
   document.getElementById('adh-reglement').value = 'HelloAsso';
   document.getElementById('adh-statut').value = 'paye';
