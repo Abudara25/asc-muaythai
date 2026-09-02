@@ -50,7 +50,7 @@
     .admin-header h1 { font-size: 32px; color: #fff; }
     .admin-header p { font-size: 14.5px; color: #888; margin-top: 4px; }
 
-    .admin-layout { max-width: 1180px; margin: 0 auto; padding: 32px 24px 60px; }
+    .admin-layout { max-width: 1600px; margin: 0 auto; padding: 32px 40px 60px; }
     .admin-body { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 32px; align-items: start; margin-top: 28px; }
 
     .admin-sidebar { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 2px; }
@@ -68,11 +68,18 @@
     .save-bar .status-msg { margin: 0; flex: 1; min-width: 220px; }
 
     @media (max-width: 960px) {
+      .admin-layout { padding: 24px 20px 60px; }
       .admin-body { grid-template-columns: 1fr; margin-top: 16px; }
       .admin-sidebar { position: sticky; top: 60px; flex-direction: row; overflow-x: auto; gap: 6px; background: var(--darker); z-index: 40; padding: 10px 0; border-bottom: 1px solid var(--border); }
       .side-link { flex-shrink: 0; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; }
       .side-link.active { border-left-color: transparent; border-bottom-color: var(--red); }
-      .panel { scroll-margin-top: 116px; }
+      .panel { scroll-margin-top: 116px; padding: 20px; }
+    }
+
+    @media (max-width: 640px) {
+      .admin-layout { padding: 20px 16px 60px; }
+      .panel { padding: 16px; }
+      .row-grid { grid-template-columns: 1fr !important; }
     }
 
     .field { margin-bottom: 16px; }
@@ -1331,8 +1338,8 @@ function renderAdherentsList() {
         </div>
         ${a.notes ? `<div style="font-size:13.5px;color:#888;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0">
-        <div class="adh-statut-pills" data-id="${esc(a.id)}" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0;max-width:100%;box-sizing:border-box">
+        <div class="adh-statut-pills" data-id="${esc(a.id)}" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:100%">
           ${['paye', 'a_percevoir', 'en_attente_paiement'].map((v) => {
             const active = a.statutPaiement === v;
             const color = ADH_STATUT_COLORS[v];
