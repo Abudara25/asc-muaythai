@@ -352,6 +352,7 @@
           <option value="date_desc">Plus récent d'abord</option>
           <option value="nom_asc">Nom (A → Z)</option>
           <option value="nom_desc">Nom (Z → A)</option>
+          <option value="categorie">Catégorie (Enfants → Ados → Adultes)</option>
         </select>
       </div>
     </div>
@@ -1257,6 +1258,16 @@ function renderAdherentsList() {
   if (sort === 'nom_asc' || sort === 'nom_desc') {
     list.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, 'fr', { sensitivity: 'base' }));
     if (sort === 'nom_desc') list.reverse();
+  } else if (sort === 'categorie') {
+    const categorieRang = (section) => {
+      if (typeof section !== 'string') return 3;
+      if (section.includes('Enfants')) return 0;
+      if (section.includes('Ados')) return 1;
+      if (section.includes('Adultes')) return 2;
+      return 3;
+    };
+    list.sort((a, b) => categorieRang(a.section) - categorieRang(b.section)
+      || `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, 'fr', { sensitivity: 'base' }));
   }
   if (search) {
     list = list.filter(a =>
@@ -1272,7 +1283,7 @@ function renderAdherentsList() {
   el.innerHTML = `<p style="color:#999;font-size:14px;margin-bottom:12px">${list.length} adhérent(s)</p>` + list.map(a => `
     <div style="padding:18px 0;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:14px;align-items:center">
       <div style="min-width:220px;flex:1">
-        <div style="font-size:18px;color:#fff;font-weight:600">${esc(a.prenom)} ${esc(a.nom)}</div>
+        <div style="font-size:18px;color:#fff;font-weight:600">${esc(a.nom)} ${esc(a.prenom)}</div>
         <div style="font-size:14.5px;color:#aaa;margin-top:4px">${esc(a.email)}${a.telephone ? ' · ' + esc(a.telephone) : ''}</div>
         <div style="font-size:14.5px;color:#aaa;margin-top:2px">${esc(a.section)} · ${a.montant != null ? a.montant + '€' : '—'} · ${esc(a.reglement)}</div>
         <div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap">
@@ -1294,7 +1305,7 @@ function renderAdherentsList() {
         <div style="font-size:13px;color:#777">${esc(a.dateInscription || '')}</div>
         <div style="display:flex;gap:8px">
           <button type="button" data-id="${esc(a.id)}" class="adh-edit-btn" style="background:none;border:1px solid #555;color:#ddd;padding:7px 14px;cursor:pointer;font-size:14px">Modifier</button>
-          <button type="button" data-id="${esc(a.id)}" data-label="${esc(a.prenom)} ${esc(a.nom)}" class="adh-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:7px 14px;cursor:pointer;font-size:14px">Suppr.</button>
+          <button type="button" data-id="${esc(a.id)}" data-label="${esc(a.nom)} ${esc(a.prenom)}" class="adh-del-btn" style="background:none;border:1px solid #444;color:#e00;padding:7px 14px;cursor:pointer;font-size:14px">Suppr.</button>
         </div>
       </div>
     </div>`).join('');
