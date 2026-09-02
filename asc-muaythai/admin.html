@@ -372,7 +372,10 @@
       </div>
     </div>
 
-    <button type="button" id="adh-relance-bulk-btn" style="display:none;background:none;border:1px solid #eecccc;color:#cc0000;padding:8px 14px;cursor:pointer;font-size:13.5px;margin-bottom:14px;border-radius:3px">Relancer tous les dossiers incomplets</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button type="button" id="adh-relance-bulk-btn" style="display:none;background:none;border:1px solid #eecccc;color:#cc0000;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Relancer la sélection</button>
+      <button type="button" id="adh-relance-toggle-btn" style="display:none;background:none;border:1px solid #ccc;color:#555;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Tout désélectionner</button>
+    </div>
 
     <div id="adherents-list"><p style="color:#666;font-size:13px">Chargement…</p></div>
   </section>
@@ -1233,6 +1236,7 @@ checkSession();
 
 // ─── ADHÉRENTS ────────────────────────────────────────────────────────────────
 let _adherents = [];
+let _selectedRelanceIds = new Set();
 
 // Saison en cours = année scolaire/sportive, considérée comme démarrant en août.
 function saisonActuelle() {
@@ -1286,6 +1290,7 @@ async function loadAdherents() {
     const r = await fetch('/api/admin/adherents');
     if (!r.ok) { el.innerHTML = '<p style="color:#666;font-size:13px">Aucun adhérent pour le moment.</p>'; return; }
     _adherents = await r.json();
+    _selectedRelanceIds = new Set(adherentsWithMissingDocs().filter(a => a.email).map(a => a.id));
     const filterSaisonEl = document.getElementById('adh-filter-saison');
     const valeurCourante = filterSaisonEl.value;
     remplirSelectSaisons(filterSaisonEl, _adherents.map(a => a.saison));
@@ -1314,13 +1319,37 @@ function updateMissingDocsBadge() {
   badge.style.display = incomplete.length > 0 ? 'inline-block' : 'none';
 
   const withEmail = incomplete.filter(a => a.email);
+  const eligibleIds = new Set(withEmail.map(a => a.id));
+  // Une fiche complétée ou supprimée entre-temps ne doit pas traîner dans la sélection.
+  [..._selectedRelanceIds].forEach(id => { if (!eligibleIds.has(id)) _selectedRelanceIds.delete(id); });
+
   const bulkBtn = document.getElementById('adh-relance-bulk-btn');
+  const toggleBtn = document.getElementById('adh-relance-toggle-btn');
   if (withEmail.length > 1) {
     bulkBtn.style.display = 'inline-block';
-    bulkBtn.textContent = `Relancer les ${withEmail.length} dossiers incomplets`;
+    bulkBtn.disabled = _selectedRelanceIds.size === 0;
+    bulkBtn.style.opacity = _selectedRelanceIds.size === 0 ? '0.5' : '1';
+    bulkBtn.style.cursor = _selectedRelanceIds.size === 0 ? 'default' : 'pointer';
+    bulkBtn.textContent = `Relancer la sélection (${_selectedRelanceIds.size})`;
+    toggleBtn.style.display = 'inline-block';
+    toggleBtn.textContent = _selectedRelanceIds.size >= withEmail.length ? 'Tout désélectionner' : 'Tout sélectionner';
   } else {
     bulkBtn.style.display = 'none';
+    toggleBtn.style.display = 'none';
   }
+}
+
+function toggleRelanceSelection(id, checked) {
+  if (checked) _selectedRelanceIds.add(id); else _selectedRelanceIds.delete(id);
+  updateMissingDocsBadge();
+}
+
+function toggleAllRelanceSelection() {
+  const withEmail = adherentsWithMissingDocs().filter(a => a.email);
+  if (_selectedRelanceIds.size >= withEmail.length) _selectedRelanceIds.clear();
+  else _selectedRelanceIds = new Set(withEmail.map(a => a.id));
+  document.querySelectorAll('.adh-relance-check').forEach(cb => { cb.checked = _selectedRelanceIds.has(cb.dataset.id); });
+  updateMissingDocsBadge();
 }
 
 function renderAdherentsList() {
@@ -1371,7 +1400,7 @@ function renderAdherentsList() {
           ${adhDocLink(a.docIdentiteUrl, '🪪 Pièce identité')}
           ${adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale')}
         </div>
-        ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + (a.docsRelanceEnvoyeeLe ? ` <span style="color:#888">(dernière relance : ${esc(a.docsRelanceEnvoyeeLe)})</span>` : '') + `</div>` : ''}
+        ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">` + (a.email ? `<input type="checkbox" class="adh-relance-check" data-id="${esc(a.id)}" ${_selectedRelanceIds.has(a.id) ? 'checked' : ''} style="margin-right:6px;vertical-align:middle"> ` : '') + `⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + (a.docsRelanceEnvoyeeLe ? ` <span style="color:#888">(dernière relance : ${esc(a.docsRelanceEnvoyeeLe)})</span>` : '') + `</div>` : ''}
         ${a.saison && a.saison !== saisonActuelle() && a.email ? `<div style="margin-top:8px;font-size:13.5px;color:#555">Saison ${esc(a.saison)} — <button type="button" data-id="${esc(a.id)}" class="adh-renewal-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de réinscription</button></div>` : ''}
         ${a.notes ? `<div style="font-size:13.5px;color:#666;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
       </div>
@@ -1394,6 +1423,7 @@ function renderAdherentsList() {
   el.querySelectorAll('.adh-edit-btn').forEach(btn => btn.addEventListener('click', () => editAdherent(btn.dataset.id)));
   el.querySelectorAll('.adh-del-btn').forEach(btn => btn.addEventListener('click', () => deleteAdherentRow(btn.dataset.id, btn.dataset.label)));
   el.querySelectorAll('.adh-relance-btn').forEach(btn => btn.addEventListener('click', () => sendDocReminder(btn.dataset.id, btn)));
+  el.querySelectorAll('.adh-relance-check').forEach(cb => cb.addEventListener('change', () => toggleRelanceSelection(cb.dataset.id, cb.checked)));
   el.querySelectorAll('.adh-renewal-btn').forEach(btn => btn.addEventListener('click', () => sendRenewalLink(btn.dataset.id, btn)));
   el.querySelectorAll('.adh-statut-pills').forEach(wrap => {
     wrap.querySelectorAll('.adh-statut-pill').forEach(btn => {
@@ -1407,11 +1437,12 @@ document.getElementById('adh-filter-statut').addEventListener('change', renderAd
 document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-relance-bulk-btn').addEventListener('click', sendDocReminderBulk);
+document.getElementById('adh-relance-toggle-btn').addEventListener('click', toggleAllRelanceSelection);
 
 async function sendDocReminderBulk() {
-  const targets = adherentsWithMissingDocs().filter(a => a.email);
+  const targets = _adherents.filter(a => _selectedRelanceIds.has(a.id));
   if (!targets.length) return;
-  if (!confirm(`Envoyer un e-mail de relance à ${targets.length} adhérent(s) dont le dossier est incomplet ?`)) return;
+  if (!confirm(`Envoyer un e-mail de relance à ${targets.length} adhérent(s) sélectionné(s) ?`)) return;
 
   const btn = document.getElementById('adh-relance-bulk-btn');
   btn.disabled = true;
