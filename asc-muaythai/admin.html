@@ -1370,19 +1370,30 @@ document.getElementById('adh-sort').addEventListener('change', renderAdherentsLi
 
 async function quickUpdateStatut(id, statutPaiement) {
   const adherent = _adherents.find(a => a.id === id);
-  if (!adherent) return;
+  if (!adherent) {
+    alert('Adhérent introuvable, la liste va être rechargée.');
+    loadAdherents();
+    return;
+  }
   const updated = { ...adherent, statutPaiement, datePaiement: statutPaiement === 'paye' ? (adherent.datePaiement || new Date().toISOString().slice(0, 10)) : adherent.datePaiement };
-  const r = await fetch('/api/admin/adherents', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'save', adherent: updated }),
-  });
-  if (r.ok) {
-    const idx = _adherents.findIndex(a => a.id === id);
-    _adherents[idx] = updated;
-    renderAdherentsList();
-  } else {
-    alert('Erreur lors de la mise à jour du statut');
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save', adherent: updated }),
+    });
+    if (r.ok) {
+      const idx = _adherents.findIndex(a => a.id === id);
+      _adherents[idx] = updated;
+      renderAdherentsList();
+    } else {
+      const data = await r.json().catch(() => ({}));
+      alert(`Erreur lors de la mise à jour du statut${data.error ? ' : ' + data.error : ''}`);
+      loadAdherents();
+    }
+  } catch (err) {
+    console.error('quickUpdateStatut', err);
+    alert('Erreur réseau : le statut n\'a pas été enregistré. Réessaie.');
     loadAdherents();
   }
 }
