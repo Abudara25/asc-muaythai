@@ -39,6 +39,26 @@ async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
   if (!response.ok) throw new Error(`Brevo email: ${await response.text()}`);
 }
 
+// Mute l'adhérent (jeton + date de relance) et envoie l'e-mail ; n'écrit rien
+// sur le blob elle-même, à l'appelant de sauvegarder la liste une fois toutes
+// les relances de l'appel en cours traitées (voir "send-doc-link-bulk").
+async function sendReminderFor(adherent) {
+  const missing = missingDocTypes(adherent);
+  if (!missing.length) return { ok: false, status: 400, error: 'Aucun document manquant pour cet adhérent' };
+  if (!adherent.email) return { ok: false, status: 400, error: "Cet adhérent n'a pas d'adresse e-mail" };
+
+  const token = crypto.randomBytes(24).toString('hex');
+  try {
+    await sendDocReminderEmail({ email: adherent.email, prenom: adherent.prenom, nom: adherent.nom, missing, token });
+  } catch (e) {
+    console.error('Envoi relance documents ERREUR:', e.message);
+    return { ok: false, status: 502, error: "L'e-mail n'a pas pu être envoyé" };
+  }
+  adherent.docsToken = token;
+  adherent.docsRelanceEnvoyeeLe = new Date().toISOString().slice(0, 10);
+  return { ok: true, missing };
+}
+
 // Purge effective des justificatifs (droit à l'effacement) : supprimer le seul
 // enregistrement JSON ne suffit pas, les fichiers doivent disparaître aussi.
 async function deleteAdherentDocs(adherent) {
@@ -138,21 +158,31 @@ export default async function handler(req, res) {
       const list = await getAdherents();
       const adherent = list.find((a) => a.id === id);
       if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
-      const missing = missingDocTypes(adherent);
-      if (!missing.length) return res.status(400).json({ error: 'Aucun document manquant pour cet adhérent' });
-      if (!adherent.email) return res.status(400).json({ error: 'Cet adhérent n\'a pas d\'adresse e-mail' });
 
-      const token = crypto.randomBytes(24).toString('hex');
-      adherent.docsToken = token;
+      const result = await sendReminderFor(adherent);
+      if (!result.ok) return res.status(result.status).json({ error: result.error });
       await saveAdherents(list);
+      return res.status(200).json({ success: true, missing: result.missing, docsRelanceEnvoyeeLe: adherent.docsRelanceEnvoyeeLe });
+    }
 
-      try {
-        await sendDocReminderEmail({ email: adherent.email, prenom: adherent.prenom, nom: adherent.nom, missing, token });
-      } catch (e) {
-        console.error('Envoi relance documents ERREUR:', e.message);
-        return res.status(502).json({ error: "L'e-mail n'a pas pu être envoyé" });
+    // Relance groupée : une seule lecture/écriture du blob pour tous les
+    // adhérents ciblés, plutôt que N requêtes individuelles qui se
+    // marcheraient dessus (chaque écriture réécrit la liste entière).
+    if (action === 'send-doc-link-bulk') {
+      const { ids } = req.body || {};
+      if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids requis' });
+      const list = await getAdherents();
+      const sent = [];
+      const failed = [];
+      for (const id of ids) {
+        const adherent = list.find((a) => a.id === id);
+        if (!adherent) { failed.push({ id, error: 'Adhérent introuvable' }); continue; }
+        const result = await sendReminderFor(adherent);
+        if (result.ok) sent.push({ id, docsRelanceEnvoyeeLe: adherent.docsRelanceEnvoyeeLe });
+        else failed.push({ id, error: result.error });
       }
-      return res.status(200).json({ success: true, missing });
+      if (sent.length) await saveAdherents(list);
+      return res.status(200).json({ success: true, sent, failed });
     }
 
     if (action === 'delete') {

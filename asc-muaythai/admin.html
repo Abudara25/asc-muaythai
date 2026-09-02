@@ -207,6 +207,7 @@
       <a class="side-link" href="#panel-adherents" data-target="panel-adherents">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Adhérents
+        <span id="adh-missing-badge" style="display:none;margin-left:auto;background:#cc0000;color:#fff;font-size:11px;font-weight:600;line-height:1;padding:3px 6px;border-radius:10px"></span>
       </a>
       <a class="side-link" href="#panel-horaires" data-target="panel-horaires">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -370,6 +371,8 @@
         </select>
       </div>
     </div>
+
+    <button type="button" id="adh-relance-bulk-btn" style="display:none;background:none;border:1px solid #eecccc;color:#cc0000;padding:8px 14px;cursor:pointer;font-size:13.5px;margin-bottom:14px;border-radius:3px">Relancer tous les dossiers incomplets</button>
 
     <div id="adherents-list"><p style="color:#666;font-size:13px">Chargement…</p></div>
   </section>
@@ -1300,7 +1303,28 @@ function adhDocLink(url, label) {
     : `<span style="color:#666;font-size:13.5px">${label}</span>`;
 }
 
+function adherentsWithMissingDocs() {
+  return _adherents.filter(a => missingDocTypesClient(a).length);
+}
+
+function updateMissingDocsBadge() {
+  const badge = document.getElementById('adh-missing-badge');
+  const incomplete = adherentsWithMissingDocs();
+  badge.textContent = incomplete.length;
+  badge.style.display = incomplete.length > 0 ? 'inline-block' : 'none';
+
+  const withEmail = incomplete.filter(a => a.email);
+  const bulkBtn = document.getElementById('adh-relance-bulk-btn');
+  if (withEmail.length > 1) {
+    bulkBtn.style.display = 'inline-block';
+    bulkBtn.textContent = `Relancer les ${withEmail.length} dossiers incomplets`;
+  } else {
+    bulkBtn.style.display = 'none';
+  }
+}
+
 function renderAdherentsList() {
+  updateMissingDocsBadge();
   const el = document.getElementById('adherents-list');
   const search = (document.getElementById('adh-search').value || '').trim().toLowerCase();
   const filterStatut = document.getElementById('adh-filter-statut').value;
@@ -1347,7 +1371,7 @@ function renderAdherentsList() {
           ${adhDocLink(a.docIdentiteUrl, '🪪 Pièce identité')}
           ${adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale')}
         </div>
-        ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + `</div>` : ''}
+        ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + (a.docsRelanceEnvoyeeLe ? ` <span style="color:#888">(dernière relance : ${esc(a.docsRelanceEnvoyeeLe)})</span>` : '') + `</div>` : ''}
         ${a.notes ? `<div style="font-size:13.5px;color:#666;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0;max-width:100%;box-sizing:border-box">
@@ -1380,6 +1404,44 @@ document.getElementById('adh-search').addEventListener('input', renderAdherentsL
 document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
+document.getElementById('adh-relance-bulk-btn').addEventListener('click', sendDocReminderBulk);
+
+async function sendDocReminderBulk() {
+  const targets = adherentsWithMissingDocs().filter(a => a.email);
+  if (!targets.length) return;
+  if (!confirm(`Envoyer un e-mail de relance à ${targets.length} adhérent(s) dont le dossier est incomplet ?`)) return;
+
+  const btn = document.getElementById('adh-relance-bulk-btn');
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Envoi en cours…';
+
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'send-doc-link-bulk', ids: targets.map(a => a.id) }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) {
+      data.sent.forEach(({ id, docsRelanceEnvoyeeLe }) => {
+        const a = _adherents.find(x => x.id === id);
+        if (a) a.docsRelanceEnvoyeeLe = docsRelanceEnvoyeeLe || new Date().toISOString().slice(0, 10);
+      });
+      renderAdherentsList();
+      const failedMsg = data.failed.length ? `\n${data.failed.length} échec(s) : ${data.failed.map(f => f.error).join(', ')}` : '';
+      alert(`${data.sent.length} relance(s) envoyée(s).${failedMsg}`);
+    } else {
+      alert(`Erreur lors de l'envoi groupé${data.error ? ' : ' + data.error : ''}`);
+    }
+  } catch (err) {
+    console.error('sendDocReminderBulk', err);
+    alert('Erreur réseau : la relance groupée a échoué. Réessaie.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
 
 async function quickUpdateStatut(id, statutPaiement) {
   const adherent = _adherents.find(a => a.id === id);
@@ -1427,6 +1489,8 @@ async function sendDocReminder(id, btn) {
     });
     const data = await r.json().catch(() => ({}));
     if (r.ok) {
+      adherent.docsRelanceEnvoyeeLe = data.docsRelanceEnvoyeeLe || new Date().toISOString().slice(0, 10);
+      renderAdherentsList();
       alert(`Lien envoyé à ${adherent.email}.`);
     } else {
       alert(`Erreur lors de l'envoi${data.error ? ' : ' + data.error : ''}`);
