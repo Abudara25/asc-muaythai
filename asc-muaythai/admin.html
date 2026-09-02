@@ -1372,6 +1372,7 @@ function renderAdherentsList() {
           ${adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale')}
         </div>
         ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + (a.docsRelanceEnvoyeeLe ? ` <span style="color:#888">(dernière relance : ${esc(a.docsRelanceEnvoyeeLe)})</span>` : '') + `</div>` : ''}
+        ${a.saison && a.saison !== saisonActuelle() && a.email ? `<div style="margin-top:8px;font-size:13.5px;color:#555">Saison ${esc(a.saison)} — <button type="button" data-id="${esc(a.id)}" class="adh-renewal-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de réinscription</button></div>` : ''}
         ${a.notes ? `<div style="font-size:13.5px;color:#666;margin-top:6px;font-style:italic">${esc(a.notes)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0;max-width:100%;box-sizing:border-box">
@@ -1393,6 +1394,7 @@ function renderAdherentsList() {
   el.querySelectorAll('.adh-edit-btn').forEach(btn => btn.addEventListener('click', () => editAdherent(btn.dataset.id)));
   el.querySelectorAll('.adh-del-btn').forEach(btn => btn.addEventListener('click', () => deleteAdherentRow(btn.dataset.id, btn.dataset.label)));
   el.querySelectorAll('.adh-relance-btn').forEach(btn => btn.addEventListener('click', () => sendDocReminder(btn.dataset.id, btn)));
+  el.querySelectorAll('.adh-renewal-btn').forEach(btn => btn.addEventListener('click', () => sendRenewalLink(btn.dataset.id, btn)));
   el.querySelectorAll('.adh-statut-pills').forEach(wrap => {
     wrap.querySelectorAll('.adh-statut-pill').forEach(btn => {
       btn.addEventListener('click', () => quickUpdateStatut(wrap.dataset.id, btn.dataset.value));
@@ -1501,6 +1503,34 @@ async function sendDocReminder(id, btn) {
   } finally {
     btn.disabled = false;
     btn.textContent = 'envoyer un lien de relance';
+  }
+}
+
+async function sendRenewalLink(id, btn) {
+  const adherent = _adherents.find(a => a.id === id);
+  if (!adherent) return;
+  if (!confirm(`Envoyer un e-mail à ${adherent.email} avec un lien de réinscription pour la nouvelle saison ?`)) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'send-renewal-link', id }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) {
+      alert(`Lien de réinscription envoyé à ${adherent.email}.`);
+    } else {
+      alert(`Erreur lors de l'envoi${data.error ? ' : ' + data.error : ''}`);
+    }
+  } catch (err) {
+    console.error('sendRenewalLink', err);
+    alert("Erreur réseau : l'e-mail n'a pas été envoyé. Réessaie.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'envoyer un lien de réinscription';
   }
 }
 

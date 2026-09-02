@@ -498,6 +498,38 @@ const DOC_ALLOWED_TYPES = {
 };
 const DOC_MAX_SIZE = 5 * 1024 * 1024;
 
+// ─── RÉINSCRIPTION RAPIDE ────────────────────────────────────────────────────
+// Lien envoyé par l'admin (/inscription?renew=<jeton>) : pré-remplit ce qu'on
+// a déjà sur l'adhérent de la saison précédente. Le certificat médical n'est
+// jamais repris, toujours à fournir à jour pour la nouvelle saison.
+const renewalToken = new URLSearchParams(location.search).get("renew");
+if (renewalToken) {
+  (async () => {
+    try {
+      const res = await fetch("/api/inscription?renewalToken=" + encodeURIComponent(renewalToken));
+      const data = await res.json();
+      if (!res.ok) return;
+      document.getElementById("f-prenom").value = data.prenom || "";
+      document.getElementById("f-nom").value = data.nom || "";
+      document.getElementById("f-email").value = data.email || "";
+      document.getElementById("f-tel").value = data.telephone || "";
+      if (data.section) document.getElementById("f-section").value = data.section;
+      if (data.hasPassSport) document.getElementById("f-passsport").checked = true;
+      updateSectionInfo();
+      updatePassSportNote();
+      updateVirementLibelle();
+      const reuse = { photo: data.docPhotoUrl, identite: data.docIdentiteUrl, autorisation: data.docAutorisationUrl };
+      Object.entries(reuse).forEach(([docType, url]) => {
+        if (!url) return;
+        docUrls[docType] = url;
+        const statusEl = document.getElementById("status-" + docType);
+        statusEl.textContent = "✅ Repris de l'an dernier (remplaçable)";
+        statusEl.className = "upload-status ok";
+      });
+    } catch {}
+  })();
+}
+
 async function uploadDoc(docType, inputEl) {
   const file = inputEl.files[0];
   const statusEl = document.getElementById("status-" + docType);
@@ -603,7 +635,7 @@ async function submitInscription() {
       body: JSON.stringify({
         nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
         profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport, message,
-        acceptReglement, acceptDroitImage, acceptData,
+        acceptReglement, acceptDroitImage, acceptData, renewalToken,
         docCertificatUrl: docUrls.certificat, docPhotoUrl: docUrls.photo,
         docIdentiteUrl: docUrls.identite, docAutorisationUrl: docUrls.autorisation
       })

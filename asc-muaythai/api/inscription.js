@@ -30,16 +30,37 @@ const HELLOASSO_URL = "https://www.helloasso.com/associations/association-sporti
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", SITE_ORIGIN);
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
+
+  // Réinscription rapide : le lien envoyé par l'admin (voir action
+  // "send-renewal-link") pointe vers /inscription?renew=<jeton>, qui appelle
+  // ceci pour pré-remplir ce qu'on a déjà sur l'adhérent de la saison
+  // précédente. Le certificat médical n'est jamais renvoyé : toujours à
+  // fournir à nouveau, à jour pour la nouvelle saison.
+  if (req.method === "GET") {
+    const { renewalToken } = req.query;
+    if (!renewalToken) return res.status(400).json({ error: "Jeton requis" });
+    const list = await getAdherents();
+    const previous = list.find((a) => a.renewalToken && a.renewalToken === renewalToken);
+    if (!previous) return res.status(404).json({ error: "Lien invalide ou expiré" });
+    return res.status(200).json({
+      prenom: previous.prenom, nom: previous.nom, email: previous.email, telephone: previous.telephone,
+      section: previous.section, hasPassSport: previous.hasPassSport,
+      docPhotoUrl: previous.docPhotoUrl || null,
+      docIdentiteUrl: previous.docIdentiteUrl || null,
+      docAutorisationUrl: previous.docAutorisationUrl || null,
+    });
+  }
+
   if (req.method !== "POST") return res.status(405).json({ error: "Méthode non autorisée" });
 
   let {
     nouveau, dejaPratique, prenom, nom, sexe, naissanceDate, naissanceLieu,
     profession, adresse, ville, whatsapp, email, telephone, section, reglement, hasPassSport: rawPassSport, message,
-    acceptReglement, acceptDroitImage,
+    acceptReglement, acceptDroitImage, renewalToken,
     docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl
   } = req.body;
 
@@ -122,6 +143,12 @@ export default async function handler(req, res) {
         source: "formulaire",
       });
       list.push(adherent);
+      // Réinscription rapide : le jeton de l'ancienne fiche ne doit servir
+      // qu'une fois, pour éviter de créer plusieurs saisons en le réutilisant.
+      if (typeof renewalToken === "string" && renewalToken) {
+        const previous = list.find((a) => a.id !== adherent.id && a.renewalToken === renewalToken);
+        if (previous) previous.renewalToken = "";
+      }
       await saveAdherents(list);
     } catch (e) {
       console.error("Enregistrement adhérent ERREUR:", e.message);

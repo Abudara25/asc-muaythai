@@ -39,6 +39,31 @@ async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
   if (!response.ok) throw new Error(`Brevo email: ${await response.text()}`);
 }
 
+async function sendRenewalEmail({ email, prenom, nom, token }) {
+  const link = `${SITE_ORIGIN}/inscription?renew=${token}`;
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#222">
+      <h2 style="color:#ee0000">ASC Muay Thaï Bessancourt</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>La nouvelle saison démarre ! Pour réinscrire ${prenom}, utilise ce lien : le formulaire reprend automatiquement ce qu'on a déjà (nom, coordonnées, section, et les documents encore valables) — il ne reste que le certificat médical à jour et les infos qui ont pu changer.</p>
+      <p><a href="${link}" style="display:inline-block;background:#ee0000;color:#fff;text-decoration:none;padding:12px 20px;border-radius:4px">Réinscrire ${prenom}</a></p>
+      <p style="color:#666;font-size:13px">Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur : ${link}</p>
+      <p>Merci,<br>ASC Muay Thaï Bessancourt</p>
+    </div>`;
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY },
+    body: JSON.stringify({
+      sender: { name: 'ASC Muay Thaï', email: SENDER_EMAIL },
+      replyTo: { email: CLUB_EMAIL, name: 'ASC Muay Thaï' },
+      to: [{ email, name: `${prenom} ${nom}` }],
+      subject: 'Réinscription — nouvelle saison à l\'ASC Muay Thaï',
+      htmlContent: html,
+    }),
+  });
+  if (!response.ok) throw new Error(`Brevo email: ${await response.text()}`);
+}
+
 // Mute l'adhérent (jeton + date de relance) et envoie l'e-mail ; n'écrit rien
 // sur le blob elle-même, à l'appelant de sauvegarder la liste une fois toutes
 // les relances de l'appel en cours traitées (voir "send-doc-link-bulk").
@@ -183,6 +208,26 @@ export default async function handler(req, res) {
       }
       if (sent.length) await saveAdherents(list);
       return res.status(200).json({ success: true, sent, failed });
+    }
+
+    if (action === 'send-renewal-link') {
+      const { id } = req.body || {};
+      if (!id) return res.status(400).json({ error: 'id requis' });
+      const list = await getAdherents();
+      const adherent = list.find((a) => a.id === id);
+      if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
+      if (!adherent.email) return res.status(400).json({ error: "Cet adhérent n'a pas d'adresse e-mail" });
+
+      const token = crypto.randomBytes(24).toString('hex');
+      try {
+        await sendRenewalEmail({ email: adherent.email, prenom: adherent.prenom, nom: adherent.nom, token });
+      } catch (e) {
+        console.error('Envoi lien de réinscription ERREUR:', e.message);
+        return res.status(502).json({ error: "L'e-mail n'a pas pu être envoyé" });
+      }
+      adherent.renewalToken = token;
+      await saveAdherents(list);
+      return res.status(200).json({ success: true });
     }
 
     if (action === 'delete') {

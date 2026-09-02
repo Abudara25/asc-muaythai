@@ -69,6 +69,7 @@ export function withDefaults(a) {
     docAutorisationUrl: a.docAutorisationUrl || '',
     docsToken: a.docsToken || '',
     docsRelanceEnvoyeeLe: a.docsRelanceEnvoyeeLe || '',
+    renewalToken: a.renewalToken || '',
     saison: a.saison || '',
     dateInscription: a.dateInscription || new Date().toISOString().slice(0, 10),
     datePaiement: a.datePaiement || '',
