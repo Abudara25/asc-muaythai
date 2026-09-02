@@ -339,6 +339,14 @@
           </label>
           <span class="upload-doc-status" id="adh-doc-status-autorisation"></span>
         </div>
+        <div class="upload-doc-row">
+          <div class="upload-doc-label">🧾 Attestation de paiement <span style="color:#888;font-weight:normal">(optionnel — récupérée automatiquement pour HelloAsso, sinon à ajouter ici)</span></div>
+          <label class="btn-add" style="width:auto;display:inline-block;padding:8px 14px">
+            Choisir un fichier
+            <input type="file" id="adh-doc-attestation" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="uploadAttestation(this)">
+          </label>
+          <span class="upload-doc-status" id="adh-doc-status-attestation"></span>
+        </div>
       </div>
 
       <input type="hidden" id="adh-editing-id" value="" />
@@ -375,6 +383,7 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
       <button type="button" id="adh-relance-bulk-btn" style="display:none;background:none;border:1px solid #eecccc;color:#cc0000;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Relancer la sélection</button>
       <button type="button" id="adh-relance-toggle-btn" style="display:none;background:none;border:1px solid #ccc;color:#555;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Tout désélectionner</button>
+      <button type="button" id="adh-attestations-bulk-btn" style="background:none;border:1px solid #ccc;color:#333;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Récupérer les attestations HelloAsso manquantes</button>
     </div>
 
     <div id="adherents-list"><p style="color:#666;font-size:13px">Chargement…</p></div>
@@ -1402,6 +1411,11 @@ function renderAdherentsList() {
           ${adhDocLink(a.docPhotoUrl, '🪪 Photo')}
           ${adhDocLink(a.docIdentiteUrl, '🪪 Pièce identité')}
           ${isMinorClient(a) ? adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale') : ''}
+          ${a.reglement === 'HelloAsso' && a.statutPaiement === 'paye' ? (
+            a.docAttestationUrl
+              ? adhDocLink(a.docAttestationUrl, '🧾 Attestation de paiement')
+              : `<button type="button" data-id="${esc(a.id)}" class="adh-attestation-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:14.5px;padding:0;font-family:inherit">🧾 Récupérer l'attestation HelloAsso</button>`
+          ) : ''}
         </div>
         ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">` + (a.email ? `<input type="checkbox" class="adh-relance-check" data-id="${esc(a.id)}" ${_selectedRelanceIds.has(a.id) ? 'checked' : ''} style="margin-right:6px;vertical-align:middle"> ` : '') + `⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + (a.docsRelanceEnvoyeeLe ? ` <span style="color:#888">(dernière relance : ${esc(a.docsRelanceEnvoyeeLe)})</span>` : '') + `</div>` : ''}
         ${a.saison && a.saison !== saisonActuelle() && a.email ? `<div style="margin-top:8px;font-size:13.5px;color:#555">Saison ${esc(a.saison)} — <button type="button" data-id="${esc(a.id)}" class="adh-renewal-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de réinscription</button></div>` : ''}
@@ -1428,6 +1442,7 @@ function renderAdherentsList() {
   el.querySelectorAll('.adh-relance-btn').forEach(btn => btn.addEventListener('click', () => sendDocReminder(btn.dataset.id, btn)));
   el.querySelectorAll('.adh-relance-check').forEach(cb => cb.addEventListener('change', () => toggleRelanceSelection(cb.dataset.id, cb.checked)));
   el.querySelectorAll('.adh-renewal-btn').forEach(btn => btn.addEventListener('click', () => sendRenewalLink(btn.dataset.id, btn)));
+  el.querySelectorAll('.adh-attestation-btn').forEach(btn => btn.addEventListener('click', () => fetchAttestation(btn.dataset.id, btn)));
   el.querySelectorAll('.adh-statut-pills').forEach(wrap => {
     wrap.querySelectorAll('.adh-statut-pill').forEach(btn => {
       btn.addEventListener('click', () => quickUpdateStatut(wrap.dataset.id, btn.dataset.value));
@@ -1440,6 +1455,7 @@ document.getElementById('adh-filter-statut').addEventListener('change', renderAd
 document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-relance-bulk-btn').addEventListener('click', sendDocReminderBulk);
+document.getElementById('adh-attestations-bulk-btn').addEventListener('click', fetchAttestationsBulk);
 document.getElementById('adh-relance-toggle-btn').addEventListener('click', toggleAllRelanceSelection);
 
 async function sendDocReminderBulk() {
@@ -1473,6 +1489,73 @@ async function sendDocReminderBulk() {
   } catch (err) {
     console.error('sendDocReminderBulk', err);
     alert('Erreur réseau : la relance groupée a échoué. Réessaie.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+async function fetchAttestation(id, btn) {
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Récupération…';
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'fetch-helloasso-receipt', id }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) {
+      const a = _adherents.find(x => x.id === id);
+      if (a) a.docAttestationUrl = data.url;
+      renderAdherentsList();
+    } else {
+      alert(`Impossible de récupérer l'attestation${data.error ? ' : ' + data.error : ''}`);
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  } catch (err) {
+    console.error('fetchAttestation', err);
+    alert("Erreur réseau : l'attestation n'a pas pu être récupérée. Réessaie.");
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+// Backfill groupé : toutes les personnes payées via HelloAsso sans attestation
+// encore enregistrée, sans avoir à les sélectionner une par une.
+async function fetchAttestationsBulk() {
+  const targets = _adherents.filter(a => a.reglement === 'HelloAsso' && a.statutPaiement === 'paye' && !a.docAttestationUrl);
+  if (!targets.length) { alert('Aucune attestation manquante à récupérer.'); return; }
+  if (!confirm(`Récupérer l'attestation HelloAsso de ${targets.length} adhérent(s) ?`)) return;
+
+  const btn = document.getElementById('adh-attestations-bulk-btn');
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Récupération en cours…';
+
+  try {
+    const r = await fetch('/api/admin/adherents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'fetch-helloasso-receipt-bulk', ids: targets.map(a => a.id) }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) {
+      data.done.forEach(({ id, url }) => {
+        const a = _adherents.find(x => x.id === id);
+        if (a) a.docAttestationUrl = url;
+      });
+      renderAdherentsList();
+      const failedMsg = data.failed.length ? `\n${data.failed.length} échec(s) : ${data.failed.map(f => f.error).join(', ')}` : '';
+      alert(`${data.done.length} attestation(s) récupérée(s).${failedMsg}`);
+    } else {
+      alert(`Erreur lors de la récupération groupée${data.error ? ' : ' + data.error : ''}`);
+    }
+  } catch (err) {
+    console.error('fetchAttestationsBulk', err);
+    alert('Erreur réseau : la récupération groupée a échoué. Réessaie.');
   } finally {
     btn.disabled = false;
     btn.textContent = originalText;
@@ -1578,8 +1661,11 @@ const ADH_DOC_ALLOWED = {
   identite: ['application/pdf', 'image/jpeg', 'image/png'],
   autorisation: ['application/pdf', 'image/jpeg', 'image/png'],
 };
-const ADH_DOC_MAX_SIZE = 5 * 1024 * 1024;
-let _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null };
+// Doit rester alignée sur la limite serveur (upload-document.js /
+// upload-attestation.js : 4 Mo, plafond des fonctions serverless Vercel) —
+// sinon un fichier accepté ici est quand même rejeté à l'envoi.
+const ADH_DOC_MAX_SIZE = 4 * 1024 * 1024;
+let _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null, attestation: null };
 Object.keys(_adhDocUrls).forEach((k) => { const el = document.getElementById('adh-doc-status-' + k); if (el) el.textContent = 'Aucun fichier'; });
 
 function renderAdhDocStatus(docType) {
@@ -1605,7 +1691,7 @@ async function uploadAdhDoc(docType, inputEl) {
   }
   if (file.size > ADH_DOC_MAX_SIZE) {
     statusEl.className = 'upload-doc-status err';
-    statusEl.textContent = '⚠️ Fichier trop volumineux (5 Mo max)';
+    statusEl.textContent = '⚠️ Fichier trop volumineux (4 Mo max)';
     inputEl.value = '';
     return;
   }
@@ -1621,6 +1707,46 @@ async function uploadAdhDoc(docType, inputEl) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur');
     _adhDocUrls[docType] = data.url;
+    statusEl.className = 'upload-doc-status ok';
+    statusEl.textContent = '✅ ' + file.name + ' (sera enregistré avec la fiche)';
+  } catch (e) {
+    statusEl.className = 'upload-doc-status err';
+    statusEl.textContent = "❌ Échec de l'envoi, réessaie";
+  } finally {
+    inputEl.value = '';
+  }
+}
+
+const ADH_ATTESTATION_ALLOWED = ['application/pdf', 'image/jpeg', 'image/png'];
+
+async function uploadAttestation(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('adh-doc-status-attestation');
+
+  if (!ADH_ATTESTATION_ALLOWED.includes(file.type)) {
+    statusEl.className = 'upload-doc-status err';
+    statusEl.textContent = '⚠️ Format non supporté (PDF, JPG ou PNG)';
+    inputEl.value = '';
+    return;
+  }
+  if (file.size > ADH_DOC_MAX_SIZE) {
+    statusEl.className = 'upload-doc-status err';
+    statusEl.textContent = '⚠️ Fichier trop volumineux (4 Mo max)';
+    inputEl.value = '';
+    return;
+  }
+
+  statusEl.className = 'upload-doc-status';
+  statusEl.textContent = '⏳ Envoi en cours…';
+
+  try {
+    const fd = new FormData();
+    fd.append('document', file);
+    const res = await fetch('/api/admin/upload-attestation', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    _adhDocUrls.attestation = data.url;
     statusEl.className = 'upload-doc-status ok';
     statusEl.textContent = '✅ ' + file.name + ' (sera enregistré avec la fiche)';
   } catch (e) {
@@ -1655,6 +1781,7 @@ function editAdherent(id) {
     photo: a.docPhotoUrl || null,
     identite: a.docIdentiteUrl || null,
     autorisation: a.docAutorisationUrl || null,
+    attestation: a.docAttestationUrl || null,
   };
   Object.keys(_adhDocUrls).forEach(renderAdhDocStatus);
   document.getElementById('adh-form-title').textContent = 'Modifier un adhérent';
@@ -1667,7 +1794,7 @@ function resetAdherentForm() {
   ['adh-prenom', 'adh-nom', 'adh-email', 'adh-telephone', 'adh-montant', 'adh-date', 'adh-notes'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null };
+  _adhDocUrls = { certificat: null, photo: null, identite: null, autorisation: null, attestation: null };
   Object.keys(_adhDocUrls).forEach(renderAdhDocStatus);
   remplirSelectSaisons(document.getElementById('adh-saison'));
   document.getElementById('adh-saison').value = saisonActuelle();
@@ -1727,6 +1854,7 @@ document.getElementById('adh-save-btn').addEventListener('click', async () => {
     docPhotoUrl: _adhDocUrls.photo,
     docIdentiteUrl: _adhDocUrls.identite,
     docAutorisationUrl: _adhDocUrls.autorisation,
+    docAttestationUrl: _adhDocUrls.attestation,
   };
 
   statusEl.className = 'status-msg';

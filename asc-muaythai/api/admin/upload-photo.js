@@ -4,6 +4,7 @@
 import { put } from '@vercel/blob';
 import sharp from 'sharp';
 import { requireAuth } from './_auth.js';
+import { readMultipartBody, parseMultipartParts } from '../_multipart.js';
 
 export const config = { api: { bodyParser: false } };
 
@@ -20,73 +21,13 @@ const PRESETS = {
   logo: { maxWidth: 400, maxHeight: 400, quality: 85 },    // logos partenaires
 };
 
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    let size = 0;
-    req.on('data', (chunk) => {
-      size += chunk.length;
-      if (size > MAX_SIZE) {
-        reject(new Error('PAYLOAD_TOO_LARGE'));
-        req.destroy();
-        return;
-      }
-      chunks.push(chunk);
-    });
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
-}
-
-// Parseur multipart minimal : le champ fichier "photo" et le champ texte "preset".
-function parseMultipart(buffer, contentType) {
-  const boundaryMatch = /boundary=(?:"([^"]+)"|([^;]+))/.exec(contentType || '');
-  const boundary = boundaryMatch && (boundaryMatch[1] || boundaryMatch[2]);
-  if (!boundary) return null;
-
-  const delimiter = Buffer.from(`--${boundary}`);
-  const parts = [];
-  let start = buffer.indexOf(delimiter);
-  while (start !== -1) {
-    const next = buffer.indexOf(delimiter, start + delimiter.length);
-    if (next === -1) break;
-    parts.push(buffer.slice(start + delimiter.length, next));
-    start = next;
-  }
-
-  const result = { file: null, preset: null };
-  for (const part of parts) {
-    const headerEnd = part.indexOf('\r\n\r\n');
-    if (headerEnd === -1) continue;
-    const header = part.slice(0, headerEnd).toString('utf8');
-    const nameMatch = /name="([^"]*)"/.exec(header);
-    if (!nameMatch) continue;
-
-    let body = part.slice(headerEnd + 4);
-    if (body.slice(-2).toString('utf8') === '\r\n') body = body.slice(0, -2);
-
-    if (nameMatch[1] === 'photo') {
-      const typeMatch = /Content-Type:\s*([^\r\n]+)/i.exec(header);
-      const filenameMatch = /filename="([^"]*)"/.exec(header);
-      result.file = {
-        contentType: typeMatch ? typeMatch[1].trim() : 'application/octet-stream',
-        filename: filenameMatch ? filenameMatch[1] : 'photo',
-        data: body,
-      };
-    } else if (nameMatch[1] === 'preset') {
-      result.preset = body.toString('utf8').trim();
-    }
-  }
-  return result.file ? result : null;
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   if (!requireAuth(req, res)) return;
 
   let buffer;
   try {
-    buffer = await readBody(req);
+    buffer = await readMultipartBody(req, MAX_SIZE);
   } catch (err) {
     if (err.message === 'PAYLOAD_TOO_LARGE') {
       return res.status(413).json({ error: 'Image trop volumineuse (4 Mo max après réduction)' });
@@ -94,18 +35,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Requête invalide' });
   }
 
-  const parsed = parseMultipart(buffer, req.headers['content-type']);
-  if (!parsed || !parsed.file.data.length) {
+  const parts = parseMultipartParts(buffer, req.headers['content-type']);
+  const file = parts.find((p) => p.name === 'photo');
+  const presetName = parts.find((p) => p.name === 'preset')?.data.toString('utf8').trim();
+  if (!file || !file.data.length) {
     return res.status(400).json({ error: 'Aucune image reçue' });
   }
-  const { file } = parsed;
   if (!ALLOWED_TYPES.includes(file.contentType)) {
     return res.status(415).json({ error: 'Format non supporté (JPEG, PNG ou WebP uniquement)' });
   }
 
   // Object.hasOwn et pas un simple PRESETS[x] : "constructor" ou "__proto__"
   // renverraient une valeur héritée truthy, et le redimensionnement sauterait.
-  const preset = Object.hasOwn(PRESETS, parsed.preset) ? PRESETS[parsed.preset] : PRESETS.photo;
+  const preset = Object.hasOwn(PRESETS, presetName) ? PRESETS[presetName] : PRESETS.photo;
 
   let optimized;
   try {

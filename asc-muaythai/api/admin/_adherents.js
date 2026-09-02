@@ -67,6 +67,7 @@ export function withDefaults(a) {
     docPhotoUrl: a.docPhotoUrl || '',
     docIdentiteUrl: a.docIdentiteUrl || '',
     docAutorisationUrl: a.docAutorisationUrl || '',
+    docAttestationUrl: a.docAttestationUrl || '',
     docsToken: a.docsToken || '',
     docsRelanceEnvoyeeLe: a.docsRelanceEnvoyeeLe || '',
     renewalToken: a.renewalToken || '',

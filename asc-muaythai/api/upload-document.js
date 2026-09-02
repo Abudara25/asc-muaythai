@@ -6,6 +6,7 @@
 // d'inscription doit pouvoir l'utiliser.
 import { put } from '@vercel/blob';
 import { loadRateLimitState, isLocked, recordFailedLogin } from './admin/_rateLimit.js';
+import { readMultipartBody, parseMultipartParts } from './_multipart.js';
 
 export const config = { api: { bodyParser: false } };
 
@@ -38,65 +39,6 @@ const MAX_SIZE = 4 * 1024 * 1024;
 
 const DOC_TYPES = new Set(Object.keys(ALLOWED_TYPES_BY_DOC));
 
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    let size = 0;
-    req.on('data', (chunk) => {
-      size += chunk.length;
-      if (size > MAX_SIZE) {
-        reject(new Error('PAYLOAD_TOO_LARGE'));
-        req.destroy();
-        return;
-      }
-      chunks.push(chunk);
-    });
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
-}
-
-// Parseur multipart minimal : le champ fichier "document" et le champ texte "docType".
-// (identique au parseur utilisé par api/admin/upload-photo.js)
-function parseMultipart(buffer, contentType) {
-  const boundaryMatch = /boundary=(?:"([^"]+)"|([^;]+))/.exec(contentType || '');
-  const boundary = boundaryMatch && (boundaryMatch[1] || boundaryMatch[2]);
-  if (!boundary) return null;
-
-  const delimiter = Buffer.from(`--${boundary}`);
-  const parts = [];
-  let start = buffer.indexOf(delimiter);
-  while (start !== -1) {
-    const next = buffer.indexOf(delimiter, start + delimiter.length);
-    if (next === -1) break;
-    parts.push(buffer.slice(start + delimiter.length, next));
-    start = next;
-  }
-
-  const result = { file: null, docType: null };
-  for (const part of parts) {
-    const headerEnd = part.indexOf('\r\n\r\n');
-    if (headerEnd === -1) continue;
-    const header = part.slice(0, headerEnd).toString('utf8');
-    const nameMatch = /name="([^"]*)"/.exec(header);
-    if (!nameMatch) continue;
-
-    let body = part.slice(headerEnd + 4);
-    if (body.slice(-2).toString('utf8') === '\r\n') body = body.slice(0, -2);
-
-    if (nameMatch[1] === 'document') {
-      const typeMatch = /Content-Type:\s*([^\r\n]+)/i.exec(header);
-      result.file = {
-        contentType: typeMatch ? typeMatch[1].trim() : 'application/octet-stream',
-        data: body,
-      };
-    } else if (nameMatch[1] === 'docType') {
-      result.docType = body.toString('utf8').trim();
-    }
-  }
-  return result.file ? result : null;
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
 
@@ -109,23 +51,24 @@ export default async function handler(req, res) {
 
   let buffer;
   try {
-    buffer = await readBody(req);
+    buffer = await readMultipartBody(req, MAX_SIZE);
   } catch (err) {
     if (err.message === 'PAYLOAD_TOO_LARGE') {
-      return res.status(413).json({ error: 'Fichier trop volumineux (5 Mo max)' });
+      return res.status(413).json({ error: 'Fichier trop volumineux (4 Mo max)' });
     }
     return res.status(400).json({ error: 'Requête invalide' });
   }
 
-  const parsed = parseMultipart(buffer, req.headers['content-type']);
-  if (!parsed || !parsed.file.data.length) {
+  const parts = parseMultipartParts(buffer, req.headers['content-type']);
+  const file = parts.find((p) => p.name === 'document');
+  const docType = parts.find((p) => p.name === 'docType')?.data.toString('utf8').trim();
+  if (!file || !file.data.length) {
     return res.status(400).json({ error: 'Aucun fichier reçu' });
   }
-  if (!DOC_TYPES.has(parsed.docType)) {
+  if (!DOC_TYPES.has(docType)) {
     return res.status(400).json({ error: 'Type de document invalide' });
   }
-  const { file } = parsed;
-  const allowed = ALLOWED_TYPES_BY_DOC[parsed.docType];
+  const allowed = ALLOWED_TYPES_BY_DOC[docType];
   if (!allowed.includes(file.contentType)) {
     const formats = allowed.includes('application/pdf') ? 'PDF, JPEG ou PNG' : 'JPEG ou PNG';
     return res.status(415).json({ error: `Format non supporté (${formats} uniquement)` });
@@ -136,7 +79,7 @@ export default async function handler(req, res) {
     // Chemin non listé publiquement nulle part sur le site : ces documents
     // (certificats médicaux, pièces d'identité) ne sont partagés que par le
     // lien envoyé dans l'email interne au club, jamais affichés sur une page.
-    const blob = await put(`justificatifs/${parsed.docType}/${Date.now()}.${ext}`, file.data, {
+    const blob = await put(`justificatifs/${docType}/${Date.now()}.${ext}`, file.data, {
       access: 'public',
       contentType: file.contentType,
       addRandomSuffix: true,

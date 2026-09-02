@@ -2,6 +2,7 @@
 // Reçoit les webhooks HelloAsso après paiement confirmé → email de confirmation Brevo
 import { timingSafeEqual } from 'crypto';
 import { getAdherents, saveAdherents } from './admin/_adherents.js';
+import { downloadHelloAssoReceipt, attachReceiptFile } from './admin/_helloasso.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SENDER_EMAIL = "noreply@asc-muaythai.fr";
@@ -90,10 +91,36 @@ export default async function handler(req, res) {
           list[idx].statutPaiement = "paye";
           list[idx].datePaiement = new Date().toISOString().slice(0, 10);
           matched = list[idx];
+          // Écrit le statut tout de suite, avant l'appel HelloAsso (OAuth2 +
+          // recherche + téléchargement) potentiellement long, pour garder la
+          // fenêtre de lecture/écriture de la liste aussi courte que possible
+          // face à une édition admin concurrente sur ce même blob.
           await saveAdherents(list);
         }
       } catch (e) {
         console.error("Mise à jour adhérent (webhook) ERREUR:", e.message);
+      }
+    }
+
+    // Best-effort, en phase séparée : l'attestation HelloAsso n'est pas
+    // forcément déjà générée à l'instant du webhook, et la recherche +
+    // téléchargement peut prendre plusieurs secondes. Un échec ici ne doit
+    // jamais bloquer la confirmation ; l'admin peut la récupérer plus tard
+    // (bouton dédié / backfill groupé). La liste n'est relue que juste avant
+    // cette écriture, une fois l'appel réseau terminé.
+    if (matched) {
+      try {
+        const file = await downloadHelloAssoReceipt({ email: matched.email, montant: matched.montant });
+        if (file.ok) {
+          const list = await getAdherents();
+          const idx = list.findIndex((a) => a.id === matched.id);
+          if (idx >= 0) {
+            await attachReceiptFile(list[idx], file);
+            await saveAdherents(list);
+          }
+        }
+      } catch (e) {
+        console.error("Récupération attestation HelloAsso (webhook) ERREUR:", e.message);
       }
     }
 
@@ -113,9 +140,6 @@ export default async function handler(req, res) {
             <p style="color:#888;margin:4px 0 0;font-size:12px">PAIEMENT CONFIRMÉ VIA HELLOASSO</p>
           </div>
           <div style="padding:32px;background:#f9f9f9">
-            <div style="padding:20px;background:#d4edda;border-left:4px solid #28a745;border-radius:4px;margin-bottom:24px">
-              <strong>✅ Paiement confirmé : ${montant}€</strong>
-            </div>
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;color:#555;font-size:13px;width:40%"><strong>Adhérent</strong></td>
                   <td style="padding:10px 0;border-bottom:1px solid #e0e0e0">${prenom} ${nom}</td></tr>

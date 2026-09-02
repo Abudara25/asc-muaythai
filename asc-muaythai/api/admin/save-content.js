@@ -3,8 +3,9 @@ import { put, del } from '@vercel/blob';
 import { requireAuth } from './_auth.js';
 import { CONTENT_PATHNAME, isValidContent } from './_content.js';
 import { getAdherents, saveAdherents, isValidAdherent, withDefaults, missingDocTypes, DOC_TYPE_LABELS } from './_adherents.js';
+import { fetchAndAttachAttestation } from './_helloasso.js';
 
-const ADH_DOC_URL_FIELDS = ['docCertificatUrl', 'docPhotoUrl', 'docIdentiteUrl', 'docAutorisationUrl'];
+const ADH_DOC_URL_FIELDS = ['docCertificatUrl', 'docPhotoUrl', 'docIdentiteUrl', 'docAutorisationUrl', 'docAttestationUrl'];
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SITE_ORIGIN = 'https://www.asc-muaythai.fr';
@@ -248,6 +249,38 @@ export default async function handler(req, res) {
       adherent.renewalToken = token;
       await saveAdherents(list);
       return res.status(200).json({ success: true });
+    }
+
+    if (action === 'fetch-helloasso-receipt') {
+      const { id } = req.body || {};
+      if (!id) return res.status(400).json({ error: 'id requis' });
+      const list = await getAdherents();
+      const adherent = list.find((a) => a.id === id);
+      if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
+
+      const result = await fetchAndAttachAttestation(adherent);
+      if (!result.ok) return res.status(result.status).json({ error: result.error });
+      await saveAdherents(list);
+      return res.status(200).json({ success: true, url: result.url });
+    }
+
+    // Backfill groupé : une seule lecture/écriture du blob pour tous les
+    // adhérents ciblés (mêmes contraintes que send-doc-link-bulk).
+    if (action === 'fetch-helloasso-receipt-bulk') {
+      const { ids } = req.body || {};
+      if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids requis' });
+      const list = await getAdherents();
+      const done = [];
+      const failed = [];
+      for (const id of ids) {
+        const adherent = list.find((a) => a.id === id);
+        if (!adherent) { failed.push({ id, error: 'Adhérent introuvable' }); continue; }
+        const result = await fetchAndAttachAttestation(adherent);
+        if (result.ok) done.push({ id, url: result.url });
+        else failed.push({ id, error: result.error });
+      }
+      if (done.length) await saveAdherents(list);
+      return res.status(200).json({ success: true, done, failed });
     }
 
     if (action === 'delete') {
