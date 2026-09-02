@@ -79,7 +79,7 @@ function renderForm(prenom, missing) {
     <p>Il manque encore le ou les documents suivants à ton dossier d'inscription :</p>
     ${missing.map((t) => `
       <div class="doc-row" data-doc="${t}">
-        <span class="doc-label">${DOC_LABELS[t]}</span>
+        <span class="doc-label">${DOC_LABELS[t]}${t === 'autorisation' ? ' — <a href="/autorisation-parentale.pdf" target="_blank" style="color:var(--red)">télécharger le modèle</a>' : ''}</span>
         <label class="upload-btn">
           Choisir un fichier
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" data-doc-input="${t}">

@@ -13,7 +13,7 @@ const CLUB_EMAIL = 'ascmuaythai95@gmail.com';
 
 async function sendDocReminderEmail({ email, prenom, nom, missing, token }) {
   const link = `${SITE_ORIGIN}/completer-dossier?token=${token}`;
-  const items = missing.map((t) => `<li>${DOC_TYPE_LABELS[t]}</li>`).join('');
+  const items = missing.map((t) => `<li>${DOC_TYPE_LABELS[t]}${t === 'autorisation' ? ` (<a href="${SITE_ORIGIN}/autorisation-parentale.pdf">modèle à télécharger</a>)` : ''}</li>`).join('');
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#222">
       <h2 style="color:#ee0000">ASC Muay Thaï Bessancourt</h2>
