@@ -1262,10 +1262,13 @@ function remplirSelectSaisons(selectEl, saisonsSupplementaires) {
 
 const DOC_TYPE_FIELD_CLIENT = { certificat: 'docCertificatUrl', photo: 'docPhotoUrl', identite: 'docIdentiteUrl', autorisation: 'docAutorisationUrl' };
 
+function isMinorClient(a) {
+  return typeof a.section === 'string' && (a.section.includes('Enfants') || a.section.includes('Ados'));
+}
+
 function missingDocTypesClient(a) {
   const types = ['certificat', 'photo', 'identite'];
-  const isMinor = typeof a.section === 'string' && (a.section.includes('Enfants') || a.section.includes('Ados'));
-  if (isMinor) types.push('autorisation');
+  if (isMinorClient(a)) types.push('autorisation');
   return types.filter((t) => !a[DOC_TYPE_FIELD_CLIENT[t]]);
 }
 
@@ -1398,7 +1401,7 @@ function renderAdherentsList() {
           ${adhDocLink(a.docCertificatUrl, '📄 Certificat médical')}
           ${adhDocLink(a.docPhotoUrl, '🪪 Photo')}
           ${adhDocLink(a.docIdentiteUrl, '🪪 Pièce identité')}
-          ${adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale')}
+          ${isMinorClient(a) ? adhDocLink(a.docAutorisationUrl, '👨‍👧 Autorisation parentale') : ''}
         </div>
         ${missing.length ? `<div style="margin-top:8px;font-size:13.5px;color:#8a5a12">` + (a.email ? `<input type="checkbox" class="adh-relance-check" data-id="${esc(a.id)}" ${_selectedRelanceIds.has(a.id) ? 'checked' : ''} style="margin-right:6px;vertical-align:middle"> ` : '') + `⚠️ Manque : ${missing.map(t => esc(ADH_DOC_LABELS[t])).join(', ')}` + (a.email ? ` — <button type="button" data-id="${esc(a.id)}" class="adh-relance-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de relance</button>` : " (pas d'email)") + (a.docsRelanceEnvoyeeLe ? ` <span style="color:#888">(dernière relance : ${esc(a.docsRelanceEnvoyeeLe)})</span>` : '') + `</div>` : ''}
         ${a.saison && a.saison !== saisonActuelle() && a.email ? `<div style="margin-top:8px;font-size:13.5px;color:#555">Saison ${esc(a.saison)} — <button type="button" data-id="${esc(a.id)}" class="adh-renewal-btn" style="background:none;border:none;color:#cc0000;text-decoration:underline;cursor:pointer;font-size:13.5px;padding:0;font-family:inherit">envoyer un lien de réinscription</button></div>` : ''}
