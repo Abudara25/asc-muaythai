@@ -518,7 +518,8 @@ if (renewalToken) {
       updateSectionInfo();
       updatePassSportNote();
       updateVirementLibelle();
-      const reuse = { photo: data.docPhotoUrl, identite: data.docIdentiteUrl, autorisation: data.docAutorisationUrl };
+      const wasMinor = typeof data.section === "string" && (data.section.includes("Enfants") || data.section.includes("Ados"));
+      const reuse = { photo: data.docPhotoUrl, identite: data.docIdentiteUrl, autorisation: wasMinor ? data.docAutorisationUrl : null };
       Object.entries(reuse).forEach(([docType, url]) => {
         if (!url) return;
         docUrls[docType] = url;
