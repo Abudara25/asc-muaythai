@@ -88,20 +88,42 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="stylesheet" href="/fonts.css"/>
-<link rel="stylesheet" href="/styles.css"/>
+<link rel="preload" href="/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/fonts.css"/></noscript>
+<!-- styles.css inliné (au lieu d'un <link> séparé) pour économiser une requête
+     bloquant le rendu — PageSpeed la chronométrait à ~2,8s en 4G simulé.
+     Contenu à resynchroniser depuis /styles.css si ce fichier partagé change
+     (voir commentaire en tête de /styles.css). -->
+<style>
+.skip-link{position:absolute;left:-9999px;top:0;z-index:1001;background:#e00;color:#fff;padding:14px 22px;min-height:44px;font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+.skip-link:focus{left:0}
+:focus-visible{outline:2px solid #e00;outline-offset:2px}
+.hamburger{min-width:44px;min-height:44px;align-items:center;justify-content:center}
+.breadcrumb{margin-bottom:28px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.breadcrumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:8px;list-style:none;margin:0;padding:0}
+.breadcrumb li{display:flex;align-items:center;gap:8px}
+.breadcrumb li+li::before{content:'›';opacity:.6}
+.breadcrumb a{color:inherit;text-decoration:none;transition:.2s}
+.breadcrumb a:hover{color:#e00}
+.breadcrumb [aria-current='page']{color:rgba(255,255,255,.75)}
+@media(max-width:768px){.breadcrumb a{display:inline-block;padding-block:15px;margin-block:-15px}}
+.page-hero .breadcrumb ol{justify-content:center}
+@media(max-width:768px){input,select,textarea{font-size:16px}}
+</style>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --red:#e00;
   --red-dark:#b00;
+  --red-on-light:#c00;
+  --red-on-dark:#ff4444;
   --white:#fff;
   --offwhite:#f5f5f5;
   --dark:#111;
   --darker:#0a0a0a;
   --card:#1a1a1a;
   --gold:#c9941a;
-  --muted-light:#888;
+  --muted-light:#666;
   --muted-dark:#555;
   --border-light:#e0e0e0;
   --border-dark:#222;
@@ -281,10 +303,13 @@ h1.hero-title .accent{color:var(--red);display:block}
 .s-tag{
   display:flex;align-items:center;gap:10px;
   font-family:'Barlow Condensed',sans-serif;font-size:11px;
-  letter-spacing:5px;text-transform:uppercase;color:var(--red);
+  letter-spacing:5px;text-transform:uppercase;color:var(--red-on-light);
   margin-bottom:10px;font-weight:500;
 }
 .s-tag::before{content:'';width:20px;height:1px;background:var(--red)}
+/* Sur fond sombre, le rouge de marque (--red) est trop foncé pour le texte
+   (échoue le contraste WCAG AA en petite taille) — variante plus claire. */
+#horaires .s-tag,#contact .s-tag{color:var(--red-on-dark)}
 .s-title-dark{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4.5vw,58px);color:var(--dark);letter-spacing:2px;margin:0 0 48px;line-height:1;font-weight:normal}
 .s-title-light{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4.5vw,58px);color:#fff;letter-spacing:2px;margin:0 0 48px;line-height:1;font-weight:normal}
 section{padding:96px 80px}
@@ -321,7 +346,7 @@ section{padding:96px 80px}
 }
 .ci-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px}
 .ci-val{color:#fff;font-size:16px;line-height:1.6}
-.ci-val a{color:var(--red);text-decoration:none}
+.ci-val a{color:var(--red-on-dark);text-decoration:none}
 .ci-val a:hover{text-decoration:underline}
 .pass-badge{
   display:flex;align-items:center;gap:10px;
@@ -421,7 +446,7 @@ section{padding:96px 80px}
   justify-content:space-between;gap:24px;
   border-left:4px solid var(--red);
 }
-.cp-band-left .cp-band-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px}
+.cp-band-left .cp-band-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px}
 .cp-band-left .cp-band-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:4px}
 .cp-band-left .cp-band-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.5}
 .cp-band-btn{background:var(--red);color:#fff;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:.2s;white-space:nowrap;flex-shrink:0;text-decoration:none;display:inline-block}
@@ -444,7 +469,7 @@ section{padding:96px 80px}
 }
 .citem-l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
 .citem-v{font-size:16px;color:#fff;line-height:1.6}
-.citem-v a{color:var(--red);text-decoration:none}
+.citem-v a{color:var(--red-on-dark);text-decoration:none}
 .citem-v a:hover{text-decoration:underline}
 .form-group{margin-bottom:14px}
 .form-group label{
@@ -477,7 +502,7 @@ footer{
   border-top:2px solid var(--red);
 }
 .f-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:2px}
-.f-logo span{color:var(--red)}
+.f-logo span{color:var(--red-on-dark)}
 .f-copy{font-size:11px;color:rgba(255,255,255,.75)}
 
 /* ── RESPONSIVE ── */
@@ -624,7 +649,7 @@ footer{
 .partner-item img{max-width:150px;max-height:80px;object-fit:contain;filter:grayscale(100%);opacity:.55;transition:.3s}
 .partner-item:hover img{filter:none;opacity:1}
 .partner-name{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted-light)}
-.partners-link{display:block;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--red);text-decoration:none;margin-top:8px}
+.partners-link{display:block;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--red-on-light);text-decoration:none;margin-top:8px}
 .partners-link:hover{text-decoration:underline}
 
 /* ── GALERIE CTA (dans section club) ── */
@@ -731,19 +756,19 @@ footer{
   <h2 class="s-title-dark">Nos Disciplines</h2>
   <div class="disc-grid">
     <div class="disc-item">
-      <div class="disc-num">01</div>
+      <div class="disc-num" aria-hidden="true">01</div>
       <div class="disc-name">Muay Thaï</div>
       <p class="disc-desc">L'art des 8 membres — poings, coudes, genoux, tibias. Technique authentique et garde thaï. La discipline mère du club.</p>
       <p class="disc-desc">Ouvert à tous, hommes et femmes, du débutant complet au pratiquant confirmé. Nos coachs t'accompagnent à ton rythme dès la première séance.</p>
     </div>
     <div class="disc-item">
-      <div class="disc-num">02</div>
+      <div class="disc-num" aria-hidden="true">02</div>
       <div class="disc-name">Fitness & Condition</div>
       <p class="disc-desc">Des cours intensifs pour développer ton cardio, ta force et ta coordination. Inspirés des méthodes d'entraînement des boxeurs thaïs.</p>
       <p class="disc-desc">Idéal pour se remettre en forme ou se défouler — aucune expérience de combat requise.</p>
     </div>
     <div class="disc-item">
-      <div class="disc-num">03</div>
+      <div class="disc-num" aria-hidden="true">03</div>
       <div class="disc-name">Compétition</div>
       <p class="disc-desc">Pour les membres qui veulent aller plus loin : préparation aux championnats régionaux et nationaux FFKMDA.</p>
       <p class="disc-desc">Sparring encadré, stratégie de combat et préparation mentale. Plusieurs de nos membres ont déjà monté sur le ring.</p>
