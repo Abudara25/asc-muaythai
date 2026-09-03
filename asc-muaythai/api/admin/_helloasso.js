@@ -72,11 +72,16 @@ export async function downloadHelloAssoReceipt({ email, montant }) {
   if (!receiptUrl) return { ok: false, status: 404, error: 'Aucune attestation trouvée sur HelloAsso pour ce paiement' };
 
   try {
-    // paymentReceiptUrl est un lien pré-signé : ajouter l'en-tête Authorization
-    // fait échouer la validation de la signature côté HelloAsso (HTTP 403),
-    // confirmé en usage réel — le lien est à récupérer tel quel, sans bearer token.
-    const fileRes = await fetch(receiptUrl);
-    if (!fileRes.ok) throw new Error(`HTTP ${fileRes.status}`);
+    // Selon la doc HelloAsso (dev.helloasso.com/reference/access-file), les
+    // fichiers hébergés sur docs.helloasso.com exigent le bearer token avec
+    // le rôle OrganizationAdmin. Le retirer donnait le même 403 en test réel
+    // (donc ce n'était pas la cause) : on le remet.
+    const fileRes = await fetch(receiptUrl, { headers: { Authorization: `Bearer ${token}` } });
+    if (!fileRes.ok) {
+      const host = (() => { try { return new URL(receiptUrl).host; } catch { return '?'; } })();
+      const body = await fileRes.text().catch(() => '');
+      throw new Error(`HTTP ${fileRes.status} sur ${host} — ${body.slice(0, 300)}`);
+    }
     const contentType = (fileRes.headers.get('content-type') || '').split(';')[0].trim() || 'application/pdf';
     const buffer = Buffer.from(await fileRes.arrayBuffer());
     return { ok: true, buffer, contentType };
