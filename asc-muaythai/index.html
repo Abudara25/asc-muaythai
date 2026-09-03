@@ -194,19 +194,19 @@ padding-top:12px}
 
 /* ── HERO — NOIR dramatique ── */
 .hero{
-  height:100vh;min-height:600px;position:relative;
-  display:flex;align-items:flex-end;padding-bottom:80px;padding-left:80px;
-  overflow:hidden;
+  min-height:100vh;position:relative;
+  display:flex;align-items:flex-end;padding-top:140px;padding-bottom:80px;padding-left:80px;
 }
 .hero-bg{
   position:absolute;inset:0;
   background:var(--darker);
   filter:brightness(0.70);
+  overflow:hidden;
 }
 .hero-bg picture,.hero-bg img{
   position:absolute;inset:0;
   width:100%;height:100%;display:block;
-  object-fit:cover;object-position:center top;
+  object-fit:cover;object-position:center 32%;
 }
 .hero-bg::after{
   content:'';position:absolute;inset:0;
@@ -300,7 +300,7 @@ section{padding:96px 80px}
   -webkit-text-stroke:1px var(--border-light);
 }
 .disc-name{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--dark);letter-spacing:2px;margin-bottom:12px}
-.disc-desc{font-size:14px;color:#444;line-height:1.7}
+.disc-desc{font-size:16px;color:#444;line-height:1.7}
 
 /* ── LE CLUB — NOIR ── */
 #club{background:var(--darker)}
@@ -320,14 +320,14 @@ section{padding:96px 80px}
   color:#fff;font-size:18px;flex-shrink:0;
 }
 .ci-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px}
-.ci-val{color:#fff;font-size:15px;line-height:1.6}
+.ci-val{color:#fff;font-size:16px;line-height:1.6}
 .ci-val a{color:var(--red);text-decoration:none}
 .ci-val a:hover{text-decoration:underline}
 .pass-badge{
   display:flex;align-items:center;gap:10px;
   background:rgba(255,255,255,.06);border-left:3px solid var(--gold);
   padding:14px 16px;margin-top:20px;
-  font-size:13px;color:rgba(255,255,255,.85);
+  font-size:14px;color:rgba(255,255,255,.85);
 }
 .pass-badge strong{color:var(--gold)}
 
@@ -403,7 +403,7 @@ section{padding:96px 80px}
 .tc-per{font-size:12px;color:var(--muted-light);margin-bottom:24px}
 .tc.feat .tc-per{color:rgba(255,255,255,.55)}
 .tc-list{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:28px}
-.tc-list li{font-size:13px;color:var(--muted-light);display:flex;gap:8px;align-items:center}
+.tc-list li{font-size:14px;color:var(--muted-light);display:flex;gap:8px;align-items:center}
 .tc.feat .tc-list li{color:rgba(255,255,255,.75)}
 .tc-list li::before{content:'';width:4px;height:4px;background:var(--red);border-radius:50%;flex-shrink:0}
 .tc-btn{
@@ -443,7 +443,7 @@ section{padding:96px 80px}
   border:1px solid var(--border-dark);
 }
 .citem-l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
-.citem-v{font-size:14px;color:#fff;line-height:1.6}
+.citem-v{font-size:16px;color:#fff;line-height:1.6}
 .citem-v a{color:var(--red);text-decoration:none}
 .citem-v a:hover{text-decoration:underline}
 .form-group{margin-bottom:14px}
@@ -456,7 +456,7 @@ section{padding:96px 80px}
   width:100%;background:rgba(255,255,255,.04);
   border:1px solid var(--border-dark);color:#ddd;
   padding:11px 14px;font-family:'Barlow',sans-serif;
-  font-size:14px;outline:none;transition:.2s;
+  font-size:16px;outline:none;transition:.2s;
 }
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--red)}
 .form-group textarea{min-height:88px;resize:vertical}
@@ -605,7 +605,7 @@ footer{
 #feminines{background:var(--white)}
 .fem-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
 .fem-lead{font-size:17px;color:var(--dark);line-height:1.7;margin-bottom:16px;font-weight:400}
-.fem-sub{font-size:14px;color:#555;line-height:1.7;margin-bottom:32px}
+.fem-sub{font-size:15px;color:#555;line-height:1.7;margin-bottom:32px}
 .fem-btns{display:flex;gap:12px;flex-wrap:wrap}
 .btn-outline-dark{border:2px solid var(--dark);color:var(--dark);padding:12px 32px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;text-decoration:none;display:inline-block;transition:.2s}
 .btn-outline-dark:hover{background:var(--dark);color:#fff}
@@ -613,7 +613,7 @@ footer{
 .fem-card{padding:24px 0;border-bottom:1px solid var(--border-light);display:flex;gap:20px;align-items:flex-start}
 .fc-icon{font-size:28px;flex-shrink:0;width:40px;text-align:center;line-height:1;margin-top:2px}
 .fc-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--dark);margin-bottom:6px}
-.fc-desc{font-size:14px;color:#555;line-height:1.6}
+.fc-desc{font-size:15px;color:#555;line-height:1.6}
 @media(max-width:768px){.fem-layout{grid-template-columns:1fr;gap:40px}}
 @media(max-width:480px){.fem-btns{flex-direction:column}.btn-outline-dark{text-align:center;width:100%}}
 
