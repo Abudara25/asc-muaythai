@@ -2,7 +2,6 @@
 // Reçoit les webhooks HelloAsso après paiement confirmé → email de confirmation Brevo
 import { timingSafeEqual } from 'crypto';
 import { getAdherents, saveAdherents } from './admin/_adherents.js';
-import { downloadHelloAssoReceipt, attachReceiptFile } from './admin/_helloasso.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SENDER_EMAIL = "noreply@asc-muaythai.fr";
@@ -99,28 +98,6 @@ export default async function handler(req, res) {
         }
       } catch (e) {
         console.error("Mise à jour adhérent (webhook) ERREUR:", e.message);
-      }
-    }
-
-    // Best-effort, en phase séparée : l'attestation HelloAsso n'est pas
-    // forcément déjà générée à l'instant du webhook, et la recherche +
-    // téléchargement peut prendre plusieurs secondes. Un échec ici ne doit
-    // jamais bloquer la confirmation ; l'admin peut la récupérer plus tard
-    // (bouton dédié / backfill groupé). La liste n'est relue que juste avant
-    // cette écriture, une fois l'appel réseau terminé.
-    if (matched) {
-      try {
-        const file = await downloadHelloAssoReceipt({ email: matched.email, montant: matched.montant });
-        if (file.ok) {
-          const list = await getAdherents();
-          const idx = list.findIndex((a) => a.id === matched.id);
-          if (idx >= 0) {
-            await attachReceiptFile(list[idx], file);
-            await saveAdherents(list);
-          }
-        }
-      } catch (e) {
-        console.error("Récupération attestation HelloAsso (webhook) ERREUR:", e.message);
       }
     }
 
