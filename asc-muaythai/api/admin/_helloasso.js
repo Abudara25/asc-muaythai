@@ -72,10 +72,10 @@ export async function downloadHelloAssoReceipt({ email, montant }) {
   if (!receiptUrl) return { ok: false, status: 404, error: 'Aucune attestation trouvée sur HelloAsso pour ce paiement' };
 
   try {
-    // paymentReceiptUrl n'est pas documenté comme public : on transmet le
-    // bearer token au cas où il serait requis, ce qui ne coûte rien s'il ne
-    // l'est pas (lien pré-signé).
-    const fileRes = await fetch(receiptUrl, { headers: { Authorization: `Bearer ${token}` } });
+    // paymentReceiptUrl est un lien pré-signé : ajouter l'en-tête Authorization
+    // fait échouer la validation de la signature côté HelloAsso (HTTP 403),
+    // confirmé en usage réel — le lien est à récupérer tel quel, sans bearer token.
+    const fileRes = await fetch(receiptUrl);
     if (!fileRes.ok) throw new Error(`HTTP ${fileRes.status}`);
     const contentType = (fileRes.headers.get('content-type') || '').split(';')[0].trim() || 'application/pdf';
     const buffer = Buffer.from(await fileRes.arrayBuffer());
