@@ -1255,6 +1255,7 @@ checkSession();
 // ─── ADHÉRENTS ────────────────────────────────────────────────────────────────
 let _adherents = [];
 let _selectedRelanceIds = new Set();
+let _adherentsPage = 1;
 
 // Saison en cours = année scolaire/sportive, considérée comme démarrant en août.
 function saisonActuelle() {
@@ -1416,10 +1417,19 @@ function renderAdherentsList() {
 
   const pageSizeValue = document.getElementById('adh-page-size').value;
   const pageSize = pageSizeValue === 'all' ? list.length : parseInt(pageSizeValue, 10);
-  const visibleList = list.slice(0, pageSize);
-  const countLabel = visibleList.length < list.length
-    ? `${visibleList.length} sur ${list.length} adhérent(s) — augmente « Afficher » ci-dessus pour en voir plus`
+  const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+  _adherentsPage = Math.min(Math.max(1, _adherentsPage), totalPages);
+  const start = (_adherentsPage - 1) * pageSize;
+  const visibleList = list.slice(start, start + pageSize);
+  const countLabel = totalPages > 1
+    ? `${start + 1}–${start + visibleList.length} sur ${list.length} adhérent(s) — page ${_adherentsPage}/${totalPages}`
     : `${list.length} adhérent(s)`;
+  const paginationHtml = totalPages > 1 ? `
+    <div style="display:flex;align-items:center;gap:12px;margin-top:16px">
+      <button type="button" id="adh-page-prev" ${_adherentsPage <= 1 ? 'disabled' : ''} style="background:none;border:1px solid #ccc;color:${_adherentsPage <= 1 ? '#aaa' : '#333'};padding:7px 14px;cursor:${_adherentsPage <= 1 ? 'default' : 'pointer'};font-size:13.5px;border-radius:3px">← Précédent</button>
+      <span style="font-size:13.5px;color:#666">Page ${_adherentsPage} sur ${totalPages}</span>
+      <button type="button" id="adh-page-next" ${_adherentsPage >= totalPages ? 'disabled' : ''} style="background:none;border:1px solid #ccc;color:${_adherentsPage >= totalPages ? '#aaa' : '#333'};padding:7px 14px;cursor:${_adherentsPage >= totalPages ? 'default' : 'pointer'};font-size:13.5px;border-radius:3px">Suivant →</button>
+    </div>` : '';
 
   el.innerHTML = `<p style="color:#666;font-size:14px;margin-bottom:12px">${countLabel}</p>` + visibleList.map(a => { const missing = missingDocTypesClient(a); return `
     <div style="padding:18px 0;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:14px;align-items:center">
@@ -1452,8 +1462,10 @@ function renderAdherentsList() {
           <button type="button" data-id="${esc(a.id)}" data-label="${esc(a.nom)} ${esc(a.prenom)}" class="adh-del-btn" style="background:none;border:1px solid #eecccc;color:#cc0000;padding:7px 14px;cursor:pointer;font-size:14px">Suppr.</button>
         </div>
       </div>
-    </div>`; }).join('');
+    </div>`; }).join('') + paginationHtml;
 
+  document.getElementById('adh-page-prev')?.addEventListener('click', () => { _adherentsPage--; renderAdherentsList(); });
+  document.getElementById('adh-page-next')?.addEventListener('click', () => { _adherentsPage++; renderAdherentsList(); });
   el.querySelectorAll('.adh-edit-btn').forEach(btn => btn.addEventListener('click', () => editAdherent(btn.dataset.id)));
   el.querySelectorAll('.adh-del-btn').forEach(btn => btn.addEventListener('click', () => deleteAdherentRow(btn.dataset.id, btn.dataset.label)));
   el.querySelectorAll('.adh-relance-btn').forEach(btn => btn.addEventListener('click', () => sendDocReminder(btn.dataset.id, btn)));
@@ -1496,11 +1508,15 @@ function exportAdherentsCSV() {
 }
 
 document.getElementById('adh-export-btn').addEventListener('click', exportAdherentsCSV);
-document.getElementById('adh-search').addEventListener('input', renderAdherentsList);
-document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsList);
-document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsList);
-document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
-document.getElementById('adh-page-size').addEventListener('change', renderAdherentsList);
+function renderAdherentsListFromPage1() {
+  _adherentsPage = 1;
+  renderAdherentsList();
+}
+document.getElementById('adh-search').addEventListener('input', renderAdherentsListFromPage1);
+document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsListFromPage1);
+document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsListFromPage1);
+document.getElementById('adh-sort').addEventListener('change', renderAdherentsListFromPage1);
+document.getElementById('adh-page-size').addEventListener('change', renderAdherentsListFromPage1);
 document.getElementById('adh-relance-bulk-btn').addEventListener('click', sendDocReminderBulk);
 document.getElementById('adh-relance-toggle-btn').addEventListener('click', toggleAllRelanceSelection);
 
