@@ -262,8 +262,8 @@
       n'apparaissent qu'une fois le paiement confirmé — avant ça, l'adhérent est marqué « en attente de paiement ».
     </p>
 
-    <div style="background:rgba(0,0,0,.02);border:1px solid var(--border);padding:20px;margin-bottom:24px">
-      <h3 class="panel-subtitle" style="margin-top:0" id="adh-form-title">Ajouter un adhérent</h3>
+    <details id="adh-form-details" style="background:rgba(0,0,0,.02);border:1px solid var(--border);padding:20px;margin-bottom:24px">
+      <summary class="panel-subtitle" id="adh-form-title" style="margin-top:0;cursor:pointer">Ajouter un adhérent</summary>
       <div class="row-grid" style="grid-template-columns:1fr 1fr">
         <div class="field"><label>Prénom *</label><input type="text" id="adh-prenom" /></div>
         <div class="field"><label>Nom *</label><input type="text" id="adh-nom" /></div>
@@ -353,7 +353,7 @@
       <button type="button" class="btn-primary" id="adh-save-btn" style="margin-top:18px">Ajouter l'adhérent</button>
       <button type="button" class="btn-add" id="adh-cancel-btn" style="display:none">Annuler la modification</button>
       <div class="status-msg" id="adh-status"></div>
-    </div>
+    </details>
 
     <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
       <div class="field" style="margin-bottom:0;flex:1;min-width:220px"><input type="text" id="adh-search" placeholder="Rechercher un nom, un email…" /></div>
@@ -1783,6 +1783,7 @@ function editAdherent(id) {
   document.getElementById('adh-form-title').textContent = 'Modifier un adhérent';
   document.getElementById('adh-save-btn').textContent = 'Mettre à jour';
   document.getElementById('adh-cancel-btn').style.display = 'inline-block';
+  document.getElementById('adh-form-details').open = true;
   document.getElementById('adh-prenom').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -1803,7 +1804,10 @@ function resetAdherentForm() {
   document.getElementById('adh-cancel-btn').style.display = 'none';
 }
 
-document.getElementById('adh-cancel-btn').addEventListener('click', resetAdherentForm);
+document.getElementById('adh-cancel-btn').addEventListener('click', () => {
+  resetAdherentForm();
+  document.getElementById('adh-form-details').open = false;
+});
 
 async function deleteAdherentRow(id, label) {
   if (!confirm(`Supprimer l'adhérent "${label}" ?`)) return;
