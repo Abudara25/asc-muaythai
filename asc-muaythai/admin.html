@@ -378,9 +378,19 @@
           <option value="categorie">Catégorie (Enfants → Ados → Adultes)</option>
         </select>
       </div>
+      <div class="field" style="margin-bottom:0;flex:0 0 auto;min-width:140px">
+        <select id="adh-page-size">
+          <option value="5">Afficher 5</option>
+          <option value="10">Afficher 10</option>
+          <option value="20">Afficher 20</option>
+          <option value="50">Afficher 50</option>
+          <option value="all">Afficher tout</option>
+        </select>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button type="button" id="adh-export-btn" style="background:none;border:1px solid #ccc;color:#333;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">⬇️ Exporter en CSV</button>
       <button type="button" id="adh-relance-bulk-btn" style="display:none;background:none;border:1px solid #eecccc;color:#cc0000;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Relancer la sélection</button>
       <button type="button" id="adh-relance-toggle-btn" style="display:none;background:none;border:1px solid #ccc;color:#555;padding:8px 14px;cursor:pointer;font-size:13.5px;border-radius:3px">Tout désélectionner</button>
     </div>
@@ -1363,9 +1373,7 @@ function toggleAllRelanceSelection() {
   updateMissingDocsBadge();
 }
 
-function renderAdherentsList() {
-  updateMissingDocsBadge();
-  const el = document.getElementById('adherents-list');
+function getFilteredAdherents() {
   const search = (document.getElementById('adh-search').value || '').trim().toLowerCase();
   const filterStatut = document.getElementById('adh-filter-statut').value;
   const filterSaison = document.getElementById('adh-filter-saison').value;
@@ -1393,13 +1401,27 @@ function renderAdherentsList() {
       `${a.nom} ${a.prenom} ${a.email}`.toLowerCase().includes(search)
     );
   }
+  return list;
+}
+
+function renderAdherentsList() {
+  updateMissingDocsBadge();
+  const el = document.getElementById('adherents-list');
+  const list = getFilteredAdherents();
 
   if (!list.length) {
     el.innerHTML = '<p style="color:#666;font-size:14.5px">Aucun adhérent ne correspond.</p>';
     return;
   }
 
-  el.innerHTML = `<p style="color:#666;font-size:14px;margin-bottom:12px">${list.length} adhérent(s)</p>` + list.map(a => { const missing = missingDocTypesClient(a); return `
+  const pageSizeValue = document.getElementById('adh-page-size').value;
+  const pageSize = pageSizeValue === 'all' ? list.length : parseInt(pageSizeValue, 10);
+  const visibleList = list.slice(0, pageSize);
+  const countLabel = visibleList.length < list.length
+    ? `${visibleList.length} sur ${list.length} adhérent(s) — augmente « Afficher » ci-dessus pour en voir plus`
+    : `${list.length} adhérent(s)`;
+
+  el.innerHTML = `<p style="color:#666;font-size:14px;margin-bottom:12px">${countLabel}</p>` + visibleList.map(a => { const missing = missingDocTypesClient(a); return `
     <div style="padding:18px 0;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:14px;align-items:center">
       <div style="min-width:220px;flex:1">
         <div style="font-size:18px;color:var(--text);font-weight:600">${esc(a.nom)} ${esc(a.prenom)}</div>
@@ -1444,10 +1466,41 @@ function renderAdherentsList() {
   });
 }
 
+function exportAdherentsCSV() {
+  const list = getFilteredAdherents();
+  if (!list.length) {
+    alert("Aucun adhérent à exporter avec les filtres actuels.");
+    return;
+  }
+  const headers = ['Nom', 'Prénom', 'Email', 'Téléphone', 'Section', 'Montant (€)', 'Règlement', 'Statut paiement', 'Saison', "Date d'inscription", 'Date de paiement', 'Notes'];
+  const csvEscape = (v) => {
+    const s = String(v ?? '');
+    return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const rows = list.map(a => [
+    a.nom, a.prenom, a.email, a.telephone,
+    a.section, a.montant != null ? a.montant : '',
+    a.reglement, ADH_STATUT_LABELS[a.statutPaiement] || a.statutPaiement,
+    a.saison, a.dateInscription, a.datePaiement, a.notes
+  ]);
+  const csv = String.fromCharCode(0xFEFF) + [headers, ...rows].map(r => r.map(csvEscape).join(';')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `adherents-${(document.getElementById('adh-filter-saison').value || saisonActuelle()).replace('/', '-')}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('adh-export-btn').addEventListener('click', exportAdherentsCSV);
 document.getElementById('adh-search').addEventListener('input', renderAdherentsList);
 document.getElementById('adh-filter-statut').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-filter-saison').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-sort').addEventListener('change', renderAdherentsList);
+document.getElementById('adh-page-size').addEventListener('change', renderAdherentsList);
 document.getElementById('adh-relance-bulk-btn').addEventListener('click', sendDocReminderBulk);
 document.getElementById('adh-relance-toggle-btn').addEventListener('click', toggleAllRelanceSelection);
 
