@@ -1,6 +1,6 @@
 // api/inscription.js
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { getAdherents, saveAdherents, withDefaults } from './admin/_adherents.js';
+import { getAdherents, saveAdherents, withDefaults, withAdherentsLock } from './admin/_adherents.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SITE_ORIGIN = "https://www.asc-muaythai.fr";
@@ -134,22 +134,24 @@ export default async function handler(req, res) {
     // 0. Enregistrer l'adhérent (visible/actualisable depuis /admin quel que
     // soit l'état du paiement).
     try {
-      const list = await getAdherents();
-      const adherent = withDefaults({
-        nom, prenom, email, telephone, section, montant, reglement, hasPassSport,
-        statutPaiement: isHelloAsso ? "en_attente_paiement" : "a_percevoir",
-        docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl,
-        saison: SAISON,
-        source: "formulaire",
+      await withAdherentsLock(async () => {
+        const list = await getAdherents();
+        const adherent = withDefaults({
+          nom, prenom, email, telephone, section, montant, reglement, hasPassSport,
+          statutPaiement: isHelloAsso ? "en_attente_paiement" : "a_percevoir",
+          docCertificatUrl, docPhotoUrl, docIdentiteUrl, docAutorisationUrl,
+          saison: SAISON,
+          source: "formulaire",
+        });
+        list.push(adherent);
+        // Réinscription rapide : le jeton de l'ancienne fiche ne doit servir
+        // qu'une fois, pour éviter de créer plusieurs saisons en le réutilisant.
+        if (typeof renewalToken === "string" && renewalToken) {
+          const previous = list.find((a) => a.id !== adherent.id && a.renewalToken === renewalToken);
+          if (previous) previous.renewalToken = "";
+        }
+        await saveAdherents(list);
       });
-      list.push(adherent);
-      // Réinscription rapide : le jeton de l'ancienne fiche ne doit servir
-      // qu'une fois, pour éviter de créer plusieurs saisons en le réutilisant.
-      if (typeof renewalToken === "string" && renewalToken) {
-        const previous = list.find((a) => a.id !== adherent.id && a.renewalToken === renewalToken);
-        if (previous) previous.renewalToken = "";
-      }
-      await saveAdherents(list);
     } catch (e) {
       console.error("Enregistrement adhérent ERREUR:", e.message);
     }

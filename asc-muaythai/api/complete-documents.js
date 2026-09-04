@@ -6,7 +6,7 @@
 // même est envoyé séparément via api/upload-document.js (déjà public) ; cet
 // endpoint ne fait que rattacher l'URL renvoyée à la bonne fiche adhérent,
 // après vérification du jeton.
-import { getAdherents, saveAdherents, missingDocTypes, DOC_TYPE_FIELD } from './admin/_adherents.js';
+import { getAdherents, saveAdherents, missingDocTypes, DOC_TYPE_FIELD, withAdherentsLock } from './admin/_adherents.js';
 import { loadRateLimitState, isLocked, recordFailedLogin } from './admin/_rateLimit.js';
 
 const BLOB_DOC_PREFIX = 'https://fiua9o5p0pdryoho.public.blob.vercel-storage.com/justificatifs/';
@@ -36,25 +36,33 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
 
   const { token, docType, url } = req.body || {};
-  const list = await getAdherents();
-  const adherent = findByToken(list, token);
-  if (!adherent) {
-    await recordFailedLogin(rateLimit, WINDOW_MS);
-    return res.status(404).json({ error: 'Lien invalide ou expiré' });
-  }
   const field = DOC_TYPE_FIELD[docType];
   if (!field) return res.status(400).json({ error: 'Type de document invalide' });
-  // On ne comble que les trous : jamais remplacer un document déjà fourni via
-  // ce canal, même si un visiteur malveillant récupérait ce jeton par ailleurs.
-  if (adherent[field]) return res.status(400).json({ error: 'Ce document a déjà été fourni' });
   if (typeof url !== 'string' || !url.startsWith(BLOB_DOC_PREFIX)) {
     return res.status(400).json({ error: 'Fichier invalide' });
   }
 
-  adherent[field] = url;
-  const stillMissing = missingDocTypes(adherent);
-  if (!stillMissing.length) adherent.docsToken = ''; // dossier complet : le lien ne sert plus à rien
-  await saveAdherents(list);
+  let outcome;
+  await withAdherentsLock(async () => {
+    const list = await getAdherents();
+    const adherent = findByToken(list, token);
+    if (!adherent) { outcome = { error: 'notfound' }; return; }
+    // On ne comble que les trous : jamais remplacer un document déjà fourni via
+    // ce canal, même si un visiteur malveillant récupérait ce jeton par ailleurs.
+    if (adherent[field]) { outcome = { error: 'already' }; return; }
 
-  return res.status(200).json({ success: true, missing: stillMissing });
+    adherent[field] = url;
+    const stillMissing = missingDocTypes(adherent);
+    if (!stillMissing.length) adherent.docsToken = ''; // dossier complet : le lien ne sert plus à rien
+    await saveAdherents(list);
+    outcome = { missing: stillMissing };
+  });
+
+  if (outcome.error === 'notfound') {
+    await recordFailedLogin(rateLimit, WINDOW_MS);
+    return res.status(404).json({ error: 'Lien invalide ou expiré' });
+  }
+  if (outcome.error === 'already') return res.status(400).json({ error: 'Ce document a déjà été fourni' });
+
+  return res.status(200).json({ success: true, missing: outcome.missing });
 }

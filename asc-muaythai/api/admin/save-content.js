@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { put, del } from '@vercel/blob';
 import { requireAuth } from './_auth.js';
 import { CONTENT_PATHNAME, isValidContent } from './_content.js';
-import { getAdherents, saveAdherents, isValidAdherent, withDefaults, missingDocTypes, DOC_TYPE_LABELS } from './_adherents.js';
+import { getAdherents, saveAdherents, isValidAdherent, withDefaults, missingDocTypes, DOC_TYPE_LABELS, withAdherentsLock } from './_adherents.js';
 
 const ADH_DOC_URL_FIELDS = ['docCertificatUrl', 'docPhotoUrl', 'docIdentiteUrl', 'docAutorisationUrl', 'docAttestationUrl'];
 
@@ -175,38 +175,51 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Adhérent invalide : nom, prénom et email requis' });
       }
       const adherent = withDefaults(incoming);
-      const list = await getAdherents();
-      const idx = list.findIndex((a) => a.id === adherent.id);
-      if (idx >= 0) {
-        // Un justificatif remplacé (nouvel upload sur un champ qui en avait
-        // déjà un) ne doit pas laisser l'ancien fichier orphelin sur le stockage.
-        const previous = list[idx];
-        const toRemove = ADH_DOC_URL_FIELDS
-          .map((f) => previous[f])
-          .filter((oldUrl, i) => oldUrl && oldUrl !== adherent[ADH_DOC_URL_FIELDS[i]]);
-        if (toRemove.length) {
-          await Promise.all(toRemove.map((url) => del(url).catch((e) => {
-            console.error('Suppression ancien justificatif ERREUR:', url, e.message);
-          })));
-        }
-        list[idx] = adherent;
-      } else {
-        list.push(adherent);
+      try {
+        await withAdherentsLock(async () => {
+          const list = await getAdherents();
+          const idx = list.findIndex((a) => a.id === adherent.id);
+          if (idx >= 0) {
+            // Un justificatif remplacé (nouvel upload sur un champ qui en avait
+            // déjà un) ne doit pas laisser l'ancien fichier orphelin sur le stockage.
+            const previous = list[idx];
+            const toRemove = ADH_DOC_URL_FIELDS
+              .map((f) => previous[f])
+              .filter((oldUrl, i) => oldUrl && oldUrl !== adherent[ADH_DOC_URL_FIELDS[i]]);
+            if (toRemove.length) {
+              await Promise.all(toRemove.map((url) => del(url).catch((e) => {
+                console.error('Suppression ancien justificatif ERREUR:', url, e.message);
+              })));
+            }
+            list[idx] = adherent;
+          } else {
+            list.push(adherent);
+          }
+          await saveAdherents(list);
+        });
+      } catch (e) {
+        return res.status(409).json({ error: e.message });
       }
-      await saveAdherents(list);
       return res.status(200).json({ success: true, adherent });
     }
 
     if (action === 'send-doc-link') {
       const { id } = req.body || {};
       if (!id) return res.status(400).json({ error: 'id requis' });
-      const list = await getAdherents();
-      const adherent = list.find((a) => a.id === id);
+      let adherent, result;
+      try {
+        await withAdherentsLock(async () => {
+          const list = await getAdherents();
+          adherent = list.find((a) => a.id === id);
+          if (!adherent) return;
+          result = await sendReminderFor(adherent);
+          if (result.ok) await saveAdherents(list);
+        });
+      } catch (e) {
+        return res.status(409).json({ error: e.message });
+      }
       if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
-
-      const result = await sendReminderFor(adherent);
       if (!result.ok) return res.status(result.status).json({ error: result.error });
-      await saveAdherents(list);
       return res.status(200).json({ success: true, missing: result.missing, docsRelanceEnvoyeeLe: adherent.docsRelanceEnvoyeeLe });
     }
 
@@ -216,47 +229,70 @@ export default async function handler(req, res) {
     if (action === 'send-doc-link-bulk') {
       const { ids } = req.body || {};
       if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids requis' });
-      const list = await getAdherents();
       const sent = [];
       const failed = [];
-      for (const id of ids) {
-        const adherent = list.find((a) => a.id === id);
-        if (!adherent) { failed.push({ id, error: 'Adhérent introuvable' }); continue; }
-        const result = await sendReminderFor(adherent);
-        if (result.ok) sent.push({ id, docsRelanceEnvoyeeLe: adherent.docsRelanceEnvoyeeLe });
-        else failed.push({ id, error: result.error });
+      try {
+        await withAdherentsLock(async () => {
+          const list = await getAdherents();
+          for (const id of ids) {
+            const adherent = list.find((a) => a.id === id);
+            if (!adherent) { failed.push({ id, error: 'Adhérent introuvable' }); continue; }
+            const result = await sendReminderFor(adherent);
+            if (result.ok) sent.push({ id, docsRelanceEnvoyeeLe: adherent.docsRelanceEnvoyeeLe });
+            else failed.push({ id, error: result.error });
+          }
+          if (sent.length) await saveAdherents(list);
+        });
+      } catch (e) {
+        return res.status(409).json({ error: e.message });
       }
-      if (sent.length) await saveAdherents(list);
       return res.status(200).json({ success: true, sent, failed });
     }
 
     if (action === 'send-renewal-link') {
       const { id } = req.body || {};
       if (!id) return res.status(400).json({ error: 'id requis' });
-      const list = await getAdherents();
-      const adherent = list.find((a) => a.id === id);
-      if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
-      if (!adherent.email) return res.status(400).json({ error: "Cet adhérent n'a pas d'adresse e-mail" });
-
-      const token = crypto.randomBytes(24).toString('hex');
+      let adherent;
+      let emailError = null;
       try {
-        await sendRenewalEmail({ email: adherent.email, prenom: adherent.prenom, nom: adherent.nom, token });
+        await withAdherentsLock(async () => {
+          const list = await getAdherents();
+          adherent = list.find((a) => a.id === id);
+          if (!adherent) return;
+          if (!adherent.email) { emailError = "Cet adhérent n'a pas d'adresse e-mail"; return; }
+
+          const token = crypto.randomBytes(24).toString('hex');
+          try {
+            await sendRenewalEmail({ email: adherent.email, prenom: adherent.prenom, nom: adherent.nom, token });
+          } catch (e) {
+            console.error('Envoi lien de réinscription ERREUR:', e.message);
+            emailError = "L'e-mail n'a pas pu être envoyé";
+            return;
+          }
+          adherent.renewalToken = token;
+          await saveAdherents(list);
+        });
       } catch (e) {
-        console.error('Envoi lien de réinscription ERREUR:', e.message);
-        return res.status(502).json({ error: "L'e-mail n'a pas pu être envoyé" });
+        return res.status(409).json({ error: e.message });
       }
-      adherent.renewalToken = token;
-      await saveAdherents(list);
+      if (!adherent) return res.status(404).json({ error: 'Adhérent introuvable' });
+      if (emailError) return res.status(emailError.includes('adresse') ? 400 : 502).json({ error: emailError });
       return res.status(200).json({ success: true });
     }
 
     if (action === 'delete') {
       const { id } = req.body;
       if (!id) return res.status(400).json({ error: 'id requis' });
-      const list = await getAdherents();
-      const toDelete = list.find((a) => a.id === id);
-      if (toDelete) await deleteAdherentDocs(toDelete);
-      await saveAdherents(list.filter((a) => a.id !== id));
+      try {
+        await withAdherentsLock(async () => {
+          const list = await getAdherents();
+          const toDelete = list.find((a) => a.id === id);
+          if (toDelete) await deleteAdherentDocs(toDelete);
+          await saveAdherents(list.filter((a) => a.id !== id));
+        });
+      } catch (e) {
+        return res.status(409).json({ error: e.message });
+      }
       return res.status(200).json({ success: true });
     }
 

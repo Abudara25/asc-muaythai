@@ -1,7 +1,7 @@
 // api/webhook-helloasso.js
 // Reçoit les webhooks HelloAsso après paiement confirmé → email de confirmation Brevo
 import { timingSafeEqual } from 'crypto';
-import { getAdherents, saveAdherents } from './admin/_adherents.js';
+import { getAdherents, saveAdherents, withAdherentsLock } from './admin/_adherents.js';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SENDER_EMAIL = "noreply@asc-muaythai.fr";
@@ -81,21 +81,19 @@ export default async function handler(req, res) {
     let matched = null;
     if (email) {
       try {
-        const list = await getAdherents();
-        const idx = list.findIndex(
-          (a) => a.email && a.email.toLowerCase() === email.toLowerCase() &&
-                 a.reglement === "HelloAsso" && a.statutPaiement === "en_attente_paiement"
-        );
-        if (idx >= 0) {
-          list[idx].statutPaiement = "paye";
-          list[idx].datePaiement = new Date().toISOString().slice(0, 10);
-          matched = list[idx];
-          // Écrit le statut tout de suite, avant l'appel HelloAsso (OAuth2 +
-          // recherche + téléchargement) potentiellement long, pour garder la
-          // fenêtre de lecture/écriture de la liste aussi courte que possible
-          // face à une édition admin concurrente sur ce même blob.
-          await saveAdherents(list);
-        }
+        await withAdherentsLock(async () => {
+          const list = await getAdherents();
+          const idx = list.findIndex(
+            (a) => a.email && a.email.toLowerCase() === email.toLowerCase() &&
+                   a.reglement === "HelloAsso" && a.statutPaiement === "en_attente_paiement"
+          );
+          if (idx >= 0) {
+            list[idx].statutPaiement = "paye";
+            list[idx].datePaiement = new Date().toISOString().slice(0, 10);
+            matched = list[idx];
+            await saveAdherents(list);
+          }
+        });
       } catch (e) {
         console.error("Mise à jour adhérent (webhook) ERREUR:", e.message);
       }
